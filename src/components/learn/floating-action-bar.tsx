@@ -32,16 +32,16 @@ export function FloatingActionBar({
 
   return (
     <div
-      className={`inline-flex items-center rounded-full border border-gray-200 bg-white px-2 py-1.5 shadow-lg ${className}`}
+      className={`inline-flex items-center rounded-full border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-card px-2 py-1.5 shadow-lg transition-colors ${className}`}
     >
       {actions.map((action, i) => (
         <React.Fragment key={action.label}>
-          <button className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50">
+          <button className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-dark-text-secondary transition-colors hover:bg-gray-50 dark:hover:bg-dark-hover">
             <action.icon className="h-3.5 w-3.5" />
-            <span>{action.label}</span>
+            <span className="hidden md:inline">{action.label}</span>
           </button>
           {i < actions.length - 1 && (
-            <div className="h-4 w-px bg-gray-100" />
+            <div className="h-4 w-px bg-gray-100 dark:bg-dark-border" />
           )}
         </React.Fragment>
       ))}
