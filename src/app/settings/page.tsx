@@ -42,6 +42,7 @@ import {
   getSelectedGeminiModel,
   setSelectedGeminiModel,
 } from "@/lib/google-auth";
+import { useI18n } from "@/components/providers/i18n-provider";
 
 type ConnectionState = "disconnected" | "connecting" | "awaiting_auth" | "connected" | "error";
 
@@ -53,6 +54,7 @@ interface Model {
 }
 
 export default function SettingsPage() {
+  const { t } = useI18n();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [connState, setConnState] = useState<ConnectionState>("disconnected");
   const [deviceCode, setDeviceCode] = useState<string | null>(null);
@@ -130,7 +132,7 @@ export default function SettingsPage() {
     try {
       const token = await ensureCopilotToken();
       if (!token) {
-        setModelsError("Could not get Copilot token. Try reconnecting.");
+        setModelsError(t("settings.models_error"));
         setLoadingModels(false);
         return;
       }
@@ -145,7 +147,7 @@ export default function SettingsPage() {
 
       if (!res.ok) {
         const err = await res.json();
-        setModelsError(err.error || "Failed to fetch models");
+        setModelsError(err.error || t("settings.models_fetch_error"));
         setLoadingModels(false);
         return;
       }
@@ -165,10 +167,10 @@ export default function SettingsPage() {
         setSelectedModel(defaultModel.id);
       }
     } catch {
-      setModelsError("Network error fetching models");
+      setModelsError(t("settings.models_network_error"));
     }
     setLoadingModels(false);
-  }, [selectedModel]);
+  }, [selectedModel, t]);
 
   useEffect(() => {
     if (connState === "connected") {
@@ -189,12 +191,12 @@ export default function SettingsPage() {
     } catch (err: any) {
       console.error("[ReLearn] GitHub device login error:", err);
       setConnState("error");
-      setErrorMsg("GitHub login failed: " + (err?.message || String(err)));
+      setErrorMsg(t("settings.github_login_error") + ": " + (err?.message || String(err)));
       return;
     }
     if (!deviceData) {
       setConnState("error");
-      setErrorMsg("Failed to start login. Check your connection.");
+      setErrorMsg(t("settings.failed_start_login"));
       return;
     }
 
@@ -224,7 +226,7 @@ export default function SettingsPage() {
       setUserAvatar(auth?.avatarUrl || null);
     } else {
       setConnState("error");
-      setErrorMsg("Login timed out or was denied. Try again.");
+      setErrorMsg(t("settings.login_timed_out"));
     }
   };
 
@@ -247,7 +249,7 @@ export default function SettingsPage() {
     } catch (err: any) {
       console.error("[ReLearn] Google login error:", err);
       setGoogleConnState("error");
-      setErrorMsg("Google login failed: " + (err?.message || String(err)));
+      setErrorMsg(t("settings.google_login_error") + ": " + (err?.message || String(err)));
     }
   };
 
@@ -268,7 +270,6 @@ export default function SettingsPage() {
   const handleSelectGeminiModel = (modelId: string) => {
     setSelectedGeminiModelState(modelId);
     setSelectedGeminiModel(modelId);
-    setSelectedGeminiModel(modelId);
   };
 
   const copyCode = () => {
@@ -281,14 +282,14 @@ export default function SettingsPage() {
 
   return (
     <div className="flex h-screen flex-col bg-white dark:bg-dark-bg">
-      <Header title="Settings" onMenuClick={() => setSidebarOpen(true)} />
+      <Header title={t("settings.title")} onMenuClick={() => setSidebarOpen(true)} />
       <SidebarDrawer open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <main className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-lg px-6 py-8">
 
           <p className="text-sm text-gray-500 dark:text-dark-text-muted mb-4">
-            Connect at least one AI provider to unlock all features
+            {t("settings.connect_ai_provider")}
           </p>
 
           {/* ================================ */}
@@ -301,9 +302,11 @@ export default function SettingsPage() {
                   <Globe className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-base font-semibold text-gray-900 dark:text-dark-text">AI Provider</h2>
+                  <h2 className="text-base font-semibold text-gray-900 dark:text-dark-text">
+                    {t("settings.connect_provider")}
+                  </h2>
                   <p className="text-xs text-gray-500 dark:text-dark-text-muted">
-                    Google AI — Recommended for Students
+                    {t("settings.google_ai")}
                   </p>
                 </div>
               </div>
@@ -335,7 +338,7 @@ export default function SettingsPage() {
                       className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-gray-500 dark:text-dark-text-muted hover:bg-white dark:bg-dark-bg hover:text-gray-700 dark:hover:text-dark-text dark:text-dark-text-secondary transition-colors"
                     >
                       <LogOut className="h-3 w-3" />
-                      Disconnect
+                      {t("settings.disconnect")}
                     </button>
                   </div>
 
@@ -345,7 +348,7 @@ export default function SettingsPage() {
                       <div className="flex items-center gap-2">
                         <Cpu className="h-4 w-4 text-gray-500 dark:text-dark-text-muted" />
                         <span className="text-sm font-medium text-gray-900 dark:text-dark-text">
-                          Gemini Model
+                          {t("settings.gemini_model")}
                         </span>
                       </div>
                     </div>
@@ -402,7 +405,7 @@ export default function SettingsPage() {
                 >
                   <Globe className="h-5 w-5 text-blue-600" />
                   <span className="flex-1 text-sm font-medium text-gray-900 dark:text-dark-text">
-                    Connect Google Account
+                    {t("settings.connect_google")}
                   </span>
                 </button>
               )}
@@ -419,9 +422,11 @@ export default function SettingsPage() {
                   <Github className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-base font-semibold text-gray-900 dark:text-dark-text">AI Provider</h2>
+                  <h2 className="text-base font-semibold text-gray-900 dark:text-dark-text">
+                    {t("settings.connect_provider")}
+                  </h2>
                   <p className="text-xs text-gray-500 dark:text-dark-text-muted">
-                    GitHub Copilot — For Developers
+                    {t("settings.github_copilot")}
                   </p>
                 </div>
               </div>
@@ -439,7 +444,7 @@ export default function SettingsPage() {
                           <img src={userAvatar} alt="" className="h-6 w-6 rounded-full" />
                         )}
                         <span className="text-sm font-medium text-gray-900 dark:text-dark-text">
-                          {userLogin || "Connected"}
+                          {userLogin || t("settings.connected")}
                         </span>
                       </div>
                       {userEmail && (
@@ -453,7 +458,7 @@ export default function SettingsPage() {
                       className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-gray-500 dark:text-dark-text-muted hover:bg-white dark:bg-dark-bg hover:text-gray-700 dark:hover:text-dark-text dark:text-dark-text-secondary transition-colors"
                     >
                       <LogOut className="h-3 w-3" />
-                      Disconnect
+                      {t("settings.disconnect")}
                     </button>
                   </div>
 
@@ -463,7 +468,7 @@ export default function SettingsPage() {
                       <div className="flex items-center gap-2">
                         <Cpu className="h-4 w-4 text-gray-500 dark:text-dark-text-muted" />
                         <span className="text-sm font-medium text-gray-900 dark:text-dark-text">
-                          Model
+                          {t("settings.model")}
                         </span>
                       </div>
                       <button
@@ -471,95 +476,4 @@ export default function SettingsPage() {
                         disabled={loadingModels}
                         className="flex items-center gap-1 text-xs text-gray-400 dark:text-dark-text-muted hover:text-gray-600 dark:hover:text-dark-text-secondary transition-colors disabled:opacity-50"
                       >
-                        <RefreshCw className={cn("h-3 w-3", loadingModels && "animate-spin")} />
-                        Refresh
-                      </button>
-                    </div>
-
-                    {loadingModels && models.length === 0 && (
-                      <div className="flex items-center justify-center py-6">
-                        <Loader2 className="h-5 w-5 animate-spin text-gray-400 dark:text-dark-text-muted" />
-                        <span className="ml-2 text-sm text-gray-400 dark:text-dark-text-muted">
-                          Fetching models...
-                        </span>
-                      </div>
-                    )}
-
-                    {modelsError && (
-                      <div className="flex items-center gap-2 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-xs text-red-600">
-                        <XCircle className="h-3.5 w-3.5 shrink-0" />
-                        {modelsError}
-                      </div>
-                    )}
-
-                    {models.length > 0 && (
-                      <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1">
-                        {models.map((model) => (
-                          <button
-                            key={model.id}
-                            onClick={() => handleSelectModel(model.id)}
-                            className={cn(
-                              "flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-all",
-                              selectedModel === model.id
-                                ? "border-gray-900 bg-gray-50 dark:bg-dark-surface shadow-sm dark:shadow-none"
-                                : "border-gray-100 dark:border-dark-border hover:border-gray-200 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface"
-                            )}
-                          >
-                            <div
-                              className={cn(
-                                "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs",
-                                selectedModel === model.id
-                                  ? "bg-gray-900 text-white"
-                                  : "bg-gray-100 dark:bg-dark-card text-gray-500 dark:text-dark-text-muted"
-                              )}
-                            >
-                              <Sparkles className="h-3.5 w-3.5" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p
-                                className={cn(
-                                  "text-sm font-medium truncate",
-                                  selectedModel === model.id
-                                    ? "text-gray-900 dark:text-dark-text"
-                                    : "text-gray-700 dark:text-dark-text-secondary"
-                                )}
-                              >
-                                {model.name}
-                              </p>
-                              {model.version && (
-                                <p className="text-[10px] text-gray-400 dark:text-dark-text-muted">
-                                  v{model.version}
-                                </p>
-                              )}
-                            </div>
-                            {selectedModel === model.id && (
-                              <Check className="h-4 w-4 text-gray-900 dark:text-dark-text shrink-0" />
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Disconnected */}
-              {connState !== "connected" && (
-                <button
-                  onClick={handleConnect}
-                  className="flex items-center gap-3 rounded-xl border border-gray-200 dark:border-dark-border p-3 text-left transition-all hover:border-gray-300 dark:hover:border-dark-border hover:bg-gray-50 dark:hover:bg-dark-hover"
-                >
-                  <Github className="h-5 w-5 text-gray-900 dark:text-dark-text" />
-                  <span className="flex-1 text-sm font-medium text-gray-900 dark:text-dark-text">
-                    Connect GitHub Account
-                  </span>
-                </button>
-              )}
-            </div>
-          </div>
-
-        </div>
-      </main>
-    </div>
-  );
-}
+                        <RefreshCw className={
