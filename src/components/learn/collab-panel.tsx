@@ -1,5 +1,3 @@
-tsx
-// src/components/learn/collab-panel.tsx
 "use client";
 
 import React, { useState } from "react";
