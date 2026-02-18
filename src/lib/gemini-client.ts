@@ -15,6 +15,21 @@ interface Message {
  * Tries Google first, then Copilot.
  * Returns null if not in Tauri mode — caller should use API routes instead.
  */
+
+// Get AI language instruction based on user's selected language
+function getLanguageInstruction(): string {
+  if (typeof window === "undefined") return "";
+  const lang = localStorage.getItem("relearn-language") || "en";
+  if (lang === "en") return "";
+  const names: Record<string, string> = {
+    es: "Spanish", fr: "French", ar: "Arabic", de: "German",
+    zh: "Chinese", ja: "Japanese", ko: "Korean", pt: "Portuguese", hi: "Hindi",
+  };
+  const name = names[lang];
+  if (!name) return "";
+  return "\nIMPORTANT: Respond entirely in " + name + ". All explanations, quiz questions, flashcards, summaries, and chat responses must be in " + name + ".";
+}
+
 export async function callAIDirect(
   messages: Message[],
   options: { temperature?: number; maxTokens?: number; stream?: false }
@@ -81,7 +96,7 @@ async function callGeminiDirect(
     },
   };
   if (system.length > 0) {
-    body.systemInstruction = { parts: [{ text: system.map(m => m.content).join("\n\n") }] };
+    body.systemInstruction = { parts: [{ text: (system.map(m => m.content).join("\n\n") + getLanguageInstruction()) }] };
   }
   if (body.contents.length === 0) {
     body.contents.push({ role: "user", parts: [{ text: "Hello" }] });
@@ -119,7 +134,7 @@ async function streamGeminiDirect(
     },
   };
   if (system.length > 0) {
-    body.systemInstruction = { parts: [{ text: system.map(m => m.content).join("\n\n") }] };
+    body.systemInstruction = { parts: [{ text: (system.map(m => m.content).join("\n\n") + getLanguageInstruction()) }] };
   }
   if (body.contents.length === 0) {
     body.contents.push({ role: "user", parts: [{ text: "Hello" }] });
