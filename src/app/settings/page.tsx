@@ -530,8 +530,54 @@ export default function SettingsPage() {
                 </div>
               )}
 
+              {/* Connecting */}
+              {connState === "connecting" && (
+                <div className="flex items-center gap-3 rounded-xl border border-gray-200 dark:border-dark-border p-4">
+                  <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
+                  <span className="text-sm text-gray-500 dark:text-dark-text-muted">{t("settings.connecting")}</span>
+                </div>
+              )}
+
+              {/* Awaiting Auth — show device code */}
+              {connState === "awaiting_auth" && userCode && (
+                <div className="space-y-3 animate-fade-in">
+                  <div className="rounded-xl border border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-surface p-4">
+                    <p className="text-xs text-gray-500 dark:text-dark-text-muted mb-2">{t("settings.enter_code_at")} <span className="font-medium text-gray-700 dark:text-dark-text-secondary">github.com/login/device</span></p>
+                    <div className="flex items-center gap-3">
+                      <code className="flex-1 rounded-lg bg-white dark:bg-dark-bg border border-gray-200 dark:border-dark-border px-4 py-3 text-center text-2xl font-mono font-bold tracking-[0.3em] text-gray-900 dark:text-dark-text select-all">
+                        {userCode}
+                      </code>
+                      <button
+                        onClick={copyCode}
+                        className="flex items-center gap-1.5 rounded-lg bg-gray-900 px-3 py-2.5 text-xs font-medium text-white hover:bg-gray-800 transition-colors"
+                      >
+                        {codeCopied ? <><CheckCircle2 className="h-3.5 w-3.5" />{t("common.copied")}</> : <><Copy className="h-3.5 w-3.5" />{t("common.copy")}</>}
+                      </button>
+                    </div>
+                    <p className="text-[10px] text-gray-400 dark:text-dark-text-muted mt-2">{t("settings.waiting_for_auth")}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Error */}
+              {connState === "error" && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 rounded-xl border border-red-100 dark:border-red-900/30 bg-red-50 dark:bg-red-900/10 px-4 py-3 text-xs text-red-600 dark:text-red-400">
+                    <XCircle className="h-3.5 w-3.5 shrink-0" />
+                    {errorMsg || t("settings.connection_failed")}
+                  </div>
+                  <button
+                    onClick={handleConnect}
+                    className="flex items-center gap-3 rounded-xl border border-gray-200 dark:border-dark-border p-3 text-left transition-all hover:border-gray-300 dark:hover:border-dark-border hover:bg-gray-50 dark:hover:bg-dark-hover w-full"
+                  >
+                    <Github className="h-5 w-5 text-gray-900 dark:text-dark-text" />
+                    <span className="flex-1 text-sm font-medium text-gray-900 dark:text-dark-text">{t("settings.try_again")}</span>
+                  </button>
+                </div>
+              )}
+
               {/* Disconnected */}
-              {connState !== "connected" && (
+              {connState === "disconnected" && (
                 <button
                   onClick={handleConnect}
                   className="flex items-center gap-3 rounded-xl border border-gray-200 dark:border-dark-border p-3 text-left transition-all hover:border-gray-300 dark:hover:border-dark-border hover:bg-gray-50 dark:hover:bg-dark-hover"
