@@ -1,6 +1,10 @@
 // GitHub Copilot Auth — Client-Side Token Manager
+// Works in both web and Tauri desktop mode (no API routes needed)
 
 const STORAGE_KEY = "relearn_github_auth";
+
+// GitHub Copilot Client ID (public, same for everyone)
+const COPILOT_CLIENT_ID = "Iv1.b507a08c87ecfe98";
 
 interface GitHubAuth {
   githubToken: string;
@@ -51,32 +55,33 @@ export function isAuthenticated(): boolean {
 export function isCopilotTokenValid(): boolean {
   const auth = getStoredAuth();
   if (!auth?.copilotToken || !auth?.copilotExpiry) return false;
-  // Valid if more than 60s left
   return Date.now() < auth.copilotExpiry - 60_000;
 }
 
+/**
+ * Ensure we have a valid Copilot runtime token.
+ * Exchanges GitHub token for Copilot token if expired.
+ */
 export async function ensureCopilotToken(): Promise<string | null> {
   const auth = getStoredAuth();
   if (!auth?.githubToken) return null;
 
-  // If token is still valid, use it
   if (auth.copilotToken && isCopilotTokenValid()) {
     return auth.copilotToken;
   }
 
-  // Exchange github token for copilot runtime token
+  // Exchange github token for copilot runtime token (direct API call)
   try {
-    const res = await fetch("/api/auth/github/copilot-token", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ github_token: auth.githubToken }),
+    const res = await fetch("https://api.github.com/copilot_internal/v2/token", {
+      headers: {
+        Authorization: "token " + auth.githubToken,
+        Accept: "application/json",
+        "User-Agent": "ReLearn/1.0",
+      },
     });
 
     if (!res.ok) {
-      const err = await res.json();
-      console.error("Copilot token exchange failed:", err);
       if (res.status === 401 || res.status === 403) {
-        // Token expired — user needs to re-auth
         clearAuth();
       }
       return null;
@@ -88,7 +93,7 @@ export async function ensureCopilotToken(): Promise<string | null> {
       copilotToken: data.token,
       copilotExpiry: data.expires_at
         ? new Date(data.expires_at * 1000).getTime()
-        : Date.now() + 30 * 60 * 1000, // fallback 30min
+        : Date.now() + 30 * 60 * 1000,
     };
     storeAuth(updatedAuth);
     return data.token;
@@ -98,7 +103,10 @@ export async function ensureCopilotToken(): Promise<string | null> {
   }
 }
 
-// Device code login flow
+/**
+ * Start the GitHub device code login flow.
+ * This is done entirely client-side — no API routes needed.
+ */
 export async function startDeviceLogin(): Promise<{
   verification_uri: string;
   user_code: string;
@@ -106,14 +114,30 @@ export async function startDeviceLogin(): Promise<{
   interval: number;
 } | null> {
   try {
-    const res = await fetch("/api/auth/github/device-code", { method: "POST" });
+    const res = await fetch("https://github.com/login/device/code", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        client_id: COPILOT_CLIENT_ID,
+        scope: "read:user",
+      }),
+    });
+
     if (!res.ok) return null;
     return await res.json();
-  } catch {
+  } catch (err) {
+    console.error("Device code request failed:", err);
     return null;
   }
 }
 
+/**
+ * Poll GitHub for the access token after user enters the device code.
+ * This is done entirely client-side.
+ */
 export async function pollForToken(deviceCode: string, interval: number): Promise<boolean> {
   const maxAttempts = 60;
 
@@ -121,16 +145,23 @@ export async function pollForToken(deviceCode: string, interval: number): Promis
     await new Promise((r) => setTimeout(r, interval * 1000));
 
     try {
-      const res = await fetch("/api/auth/github/poll", {
+      const res = await fetch("https://github.com/login/oauth/access_token", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ device_code: deviceCode }),
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          client_id: COPILOT_CLIENT_ID,
+          device_code: deviceCode,
+          grant_type: "urn:ietf:params:oauth:grant-type:device_code",
+        }),
       });
 
       const data = await res.json();
 
       if (data.access_token) {
-        // Got the token! Fetch user info and copilot token
+        // Got the token! Fetch user info and copilot token in parallel
         const [userInfo, copilotData] = await Promise.all([
           fetchGitHubUser(data.access_token),
           exchangeCopilotToken(data.access_token),
@@ -169,7 +200,7 @@ async function fetchGitHubUser(token: string) {
   try {
     const res = await fetch("https://api.github.com/user", {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: "Bearer " + token,
         Accept: "application/json",
         "User-Agent": "ReLearn/1.0",
       },
@@ -181,10 +212,12 @@ async function fetchGitHubUser(token: string) {
 
 async function exchangeCopilotToken(githubToken: string) {
   try {
-    const res = await fetch("/api/auth/github/copilot-token", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ github_token: githubToken }),
+    const res = await fetch("https://api.github.com/copilot_internal/v2/token", {
+      headers: {
+        Authorization: "token " + githubToken,
+        Accept: "application/json",
+        "User-Agent": "ReLearn/1.0",
+      },
     });
     if (res.ok) return await res.json();
   } catch {}
