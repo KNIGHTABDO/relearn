@@ -1,4 +1,3 @@
-import { generateContent } from "@/lib/ai-service";
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -17,6 +16,7 @@ import {
   Hash,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { generateContent } from "@/lib/ai-service";
 
 
 type ReportSection = {
@@ -162,10 +162,9 @@ export default function StudyReport() {
     setState("loading");
     setLoadingStep(0);
     try {
-      try {
-        const data = await generateContent("summary", documentId, spaceId);
-        setReport(data);
-        setIsAiGenerated(true);
+      const data = await generateContent("summary", documentId, spaceId);
+      setReport(data);
+      setIsAiGenerated(true);
     } catch {
       // use mock data
       const mock = getMockReport();

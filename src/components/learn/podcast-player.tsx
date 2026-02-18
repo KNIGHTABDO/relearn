@@ -1,4 +1,3 @@
-import { generatePodcast } from "@/lib/ai-service";
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -12,6 +11,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { generatePodcast } from "@/lib/ai-service";
 
 interface PodcastPlayerProps {
   documentId?: string;
@@ -45,12 +45,8 @@ const PodcastPlayer: React.FC<PodcastPlayerProps> = ({ documentId, spaceId }) =>
   const fetchPodcast = useCallback(async () => {
     setLoading(true);
     try {
-    try {
       const data = await generatePodcast(documentId, spaceId);
-      if (data?.segments) {
-        setSegments(data.segments);
-        setTitle(data.title || "AI Podcast");
-      }
+      if (data?.segments) { setSegments(data.segments); setTitle(data.title || "AI Podcast"); }
     } catch (e) {
       console.error(e);
     } finally {

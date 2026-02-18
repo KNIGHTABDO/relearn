@@ -1,4 +1,3 @@
-import { generateContent } from "@/lib/ai-service";
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -7,6 +6,7 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { ensureCopilotToken, isAuthenticated, getSelectedModel } from "@/lib/github-auth";
 import { useI18n } from "@/components/providers/i18n-provider";
+import { generateContent } from "@/lib/ai-service";
 
 interface Flashcard {
   id: string;
@@ -35,15 +35,9 @@ export function FlashcardViewer({ documentId, spaceId, renderSources }: Flashcar
   const fetchFlashcards = async () => {
     setLoading(true);
     try {
-    try {
       const data = await generateContent("flashcards", documentId, spaceId);
-      if (Array.isArray(data)) {
-        setCards(data);
-        setAiGenerated(true);
-      } else if (data.flashcards) {
-        setCards(data.flashcards);
-        setAiGenerated(!!data.aiGenerated);
-      }
+      if (Array.isArray(data)) { setCards(data); setAiGenerated(true); }
+      else if (data?.flashcards) { setCards(data.flashcards); setAiGenerated(!!data.aiGenerated); }
     } catch (err) {
       console.error("Flashcard fetch error:", err);
     }

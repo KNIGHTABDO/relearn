@@ -1,4 +1,3 @@
-import { snapProblem } from "@/lib/ai-service";
 'use client';
 
 import React, {
@@ -26,6 +25,7 @@ import {
   Image,
 } from 'lucide-react';
 import cn from '@/lib/utils';
+import { snapProblem } from "@/lib/ai-service";
 
 // -----------------------------------------------------------------------------
 // Types
@@ -164,7 +164,6 @@ export default function SnapProblem() {
     if (!imageData) return;
     setMode('analyzing');
     try {
-      try {
         const data = await snapProblem(capturedImage || selectedText || "");
         setSolution(data);
     } catch (e) {

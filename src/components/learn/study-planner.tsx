@@ -1,4 +1,3 @@
-import { generateStudyPlan } from "@/lib/ai-service";
 "use client";
 
 import { useEffect, useState } from "react";
@@ -17,6 +16,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { generateStudyPlan } from "@/lib/ai-service";
 
 type Topic = {
   id: string;
@@ -204,8 +204,8 @@ export default function StudyPlanner({ spaceId }: StudyPlannerProps) {
     async function fetchPlan() {
       setLoading(true);
       try {
-      try {
-        const data = await generateStudyPlan(documentText || topics.join(", "));
+        const context = spaceId ? `Space: ${spaceId}` : "";
+        const data = await generateStudyPlan(context);
         if (data?.weeklyPlan) setWeeklyPlan(data.weeklyPlan);
         if (data?.focusAreas) setFocusAreas(data.focusAreas);
         if (data?.stats) setStats(data.stats);
@@ -223,8 +223,7 @@ export default function StudyPlanner({ spaceId }: StudyPlannerProps) {
   const handleGenerate = async () => {
     setGenerating(true);
     try {
-      try {
-        const data = await generateStudyPlan(topics.join(", "));
+        const data = await generateStudyPlan(documentText || "General study plan");
         if (data?.weeklyPlan) setWeeklyPlan(data.weeklyPlan);
         if (data?.focusAreas) setFocusAreas(data.focusAreas);
         if (data?.stats) setStats(data.stats);

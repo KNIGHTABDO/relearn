@@ -141,7 +141,6 @@ const fullWidthCards: GenerateCard[] = [
   const fetchData = async (type: string) => {
     setLoading(true);
     try {
-    try {
       // Try direct AI in Tauri mode
       const data = await generateContent(type as any, documentId, spaceId);
       if (type === "summary") setSummaryData(data);

@@ -1,4 +1,3 @@
-import { generateContent } from "@/lib/ai-service";
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -16,6 +15,7 @@ import {
 import { cn } from "@/lib/utils";
 import { ensureCopilotToken, isAuthenticated, getSelectedModel } from "@/lib/github-auth";
 import { useI18n } from "@/components/providers/i18n-provider";
+import { generateContent } from "@/lib/ai-service";
 
 interface QuizQuestion {
   id: string;
@@ -57,13 +57,9 @@ export function QuizViewer({ documentId, spaceId, renderSources }: QuizViewerPro
     setIsComplete(false);
 
     try {
-    try {
       const data = await generateContent("quiz", documentId, spaceId);
-      const questions = Array.isArray(data) ? data : (data.questions || data.quiz || []);
-      if (questions.length > 0) {
-        setQuestions(questions);
-        setAiGenerated(true);
-      }
+      const qs = Array.isArray(data) ? data : (data?.questions || data?.quiz || []);
+      if (qs.length > 0) { setQuestions(qs); setAiGenerated(true); }
     } catch (err) {
       console.error("Quiz fetch error:", err);
     }

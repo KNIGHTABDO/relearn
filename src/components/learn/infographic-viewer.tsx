@@ -1,4 +1,3 @@
-import { generateContent } from "@/lib/ai-service";
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
@@ -13,6 +12,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { generateContent } from "@/lib/ai-service";
 
 type Branch = {
   label: string;
@@ -68,7 +68,6 @@ export default function InfographicViewer() {
   // -------------------------------------------------------------------------
   const fetchData = useCallback(async () => {
     setLoading(true);
-    try {
     try {
       const data = await generateContent("summary", documentId, spaceId);
       if (data) { setMindMapData(data); setIsAiGenerated(true); }
