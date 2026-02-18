@@ -1,6 +1,7 @@
-'use client'
+'use client';
 
-import Header from '@/components/layout/header'
+import { ArrowLeft } from "lucide-react"
+import { Header } from '@/components/layout/header'
 import AnalyticsDashboard from '@/components/learn/analytics-dashboard'
 import Link from 'next/link'
 
@@ -11,7 +12,7 @@ export default function Page() {
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <Link href="/" className="text-gray-600 hover:text-gray-900 transition">
-            <IoMdArrowBack size={24} />
+            <ArrowLeft size={24} />
           </Link>
           <h1 className="text-3xl font-bold">Your Progress</h1>
         </div>
