@@ -119,7 +119,7 @@ export default function HomePage() {
             <div className="mb-6">
               <Image
                 src="/images/hero.jpg"
-                alt="AI-powered learning"
+                alt={t("home.hero_alt")}
                 width={480}
                 height={270}
                 className="mx-auto rounded-2xl"
@@ -174,7 +174,7 @@ export default function HomePage() {
                   onClick={handleLearn}
                   className="ml-2 flex items-center gap-1.5 rounded-full bg-black px-4 py-1.5 text-xs font-medium text-white hover:bg-gray-800"
                 >
-                  <span>Learn</span>
+                  <span>{t("home.learn_button")}</span>
                   <ArrowRight className="h-3 w-3" />
                 </button>
               </div>
@@ -185,7 +185,7 @@ export default function HomePage() {
           <div className="mt-10 text-center">
             <div className="flex items-center justify-center gap-2 text-xs text-gray-400 dark:text-dark-text-muted">
               <GraduationCap className="h-3.5 w-3.5" />
-              <span>Trusted by students at top universities</span>
+              <span>{t("home.trusted_by_universities")}</span>
             </div>
             <div className="mt-3 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
               {universities.map((uni) => (
@@ -206,8 +206,8 @@ export default function HomePage() {
                 <BarChart3 className="h-5 w-5 text-purple-500" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-900 dark:text-dark-text">Your Progress</p>
-                <p className="text-xs text-gray-400 dark:text-dark-text-muted">Analytics & stats</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-dark-text">{t("home.your_progress")}</p>
+                <p className="text-xs text-gray-400 dark:text-dark-text-muted">{t("home.analytics_and_stats")}</p>
               </div>
             </Link>
             <div className="group flex items-center gap-3 rounded-2xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg p-4 transition-all hover:border-blue-200 dark:hover:border-blue-900 hover:shadow-sm cursor-pointer">
@@ -215,8 +215,8 @@ export default function HomePage() {
                 <Brain className="h-5 w-5 text-blue-500" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-900 dark:text-dark-text">Study Planner</p>
-                <p className="text-xs text-gray-400 dark:text-dark-text-muted">AI-powered schedule</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-dark-text">{t("home.study_planner")}</p>
+                <p className="text-xs text-gray-400 dark:text-dark-text-muted">{t("home.ai_powered_schedule")}</p>
               </div>
             </div>
             <div className="group flex items-center gap-3 rounded-2xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg p-4 transition-all hover:border-orange-200 dark:hover:border-orange-900 hover:shadow-sm cursor-pointer">
@@ -224,8 +224,8 @@ export default function HomePage() {
                 <Users className="h-5 w-5 text-orange-500" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-900 dark:text-dark-text">Collaborate</p>
-                <p className="text-xs text-gray-400 dark:text-dark-text-muted">Share & study together</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-dark-text">{t("home.collaborate")}</p>
+                <p className="text-xs text-gray-400 dark:text-dark-text-muted">{t("home.share_and_study_together")}</p>
               </div>
             </div>
           </div>
@@ -254,7 +254,7 @@ export default function HomePage() {
                   value={newSpaceName}
                   onChange={(e) => setNewSpaceName(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && createSpace()}
-                  placeholder="Space name (e.g., Biology 101)"
+                  placeholder={t("home.space_name")}
                   autoFocus
                   className="flex-1 bg-transparent text-sm text-gray-900 dark:text-dark-text placeholder:text-gray-400 dark:placeholder:text-dark-text-muted dark:text-dark-text-muted outline-none"
                 />
@@ -262,13 +262,13 @@ export default function HomePage() {
                   onClick={createSpace}
                   className="rounded-full bg-black px-3 py-1.5 text-xs font-medium text-white hover:bg-gray-800"
                 >
-                  Create
+                  {t("common.create")}
                 </button>
                 <button
                   onClick={() => setShowCreateSpace(false)}
                   className="text-xs text-gray-400 dark:text-dark-text-muted hover:text-gray-600 dark:hover:text-dark-text-secondary dark:text-dark-text-secondary"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </button>
               </div>
             )}
@@ -302,7 +302,7 @@ export default function HomePage() {
                   <div className="mt-3 flex items-center justify-between text-xs text-gray-400 dark:text-dark-text-muted">
                     <span className="flex items-center gap-1">
                       <FileText className="h-3 w-3" />
-                      {space.documentCount} {space.documentCount === 1 ? "file" : "files"}
+                      {space.documentCount} {space.documentCount === 1 ? t("common.file") : t("common.files")}
                     </span>
                     <span className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />
@@ -328,7 +328,7 @@ export default function HomePage() {
                 <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 dark:border-dark-border py-12">
                   <Image
                     src="/images/empty-spaces.jpg"
-                    alt="No spaces"
+                    alt={t("home.no_spaces_alt")}
                     width={160}
                     height={160}
                     className="rounded-xl opacity-80"
