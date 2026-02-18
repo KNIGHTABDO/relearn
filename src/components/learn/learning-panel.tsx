@@ -48,8 +48,25 @@ import { StudyReport } from "./study-report";
 import { SpacedRepetition } from "./spaced-repetition";
 import { SnapProblem } from "./snap-problem";
 import { CollabPanel } from "./collab-panel";
+import { useI18n } from "@/components/providers/i18n-provider";
 
-type ActiveView = "generate" | "chat" | "flashcards" | "quiz" | "summary" | "notes" | "chapters" | "podcast" | "voice-tutor" | "study-planner" | "analytics" | "infographic" | "study-report" | "spaced-repetition" | "snap-problem" | "collab";
+type ActiveView =
+  | "generate"
+  | "chat"
+  | "flashcards"
+  | "quiz"
+  | "summary"
+  | "notes"
+  | "chapters"
+  | "podcast"
+  | "voice-tutor"
+  | "study-planner"
+  | "analytics"
+  | "infographic"
+  | "study-report"
+  | "spaced-repetition"
+  | "snap-problem"
+  | "collab";
 
 interface GenerateCard {
   title: string;
@@ -61,54 +78,9 @@ interface GenerateCard {
   badge?: string;
 }
 
-const generateCards: GenerateCard[] = [
-  { title: "Podcast", icon: Headphones, color: "bg-yl-purple-bg dark:bg-yl-purple-bg-dark text-yl-purple", hasSettings: true, view: "podcast" },
-  { title: "Voice Tutor", icon: Mic, color: "bg-yl-pink-bg dark:bg-yl-pink-bg-dark text-yl-pink", view: "voice-tutor", badge: "New" },
-  { title: "Summary", icon: FileText, color: "bg-yl-sky-bg dark:bg-yl-sky-bg-dark text-yl-sky", hasSettings: true, view: "summary" },
-  { title: "Quiz", icon: ClipboardCheck, color: "bg-yl-pink-bg dark:bg-yl-pink-bg-dark text-yl-pink", hasSettings: true, view: "quiz" },
-  { title: "Flashcards", icon: Layers, color: "bg-yl-orange-bg dark:bg-yl-orange-bg-dark text-yl-orange", hasSettings: true, view: "flashcards" },
-  { title: "Spaced Review", icon: RefreshCw, color: "bg-yl-green-bg dark:bg-yl-green-bg-dark text-yl-green", view: "spaced-repetition", badge: "New" },
-  { title: "Mind Map", icon: Image, color: "bg-yl-teal-bg dark:bg-yl-teal-bg-dark text-yl-teal", view: "infographic", badge: "New" },
-  { title: "Study Report", icon: FileBarChart, color: "bg-yl-blue-bg dark:bg-yl-blue-bg-dark text-yl-blue", view: "study-report" },
-  { title: "Notes", icon: StickyNote, color: "bg-yl-gold-bg dark:bg-yl-gold-bg-dark text-yl-gold", hasArrow: true, view: "notes" },
-  { title: "Snap Problem", icon: Camera, color: "bg-yl-orange-bg dark:bg-yl-orange-bg-dark text-yl-orange", view: "snap-problem", badge: "New" },
-  { title: "Study Planner", icon: Brain, color: "bg-yl-purple-bg dark:bg-yl-purple-bg-dark text-yl-purple", view: "study-planner", badge: "AI" },
-  { title: "Collaborate", icon: Users, color: "bg-yl-sky-bg dark:bg-yl-sky-bg-dark text-yl-sky", view: "collab", badge: "New" },
-];
-
-const fullWidthCards: GenerateCard[] = [
-  { title: "Chapters", icon: BookOpen, color: "bg-yl-green-bg dark:bg-yl-green-bg-dark text-yl-green", hasArrow: true, view: "chapters" },
-];
-
-interface LearningPanelProps {
-  documentId?: string;
-  spaceId?: string;
-  className?: string;
-}
-
-// Source tag renderer — converts [Source: X] to styled inline badges
-function renderWithSources(text: string): React.ReactNode[] {
-  if (!text) return [text];
-  const parts = text.split(/(\[Source:\s*[^\]]+\])/g);
-  return parts.map((part, i) => {
-    const sourceMatch = part.match(/\[Source:\s*([^\]]+)\]/);
-    if (sourceMatch) {
-      return (
-        <span
-          key={i}
-          className="ml-1 inline-flex items-center gap-0.5 rounded-md bg-gray-100 dark:bg-dark-card px-1.5 py-0.5 text-[10px] font-medium text-gray-500 dark:text-dark-text-muted align-middle leading-none"
-          title={`Source: ${sourceMatch[1]}`}
-        >
-          <BookMarked className="h-2.5 w-2.5 text-gray-400 dark:text-dark-text-muted shrink-0" />
-          {sourceMatch[1]}
-        </span>
-      );
-    }
-    return <span key={i}>{part}</span>;
-  });
-}
-
 export function LearningPanel({ documentId, spaceId, className }: LearningPanelProps) {
+  const { t } = useI18n();
+
   const [activeView, setActiveView] = useState<ActiveView>("generate");
   const [chatInput, setChatInput] = useState("");
   const [summaryData, setSummaryData] = useState<any>(null);
@@ -118,21 +90,21 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
   const [isAI, setIsAI] = useState(false);
 
   useEffect(() => {
-    setIsAI((isGoogleAuthenticated() || isAuthenticated()));
-    const handler = () => setIsAI((isGoogleAuthenticated() || isAuthenticated()));
+    setIsAI(isGoogleAuthenticated() || isAuthenticated());
+    const handler = () => setIsAI(isGoogleAuthenticated() || isAuthenticated());
     window.addEventListener("github-auth-changed", handler);
     return () => window.removeEventListener("github-auth-changed", handler);
   }, []);
 
   const viewLabel: Record<ActiveView, string> = {
-    generate: "Learn Tab",
-    chat: "AI Chat",
-    flashcards: "Flashcards",
-    quiz: "Quiz",
-    summary: "Summary",
-    notes: "Notes",
-    chapters: "Chapters",
-    podcast: "Podcast",
+    generate: t("learn.tab"),
+    chat: t("learn.ai_chat"),
+    flashcards: t("learn.flashcards"),
+    quiz: t("learn.quiz"),
+    summary: t("learn.summary"),
+    notes: t("learn.notes"),
+    chapters: t("learn.chapters"),
+    podcast: t("learn.podcast"),
   };
 
   const fetchData = async (type: string) => {
@@ -186,8 +158,8 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
         <Sparkles className="absolute -right-1 -top-1 h-4 w-4 text-yl-gold animate-pulse" />
       </div>
       <div className="text-center">
-        <p className="text-sm font-medium text-gray-600 dark:text-dark-text-secondary">Generating with AI...</p>
-        <p className="mt-0.5 text-xs text-gray-400 dark:text-dark-text-muted">Analyzing your document</p>
+        <p className="text-sm font-medium text-gray-600 dark:text-dark-text-secondary">{t("learn.generating_ai")}</p>
+        <p className="mt-0.5 text-xs text-gray-400 dark:text-dark-text-muted">{t("learn.analyzing_document")}</p>
       </div>
     </div>
   );
@@ -197,13 +169,32 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
     generated ? (
       <span className="inline-flex items-center gap-1 rounded-full bg-yl-gold-bg dark:bg-yl-gold-bg-dark px-2 py-0.5 text-[10px] font-medium text-yl-gold">
         <Sparkles className="h-2.5 w-2.5" />
-        AI Generated
+        {t("common.ai_generated")}
       </span>
     ) : (
       <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 dark:bg-dark-card px-2 py-0.5 text-[10px] font-medium text-gray-400 dark:text-dark-text-muted">
-        Sample Data
+        {t("common.sample_data")}
       </span>
     );
+
+  const generateCards: GenerateCard[] = [
+    { title: t("learn.podcast"), icon: Headphones, color: "bg-yl-purple-bg dark:bg-yl-purple-bg-dark text-yl-purple", hasSettings: true, view: "podcast" },
+    { title: t("learn.voice_tutor"), icon: Mic, color: "bg-yl-pink-bg dark:bg-yl-pink-bg-dark text-yl-pink", view: "voice-tutor", badge: t("common.new") },
+    { title: t("learn.summary"), icon: FileText, color: "bg-yl-sky-bg dark:bg-yl-sky-bg-dark text-yl-sky", hasSettings: true, view: "summary" },
+    { title: t("learn.quiz"), icon: ClipboardCheck, color: "bg-yl-pink-bg dark:bg-yl-pink-bg-dark text-yl-pink", hasSettings: true, view: "quiz" },
+    { title: t("learn.flashcards"), icon: Layers, color: "bg-yl-orange-bg dark:bg-yl-orange-bg-dark text-yl-orange", hasSettings: true, view: "flashcards" },
+    { title: t("learn.spaced"), icon: RefreshCw, color: "bg-yl-green-bg dark:bg-yl-green-bg-dark text-yl-green", view: "spaced-repetition", badge: t("common.new") },
+    { title: t("learn.mindmap"), icon: Image, color: "bg-yl-teal-bg dark:bg-yl-teal-bg-dark text-yl-teal", view: "infographic", badge: t("common.new") },
+    { title: t("learn.report"), icon: FileBarChart, color: "bg-yl-blue-bg dark:bg-yl-blue-bg-dark text-yl-blue", view: "study-report" },
+    { title: t("learn.notes"), icon: StickyNote, color: "bg-yl-gold-bg dark:bg-yl-gold-bg-dark text-yl-gold", hasArrow: true, view: "notes" },
+    { title: t("learn.snap"), icon: Camera, color: "bg-yl-orange-bg dark:bg-yl-orange-bg-dark text-yl-orange", view: "snap-problem", badge: t("common.new") },
+    { title: t("learn.study_planner"), icon: Brain, color: "bg-yl-purple-bg dark:bg-yl-purple-bg-dark text-yl-purple", view: "study-planner", badge: t("common.ai") },
+    { title: t("learn.collaborate"), icon: Users, color: "bg-yl-sky-bg dark:bg-yl-sky-bg-dark text-yl-sky", view: "collab", badge: t("common.new") },
+  ];
+
+  const fullWidthCards: GenerateCard[] = [
+    { title: t("learn.chapters"), icon: BookOpen, color: "bg-yl-green-bg dark:bg-yl-green-bg-dark text-yl-green", hasArrow: true, view: "chapters" },
+  ];
 
   return (
     <div className={cn("flex h-full flex-col border-l border-gray-100 dark:border-dark-border", className)}>
@@ -231,7 +222,7 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
             )}
           >
             <MessageSquare className="h-3.5 w-3.5" />
-            Chat
+            {t("common.chat")}
           </button>
         </div>
       </div>
@@ -248,7 +239,7 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
                 onClick={() => setActiveView("chat")}
               >
                 <MessageSquare className="h-3.5 w-3.5 text-gray-400 dark:text-dark-text-muted" />
-                <span className="text-sm text-gray-400 dark:text-dark-text-muted">Ask about your document...</span>
+                <span className="text-sm text-gray-400 dark:text-dark-text-muted">{t("learn.ask_about_your_document")}</span>
               </div>
             </div>
 
@@ -340,7 +331,7 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
                   <div className="rounded-xl border border-yl-sky/20 bg-yl-sky-bg dark:bg-yl-sky-bg-dark/30 p-3.5">
                     <h4 className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-yl-sky">
                       <Sparkles className="h-3 w-3" />
-                      Key Takeaways
+                      {t("learn.key_takeaways")}
                     </h4>
                     <ul className="space-y-2">
                       {summaryData.summary.keyPoints.map((point: string, i: number) => (
@@ -368,9 +359,9 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <AlertCircle className="h-8 w-8 text-gray-300 dark:text-dark-text-muted" />
-                <p className="mt-2 text-sm text-gray-500 dark:text-dark-text-muted">Failed to generate summary</p>
-                <button onClick={() => fetchData("summary")} className="mt-3 text-xs font-medium text-gray-600 dark:text-dark-text-secondary hover:text-gray-900 dark:hover:text-dark-text dark:text-dark-text">
-                  Try again
+                <p className="mt-2 text-sm text-gray-500 dark:text-dark-text-muted">{t("learn.failed_summary")}</p>
+                <button onClick={() => fetchData("summary")} className="mt-3 text-xs font-medium text-gray-600 dark:text-dark-text-secondary hover:text-gray-900 dark:hover:text-dark-text">
+                  {t("common.retry")}
                 </button>
               </div>
             )}
@@ -385,7 +376,7 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
             ) : notesData?.notes ? (
               <div className="animate-fade-in space-y-3">
                 <div className="flex items-center justify-between mb-1">
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-dark-text">Study Notes</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-dark-text">{t("learn.study_notes")}</h3>
                   <AIBadge generated={notesData.aiGenerated} />
                 </div>
                 {notesData.notes.map((note: any, i: number) => (
@@ -394,7 +385,7 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
                     className={cn(
                       "rounded-xl border p-3.5 transition-colors",
                       note.highlight
-                        ? "border-yl-gold/30 bg-yl-gold-bg dark:bg-yl-gold-bg-dark/20"
+                        ? "border-yl-gold/30 bg-yl-gold-bg dark:yl-gold-bg-dark/20"
                         : "border-gray-100 dark:border-dark-border"
                     )}
                   >
@@ -419,93 +410,4 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <AlertCircle className="h-8 w-8 text-gray-300 dark:text-dark-text-muted" />
-                <p className="mt-2 text-sm text-gray-500 dark:text-dark-text-muted">Failed to generate notes</p>
-                <button onClick={() => fetchData("notes")} className="mt-3 text-xs font-medium text-gray-600 dark:text-dark-text-secondary hover:text-gray-900 dark:hover:text-dark-text dark:text-dark-text">
-                  Try again
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Chapters */}
-        {activeView === "chapters" && (
-          <div className="p-4">
-            {loading ? (
-              <LoadingOverlay />
-            ) : chaptersData?.chapters ? (
-              <div className="animate-fade-in space-y-2">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-dark-text">Chapters</h3>
-                  <AIBadge generated={chaptersData.aiGenerated} />
-                </div>
-                {chaptersData.chapters.map((ch: any, i: number) => (
-                  <button
-                    key={ch.id || i}
-                    className="flex w-full items-center gap-3 rounded-xl border border-gray-100 dark:border-dark-border p-3 text-left transition-all hover:border-gray-200 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface dark:bg-dark-surface"
-                  >
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-yl-green-bg dark:bg-yl-green-bg-dark text-xs font-bold text-yl-green">
-                      {i + 1}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-gray-900 dark:text-dark-text truncate">{ch.title}</p>
-                      <p className="text-[10px] text-gray-400 dark:text-dark-text-muted">
-                        Pages {ch.startPage}–{ch.endPage}
-                      </p>
-                    </div>
-                    <ChevronRight className="h-3 w-3 text-gray-300 dark:text-dark-text-muted" />
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <AlertCircle className="h-8 w-8 text-gray-300 dark:text-dark-text-muted" />
-                <p className="mt-2 text-sm text-gray-500 dark:text-dark-text-muted">Failed to generate chapters</p>
-                <button onClick={() => fetchData("chapters")} className="mt-3 text-xs font-medium text-gray-600 dark:text-dark-text-secondary hover:text-gray-900 dark:hover:text-dark-text dark:text-dark-text">
-                  Try again
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Podcast */}
-        {activeView === "podcast" && (
-          <PodcastPlayer documentId={documentId} spaceId={spaceId} />
-        )}
-
-        {activeView === "voice-tutor" && (
-          <VoiceTutor documentId={documentId} spaceId={spaceId} onClose={() => setActiveView("generate")} />
-        )}
-
-        {activeView === "study-planner" && (
-          <StudyPlanner spaceId={spaceId} />
-        )}
-
-        {activeView === "analytics" && (
-          <AnalyticsDashboard />
-        )}
-
-        {activeView === "infographic" && (
-          <InfographicViewer documentId={documentId} spaceId={spaceId} />
-        )}
-
-        {activeView === "study-report" && (
-          <StudyReport documentId={documentId} spaceId={spaceId} />
-        )}
-
-        {activeView === "spaced-repetition" && (
-          <SpacedRepetition documentId={documentId} spaceId={spaceId} />
-        )}
-
-        {activeView === "snap-problem" && (
-          <SnapProblem />
-        )}
-
-        {activeView === "collab" && (
-          <CollabPanel spaceId={spaceId} />
-        )}
-      </div>
-    </div>
-  );
-}
+                <p className="mt-
