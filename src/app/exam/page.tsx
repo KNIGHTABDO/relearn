@@ -16,6 +16,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/components/providers/i18n-provider";
 
 interface ExamQuestion {
   id: string;
@@ -35,6 +36,7 @@ interface ExamData {
 }
 
 function ExamPageInner() {
+  const { t } = useI18n();
   const searchParams = useSearchParams();
   const router = useRouter();
   const spaceId = searchParams.get("spaceId");
@@ -138,11 +140,11 @@ function ExamPageInner() {
             </div>
             <h1 className="mt-4 text-2xl font-bold text-gray-900 dark:text-dark-text">{exam.title}</h1>
             <p className="mt-2 text-sm text-gray-500 dark:text-dark-text-muted">
-              {exam.questions.length} questions • {exam.timeLimit} minutes
+              {exam.questions.length} {t("exam.question")} • {exam.timeLimit} {t("exam.minutes")}
             </p>
             <div className="mt-4 rounded-xl bg-gray-50 dark:bg-dark-surface p-4">
               <p className="text-xs font-medium uppercase tracking-wider text-gray-400 dark:text-dark-text-muted mb-2">
-                Documents Covered
+                {t("exam.documents_covered")}
               </p>
               <div className="space-y-1">
                 {exam.documentsCovered.map((doc, i) => (
@@ -154,14 +156,14 @@ function ExamPageInner() {
               onClick={() => setStarted(true)}
               className="mt-6 w-full btn-pill-primary py-3 text-sm"
             >
-              Start Exam
+              {t("exam.start")}
             </button>
             <button
               onClick={() => router.back()}
               className="mt-3 flex items-center justify-center gap-1.5 text-xs text-gray-400 dark:text-dark-text-muted hover:text-gray-600 dark:hover:text-dark-text-secondary dark:text-dark-text-secondary mx-auto"
             >
               <ArrowLeft className="h-3 w-3" />
-              Back to space
+              {t("exam.back_to_space")}
             </button>
           </div>
         </main>
@@ -187,16 +189,16 @@ function ExamPageInner() {
                 pct >= 80 ? "text-yl-green" : pct >= 50 ? "text-yl-gold" : "text-yl-pink"
               )} />
             </div>
-            <h2 className="mt-4 text-2xl font-bold text-gray-900 dark:text-dark-text">Exam Complete!</h2>
+            <h2 className="mt-4 text-2xl font-bold text-gray-900 dark:text-dark-text">{t("exam.complete")}</h2>
             <p className="mt-1 text-sm text-gray-500 dark:text-dark-text-muted">
-              You scored {score} out of {total} ({pct}%)
+              {t("exam.score", { score, total, pct })}
             </p>
             <div className="mt-6 flex justify-center gap-3">
               <button
                 onClick={() => router.back()}
                 className="btn-pill-secondary text-xs"
               >
-                Back to Space
+                {t("exam.back_to_space")}
               </button>
               <button
                 onClick={() => {
@@ -210,7 +212,7 @@ function ExamPageInner() {
                 className="btn-pill-primary text-xs gap-1.5"
               >
                 <RotateCcw className="h-3 w-3" />
-                Retake
+                {t("exam.retake")}
               </button>
             </div>
           </div>
@@ -228,7 +230,7 @@ function ExamPageInner() {
           {/* Timer + Progress */}
           <div className="flex items-center justify-between mb-4">
             <span className="text-sm font-medium text-gray-600 dark:text-dark-text-secondary">
-              Question {currentIndex + 1} of {exam.questions.length}
+              {t("exam.question_progress", { current: currentIndex + 1, total: exam.questions.length })}
             </span>
             <span className={cn(
               "flex items-center gap-1 text-sm font-medium",
@@ -301,10 +303,10 @@ function ExamPageInner() {
           {/* Explanation */}
           {showResult && (
             <div className="mt-4 rounded-xl border border-gray-100 dark:border-dark-border bg-gray-50 dark:bg-dark-surface p-4 animate-fade-in">
-              <p className="text-xs font-medium uppercase tracking-wider text-gray-400 dark:text-dark-text-muted mb-1">Explanation</p>
+              <p className="text-xs font-medium uppercase tracking-wider text-gray-400 dark:text-dark-text-muted mb-1">{t("exam.explanation")}</p>
               <p className="text-sm text-gray-700 dark:text-dark-text-secondary leading-relaxed">{currentQ.explanation}</p>
               {currentQ.source && (
-                <p className="mt-2 text-xs text-gray-400 dark:text-dark-text-muted">Source: {currentQ.source}</p>
+                <p className="mt-2 text-xs text-gray-400 dark:text-dark-text-muted">{t("exam.source_label")} {currentQ.source}</p>
               )}
             </div>
           )}
@@ -315,7 +317,7 @@ function ExamPageInner() {
               onClick={nextQuestion}
               className="mt-4 w-full btn-pill-primary py-3 text-sm gap-1.5 animate-fade-in"
             >
-              {currentIndex < exam.questions.length - 1 ? "Next Question" : "See Results"}
+              {currentIndex < exam.questions.length - 1 ? t("exam.next_question") : t("exam.see_results")}
               <ChevronRight className="h-3.5 w-3.5" />
             </button>
           )}
