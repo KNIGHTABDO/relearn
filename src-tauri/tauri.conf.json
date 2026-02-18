@@ -23,7 +23,7 @@
       }
     ],
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://api.github.com https://generativelanguage.googleapis.com https://api.githubcopilot.com https://lh3.googleusercontent.com https://*.googleapis.com; media-src 'self' blob: data:"
     }
   },
   "bundle": {
@@ -38,6 +38,10 @@
     ],
     "resources": [],
     "windows": {
+      "webviewInstallMode": {
+        "type": "embedBootstrapper",
+        "silent": true
+      },
       "wix": {
         "language": "en-US"
       }
