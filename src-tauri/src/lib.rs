@@ -236,17 +236,19 @@ async fn google_exchange_token(
     redirect_uri: String,
     code_verifier: String,
     client_id: String,
+    client_secret: String,
 ) -> Result<serde_json::Value, String> {
     let client = reqwest::Client::new();
     let res = client
         .post("https://oauth2.googleapis.com/token")
         .header("Content-Type", "application/x-www-form-urlencoded")
         .body(format!(
-            "client_id={}&code={}&grant_type=authorization_code&redirect_uri={}&code_verifier={}",
+            "client_id={}&code={}&grant_type=authorization_code&redirect_uri={}&code_verifier={}&client_secret={}",
             urlencoding::encode(&client_id),
             urlencoding::encode(&code),
             urlencoding::encode(&redirect_uri),
             urlencoding::encode(&code_verifier),
+            urlencoding::encode(&client_secret),
         ))
         .send()
         .await
@@ -282,15 +284,17 @@ async fn google_exchange_token(
 async fn google_refresh_token(
     refresh_token: String,
     client_id: String,
+    client_secret: String,
 ) -> Result<serde_json::Value, String> {
     let client = reqwest::Client::new();
     let res = client
         .post("https://oauth2.googleapis.com/token")
         .header("Content-Type", "application/x-www-form-urlencoded")
         .body(format!(
-            "client_id={}&grant_type=refresh_token&refresh_token={}",
+            "client_id={}&grant_type=refresh_token&refresh_token={}&client_secret={}",
             urlencoding::encode(&client_id),
             urlencoding::encode(&refresh_token),
+            urlencoding::encode(&client_secret),
         ))
         .send()
         .await

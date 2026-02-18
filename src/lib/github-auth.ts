@@ -80,7 +80,11 @@ export async function ensureCopilotToken(): Promise<string | null> {
     });
 
     if (!res.ok) {
-      if (res.status === 401 || res.status === 403) clearAuth();
+      const errText = await res.text().catch(() => "");
+      console.error("[ReLearn] Copilot token failed:", res.status, errText);
+      if (res.status === 401 || res.status === 403) {
+        console.error("[ReLearn] GitHub Copilot subscription may not be active. Students: use Google AI instead.");
+      }
       return null;
     }
 
@@ -95,7 +99,8 @@ export async function ensureCopilotToken(): Promise<string | null> {
     storeAuth(updatedAuth);
     return data.token;
   } catch (err) {
-    console.error("Copilot token exchange error:", err);
+    console.error("[ReLearn] Copilot token exchange error:", err);
+    console.error("[ReLearn] If you don't have GitHub Copilot, use Google AI instead (recommended for students).");
     return null;
   }
 }

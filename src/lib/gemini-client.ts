@@ -48,6 +48,7 @@ export async function callAIDirect(
     return callCopilotDirect(copilotToken, getSelectedModel(), messages, options);
   }
 
+  console.error("[ReLearn] No AI provider available. Connect Google or GitHub in Settings.");
   return null;
 }
 
@@ -71,6 +72,7 @@ export async function streamAIDirect(
     return streamCopilotDirect(copilotToken, getSelectedModel(), messages, options);
   }
 
+  console.error("[ReLearn] No AI provider available. Connect Google or GitHub in Settings.");
   return null;
 }
 

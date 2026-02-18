@@ -3,6 +3,7 @@
 // Tauri: loopback server + Rust-side token exchange (no CORS)
 
 const GOOGLE_STORAGE_KEY = "relearn_google_auth";
+const GOOGLE_CLIENT_SECRET = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET || "";
 const GOOGLE_CLIENT_ID = "416083111669-3n936matebl72sc8dbhjfjgb8q58l7pq.apps.googleusercontent.com";
 
 const SCOPES = [
@@ -96,6 +97,7 @@ export async function ensureGoogleToken(): Promise<string | null> {
         data = await invoke("google_refresh_token", {
           refreshToken: auth.refreshToken,
           clientId: GOOGLE_CLIENT_ID,
+          clientSecret: GOOGLE_CLIENT_SECRET,
         });
       } else {
         const res = await fetch("https://oauth2.googleapis.com/token", {
@@ -103,6 +105,7 @@ export async function ensureGoogleToken(): Promise<string | null> {
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: new URLSearchParams({
             client_id: GOOGLE_CLIENT_ID,
+            client_secret: GOOGLE_CLIENT_SECRET,
             grant_type: "refresh_token",
             refresh_token: auth.refreshToken,
           }),
@@ -192,6 +195,7 @@ async function startTauriGoogleOAuth(
           redirectUri,
           codeVerifier,
           clientId: GOOGLE_CLIENT_ID,
+          clientSecret: GOOGLE_CLIENT_SECRET,
         });
 
         const userInfo = data.user_info || {};
@@ -249,6 +253,7 @@ export async function handleGoogleCallback(code: string, state: string): Promise
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
         client_id: GOOGLE_CLIENT_ID,
+        client_secret: GOOGLE_CLIENT_SECRET,
         code,
         grant_type: "authorization_code",
         redirect_uri: redirectUri,
