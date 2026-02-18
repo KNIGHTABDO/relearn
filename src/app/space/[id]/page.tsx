@@ -47,7 +47,7 @@ export default function SpacePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(\`/api/spaces/\${spaceId}\`)
+    fetch(`/api/spaces/${spaceId}`)
       .then((r) => r.json())
       .then((d) => {
         if (d.error) {
@@ -61,15 +61,15 @@ export default function SpacePage() {
   }, [spaceId, router]);
 
   const handleUploadToSpace = () => {
-    router.push(\`/upload?spaceId=\${spaceId}\`);
+    router.push(`/upload?spaceId=${spaceId}`);
   };
 
   const handlePasteToSpace = () => {
-    router.push(\`/paste?spaceId=\${spaceId}\`);
+    router.push(`/paste?spaceId=${spaceId}`);
   };
 
   const deleteDocument = async (docId: string) => {
-    await fetch(\`/api/document/\${docId}\`, { method: "DELETE" });
+    await fetch(`/api/document/${docId}`, { method: "DELETE" });
     setSpace((prev) =>
       prev ? { ...prev, documents: prev.documents.filter((d) => d.id !== docId) } : null
     );
@@ -132,14 +132,14 @@ export default function SpacePage() {
           {/* Space actions */}
           <div className="mt-6 flex flex-wrap gap-2">
             <Link
-              href={\`/learn?spaceId=\${spaceId}\`}
+              href={`/learn?spaceId=${spaceId}`}
               className="flex items-center gap-2 rounded-xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface transition-colors"
             >
               <MessageSquare className="h-4 w-4 text-yl-sky" />
               Chat with Space
             </Link>
             <Link
-              href={\`/exam?spaceId=\${spaceId}\`}
+              href={`/exam?spaceId=${spaceId}`}
               className="flex items-center gap-2 rounded-xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface transition-colors"
             >
               <ClipboardCheck className="h-4 w-4 text-yl-pink" />
@@ -180,7 +180,7 @@ export default function SpacePage() {
                       <FileText className="h-5 w-5 text-gray-400 dark:text-dark-text-muted" />
                     </div>
                     <Link
-                      href={\`/learn?id=\${doc.id}\`}
+                      href={`/learn?id=${doc.id}`}
                       className="flex-1 min-w-0"
                     >
                       <p className="text-sm font-medium text-gray-900 dark:text-dark-text truncate hover:text-yl-blue transition-colors">
