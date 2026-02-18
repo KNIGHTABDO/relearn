@@ -23,7 +23,8 @@ export function useTranslation() {
   return useI18n();
 }
 
-const RTL_LANGUAGES: Language[] = ["ar"];
+// RTL support disabled until proper RTL layout is implemented
+const RTL_LANGUAGES: Language[] = [];
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLangState] = useState<Language>("en");
@@ -37,13 +38,14 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     setLangState(newLang);
     localStorage.setItem("relearn-language", newLang);
     document.documentElement.lang = newLang;
-    document.documentElement.dir = RTL_LANGUAGES.includes(newLang) ? "rtl" : "ltr";
+    // dir setting disabled — RTL layout not ready
+    // document.documentElement.dir = RTL_LANGUAGES.includes(newLang) ? "rtl" : "ltr";
     window.dispatchEvent(new CustomEvent("language-changed", { detail: newLang }));
   }, []);
 
   useEffect(() => {
     document.documentElement.lang = lang;
-    document.documentElement.dir = RTL_LANGUAGES.includes(lang) ? "rtl" : "ltr";
+    // document.documentElement.dir = RTL_LANGUAGES.includes(lang) ? "rtl" : "ltr";
   }, [lang]);
 
   const t = useCallback((key: string, params?: Record<string, string | number>): string => {
