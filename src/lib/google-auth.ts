@@ -1,5 +1,6 @@
 // Google Gemini Auth — Client-Side Token Manager
-// Supports both web (server-side token exchange) and Tauri desktop (client-side PKCE)
+// Web mode: standard OAuth redirect to /auth/google/callback
+// Tauri mode: loopback IP redirect via Rust oauth_plugin
 
 const GOOGLE_STORAGE_KEY = "relearn_google_auth";
 const GOOGLE_CLIENT_ID = "416083111669-6p59skr1qobuoj1dgdujfr4h6d4u7m09.apps.googleusercontent.com";
@@ -88,10 +89,8 @@ export async function ensureGoogleToken(): Promise<string | null> {
     return auth.accessToken;
   }
 
-  // Token expired — refresh it
   if (auth.refreshToken) {
     try {
-      // Always refresh client-side via Google's token endpoint directly
       const res = await fetch("https://oauth2.googleapis.com/token", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -133,43 +132,80 @@ export async function startGoogleLogin(): Promise<void> {
   const state = crypto.randomUUID();
   sessionStorage.setItem("google_oauth_state", state);
 
-  // In Tauri desktop, use the app's own callback page
-  // The redirect URI must match what's registered in Google Cloud Console
-  const redirectUri = isTauri()
-    ? "https://tauri.localhost/auth/google/callback"
-    : window.location.origin + "/auth/google/callback";
-
-  // Always use PKCE for security (works for both web and desktop)
   const codeVerifier = generateRandomString(64);
   sessionStorage.setItem("google_code_verifier", codeVerifier);
   const codeChallenge = await generateCodeChallenge(codeVerifier);
 
-  const params = new URLSearchParams({
-    client_id: GOOGLE_CLIENT_ID,
-    redirect_uri: redirectUri,
-    response_type: "code",
-    scope: SCOPES,
-    access_type: "offline",
-    prompt: "consent",
-    state,
-    include_granted_scopes: "true",
-    code_challenge: codeChallenge,
-    code_challenge_method: "S256",
-  });
-
-  const authUrl = "https://accounts.google.com/o/oauth2/v2/auth?" + params.toString();
-
   if (isTauri()) {
-    // Open in system browser — Tauri will catch the redirect back to https://tauri.localhost
-    try {
-      const { open } = await import("@tauri-apps/plugin-shell");
-      await open(authUrl);
-    } catch {
-      // Fallback: open in webview
-      window.location.href = authUrl;
-    }
+    // Desktop mode: use loopback IP redirect via Rust plugin
+    await startTauriOAuth(state, codeVerifier, codeChallenge);
   } else {
-    window.location.href = authUrl;
+    // Web mode: standard redirect
+    const redirectUri = window.location.origin + "/auth/google/callback";
+    const params = new URLSearchParams({
+      client_id: GOOGLE_CLIENT_ID,
+      redirect_uri: redirectUri,
+      response_type: "code",
+      scope: SCOPES,
+      access_type: "offline",
+      prompt: "consent",
+      state,
+      include_granted_scopes: "true",
+      code_challenge: codeChallenge,
+      code_challenge_method: "S256",
+    });
+    window.location.href = "https://accounts.google.com/o/oauth2/v2/auth?" + params.toString();
+  }
+}
+
+async function startTauriOAuth(state: string, codeVerifier: string, codeChallenge: string): Promise<void> {
+  try {
+    // 1. Start the loopback HTTP server via Rust plugin — returns the port
+    const { invoke } = await import("@tauri-apps/api/core");
+    const port: number = await invoke("start_oauth_server");
+    const redirectUri = "http://127.0.0.1:" + port + "/callback";
+
+    // Store redirect URI for token exchange later
+    sessionStorage.setItem("google_redirect_uri", redirectUri);
+
+    // 2. Listen for the oauth-callback event from Rust
+    const { listen } = await import("@tauri-apps/api/event");
+    const unlisten = await listen<string>("oauth-callback", async (event) => {
+      unlisten();
+      // event.payload is the query string: "code=xxx&state=yyy&scope=zzz"
+      const params = new URLSearchParams(event.payload);
+      const code = params.get("code");
+      const returnedState = params.get("state");
+
+      if (code && returnedState) {
+        const success = await handleGoogleCallback(code, returnedState);
+        if (success) {
+          // Navigate to settings to show connected state
+          window.location.href = "/settings";
+        }
+      }
+    });
+
+    // 3. Open Google auth in system browser
+    const authParams = new URLSearchParams({
+      client_id: GOOGLE_CLIENT_ID,
+      redirect_uri: redirectUri,
+      response_type: "code",
+      scope: SCOPES,
+      access_type: "offline",
+      prompt: "consent",
+      state,
+      include_granted_scopes: "true",
+      code_challenge: codeChallenge,
+      code_challenge_method: "S256",
+    });
+
+    const { open } = await import("@tauri-apps/plugin-shell");
+    await open("https://accounts.google.com/o/oauth2/v2/auth?" + authParams.toString());
+  } catch (err) {
+    console.error("Tauri OAuth error:", err);
+    // Fallback: try opening in webview (won't work well but better than nothing)
+    alert("Failed to start authentication. Please try again.");
   }
 }
 
@@ -186,13 +222,16 @@ export async function handleGoogleCallback(code: string, state: string): Promise
   const codeVerifier = sessionStorage.getItem("google_code_verifier");
   sessionStorage.removeItem("google_code_verifier");
 
-  const redirectUri = isTauri()
-    ? "https://tauri.localhost/auth/google/callback"
-    : window.location.origin + "/auth/google/callback";
+  // Determine the correct redirect_uri (must match what was sent to Google)
+  let redirectUri: string;
+  if (isTauri()) {
+    redirectUri = sessionStorage.getItem("google_redirect_uri") || "";
+    sessionStorage.removeItem("google_redirect_uri");
+  } else {
+    redirectUri = window.location.origin + "/auth/google/callback";
+  }
 
   try {
-    // Exchange code for tokens — always client-side via Google's token endpoint
-    // Using PKCE (code_verifier) instead of client_secret for public clients
     const tokenParams: Record<string, string> = {
       client_id: GOOGLE_CLIENT_ID,
       code,
@@ -218,7 +257,6 @@ export async function handleGoogleCallback(code: string, state: string): Promise
 
     const data = await res.json();
 
-    // Fetch user info
     let userInfo: any = {};
     try {
       const userRes = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
