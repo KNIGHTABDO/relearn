@@ -3,7 +3,7 @@
 // Tauri: loopback server + Rust-side token exchange (no CORS)
 
 const GOOGLE_STORAGE_KEY = "relearn_google_auth";
-const GOOGLE_CLIENT_ID = "416083111669-6p59skr1qobuoj1dgdujfr4h6d4u7m09.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID = "416083111669-3n936matebl72sc8dbhjfjgb8q58l7pq.apps.googleusercontent.com";
 
 const SCOPES = [
   "https://www.googleapis.com/auth/generative-language",
