@@ -11,7 +11,7 @@
   "app": {
     "windows": [
       {
-        "title": "ReLearn \u2014 AI Study Platform",
+        "title": "ReLearn — AI Study Platform",
         "width": 1280,
         "height": 800,
         "minWidth": 800,
@@ -52,9 +52,9 @@
   },
   "plugins": {
     "sql": {
-      "preload": {
-        "db": "sqlite:relearn.db"
-      }
+      "preload": [
+        "sqlite:relearn.db"
+      ]
     }
   }
 }
