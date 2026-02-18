@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ensureCopilotToken, isAuthenticated, getSelectedModel } from "@/lib/github-auth";
+import { useI18n } from "@/components/providers/i18n-provider";
 
 interface QuizQuestion {
   id: string;
@@ -30,6 +31,7 @@ interface QuizViewerProps {
 }
 
 export function QuizViewer({ documentId, spaceId, renderSources }: QuizViewerProps) {
+  const { t } = useI18n();
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -109,8 +111,8 @@ export function QuizViewer({ documentId, spaceId, renderSources }: QuizViewerPro
           <Sparkles className="absolute -right-1 -top-1 h-4 w-4 text-yl-gold animate-pulse" />
         </div>
         <div className="text-center">
-          <p className="text-sm font-medium text-gray-600 dark:text-dark-text-secondary">Creating quiz...</p>
-          <p className="mt-0.5 text-xs text-gray-400 dark:text-dark-text-muted">Generating questions from your content</p>
+          <p className="text-sm font-medium text-gray-600 dark:text-dark-text-secondary">{t("quiz.creating")}</p>
+          <p className="mt-0.5 text-xs text-gray-400 dark:text-dark-text-muted">{t("quiz.generating")}</p>
         </div>
       </div>
     );
@@ -119,8 +121,8 @@ export function QuizViewer({ documentId, spaceId, renderSources }: QuizViewerPro
   if (questions.length === 0) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center py-16 text-center px-6">
-        <p className="text-sm text-gray-500 dark:text-dark-text-muted">No quiz questions generated</p>
-        <button onClick={fetchQuiz} className="mt-3 text-xs font-medium text-gray-600 dark:text-dark-text-secondary hover:text-gray-900 dark:hover:text-dark-text dark:text-dark-text">Try again</button>
+        <p className="text-sm text-gray-500 dark:text-dark-text-muted">{t("quiz.no_questions")}</p>
+        <button onClick={fetchQuiz} className="mt-3 text-xs font-medium text-gray-600 dark:text-dark-text-secondary hover:text-gray-900 dark:hover:text-dark-text dark:text-dark-text">{t("common.retry")}</button>
       </div>
     );
   }
@@ -144,10 +146,10 @@ export function QuizViewer({ documentId, spaceId, renderSources }: QuizViewerPro
         </div>
         <h3 className="mt-4 text-2xl font-bold text-gray-900 dark:text-dark-text">{pct}%</h3>
         <p className="mt-1 text-sm text-gray-500 dark:text-dark-text-muted">
-          {score} out of {questions.length} correct
+          {score} {t("quiz.out_of")} {questions.length} {t("quiz.correct")}
         </p>
         <p className="mt-2 text-xs text-gray-400 dark:text-dark-text-muted">
-          {isGreat ? "Excellent work! You've mastered this material." : isOk ? "Good effort! Review the topics you missed." : "Keep studying — you'll get there!"}
+          {isGreat ? t("quiz.excellent_work") : isOk ? t("quiz.good_effort") : t("quiz.keep_studying")}
         </p>
 
         <div className="mt-6 flex gap-3">
@@ -156,7 +158,7 @@ export function QuizViewer({ documentId, spaceId, renderSources }: QuizViewerPro
             className="flex items-center gap-1.5 rounded-xl border border-gray-200 dark:border-dark-border px-4 py-2.5 text-xs font-medium text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface transition-colors"
           >
             <RotateCcw className="h-3 w-3" />
-            New Quiz
+            {t("quiz.new_quiz")}
           </button>
         </div>
       </div>
@@ -173,15 +175,15 @@ export function QuizViewer({ documentId, spaceId, renderSources }: QuizViewerPro
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 dark:bg-dark-card text-[10px] font-bold text-gray-600 dark:text-dark-text-secondary">
             {currentIndex + 1}
           </span>
-          <span className="text-xs text-gray-400 dark:text-dark-text-muted">of {questions.length}</span>
+          <span className="text-xs text-gray-400 dark:text-dark-text-muted">{t("quiz.question_of")} {questions.length}</span>
         </div>
         <div className="flex items-center gap-2">
           {aiGenerated ? (
             <span className="inline-flex items-center gap-1 rounded-full bg-yl-gold-bg dark:bg-yl-gold-bg-dark px-2 py-0.5 text-[10px] font-medium text-yl-gold">
-              <Sparkles className="h-2.5 w-2.5" /> AI
+              <Sparkles className="h-2.5 w-2.5" /> {t("common.ai_generated")}
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 dark:bg-dark-card px-2 py-0.5 text-[10px] font-medium text-gray-400 dark:text-dark-text-muted">Sample</span>
+            <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 dark:bg-dark-card px-2 py-0.5 text-[10px] font-medium text-gray-400 dark:text-dark-text-muted">{t("common.sample")}</span>
           )}
           <div className="flex items-center gap-1">
             <Target className="h-3 w-3 text-gray-400 dark:text-dark-text-muted" />
@@ -251,7 +253,7 @@ export function QuizViewer({ documentId, spaceId, renderSources }: QuizViewerPro
         <div className="mt-4 rounded-xl border border-gray-100 dark:border-dark-border bg-gray-50 dark:bg-dark-surface p-3.5 animate-fade-in">
           <div className="flex items-center gap-1.5 mb-1.5">
             <BookMarked className="h-3 w-3 text-gray-500 dark:text-dark-text-muted" />
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-dark-text-muted">Explanation</span>
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-dark-text-muted">{t("quiz.explanation")}</span>
           </div>
           <p className="text-xs leading-relaxed text-gray-600 dark:text-dark-text-secondary">
             {renderText(q.explanation)}
@@ -265,7 +267,7 @@ export function QuizViewer({ documentId, spaceId, renderSources }: QuizViewerPro
           onClick={nextQuestion}
           className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-xl bg-black py-3 text-xs font-medium text-white hover:bg-gray-800 transition-colors animate-fade-in"
         >
-          {currentIndex === questions.length - 1 ? "See Results" : "Next Question"}
+          {currentIndex === questions.length - 1 ? t("quiz.see_results") : t("quiz.next_question")}
           <ChevronRight className="h-3 w-3" />
         </button>
       )}
