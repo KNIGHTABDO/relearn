@@ -19,6 +19,8 @@ export interface Document {
   fileSize?: number;
   pageCount?: number;
   url?: string;
+  /** Base64-encoded raw file data (for PDF rendering) */
+  fileData?: string;
   createdAt: Date;
   spaceId?: string;
 }
