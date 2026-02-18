@@ -1,18 +1,25 @@
 /** @type {import('next').NextConfig} */
+const isTauriBuild = process.env.TAURI_ENV_PLATFORM !== undefined;
+
 const nextConfig = {
-  // Static export for Tauri desktop app
-  output: "export",
+  // Static export only when building for Tauri (no API routes needed)
+  ...(isTauriBuild ? { output: "export" } : {}),
   images: {
-    unoptimized: true,
+    unoptimized: isTauriBuild,
     remotePatterns: [
       { protocol: 'https', hostname: '**' },
     ],
   },
   webpack: (config) => {
-    // Handle canvas dependency for pdf.js (not needed in browser)
     config.resolve.alias.canvas = false;
     config.resolve.alias.encoding = false;
     return config;
   },
+  // Skip API routes when building for Tauri
+  ...(isTauriBuild ? {
+    experimental: {
+      // Exclude server-only code from static export
+    },
+  } : {}),
 };
 export default nextConfig;
