@@ -57,24 +57,24 @@ export default function PastePage() {
   const activeMode = modes.find((m) => m.id === mode)!;
 
   return (
-    <div className="flex h-screen flex-col bg-white">
+    <div className="flex h-screen flex-col bg-white dark:bg-dark-bg dark:bg-dark-bg">
       <Header onMenuClick={() => setSidebarOpen(true)} />
       <SidebarDrawer open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <main className="flex flex-1 flex-col items-center justify-center px-6">
         <div className="w-full max-w-lg">
           <div className="text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-50">
-              <Link2 className="h-6 w-6 text-gray-400" />
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-50 dark:bg-dark-surface dark:bg-dark-surface">
+              <Link2 className="h-6 w-6 text-gray-400 dark:text-dark-text-muted" />
             </div>
-            <h1 className="mt-4 text-2xl font-bold text-gray-900">Paste content</h1>
-            <p className="mt-2 text-sm text-gray-500">
+            <h1 className="mt-4 text-2xl font-bold text-gray-900 dark:text-dark-text">Paste content</h1>
+            <p className="mt-2 text-sm text-gray-500 dark:text-dark-text-muted">
               {spaceId ? "Add content to your space" : "YouTube videos, websites, or text"}
             </p>
           </div>
 
           {/* Mode selector */}
-          <div className="mx-auto mt-6 flex w-fit rounded-xl border border-gray-200 p-1">
+          <div className="mx-auto mt-6 flex w-fit rounded-xl border border-gray-200 dark:border-dark-border p-1">
             {modes.map((m) => (
               <button
                 key={m.id}
@@ -83,7 +83,7 @@ export default function PastePage() {
                   "flex items-center gap-1.5 rounded-lg px-4 py-2 text-xs font-medium transition-all",
                   mode === m.id
                     ? "bg-black text-white"
-                    : "text-gray-500 hover:text-gray-700"
+                    : "text-gray-500 dark:text-dark-text-muted hover:text-gray-700 dark:hover:text-dark-text dark:text-dark-text-secondary"
                 )}
               >
                 <m.icon className="h-3.5 w-3.5" />
@@ -100,18 +100,18 @@ export default function PastePage() {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={activeMode.placeholder}
                 rows={8}
-                className="w-full rounded-2xl border border-gray-200 bg-white px-5 py-4 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-gray-300 focus:shadow-sm resize-none"
+                className="w-full rounded-2xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg px-5 py-4 text-sm text-gray-900 dark:text-dark-text placeholder:text-gray-400 dark:placeholder:text-dark-text-muted dark:text-dark-text-muted outline-none focus:border-gray-300 dark:focus:border-dark-border dark:border-dark-border focus:shadow-sm dark:focus:shadow-none resize-none"
               />
             ) : (
-              <div className="flex items-center rounded-full border border-gray-200 bg-white px-5 py-3 focus-within:border-gray-300 focus-within:shadow-sm">
-                <activeMode.icon className="mr-3 h-4 w-4 text-gray-400" />
+              <div className="flex items-center rounded-full border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg px-5 py-3 focus-within:border-gray-300 dark:focus-within:border-dark-border dark:border-dark-border focus-within:shadow-sm dark:focus-within:shadow-none">
+                <activeMode.icon className="mr-3 h-4 w-4 text-gray-400 dark:text-dark-text-muted" />
                 <input
                   type="url"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
                   placeholder={activeMode.placeholder}
-                  className="flex-1 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 outline-none"
+                  className="flex-1 bg-transparent text-sm text-gray-900 dark:text-dark-text placeholder:text-gray-400 dark:placeholder:text-dark-text-muted dark:text-dark-text-muted outline-none"
                 />
               </div>
             )}
