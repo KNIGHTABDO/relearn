@@ -5,6 +5,7 @@ import { RotateCcw, ChevronLeft, ChevronRight, Loader2, Sparkles, BookMarked } f
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { ensureCopilotToken, isAuthenticated, getSelectedModel } from "@/lib/github-auth";
+import { useI18n } from "@/components/providers/i18n-provider";
 
 interface Flashcard {
   id: string;
@@ -19,6 +20,7 @@ interface FlashcardViewerProps {
 }
 
 export function FlashcardViewer({ documentId, spaceId, renderSources }: FlashcardViewerProps) {
+  const { t } = useI18n();
   const [cards, setCards] = useState<Flashcard[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -77,8 +79,8 @@ export function FlashcardViewer({ documentId, spaceId, renderSources }: Flashcar
           <Sparkles className="absolute -right-1 -top-1 h-4 w-4 text-yl-gold animate-pulse" />
         </div>
         <div className="text-center">
-          <p className="text-sm font-medium text-gray-600 dark:text-dark-text-secondary">Generating flashcards...</p>
-          <p className="mt-0.5 text-xs text-gray-400 dark:text-dark-text-muted">Creating study cards from your content</p>
+          <p className="text-sm font-medium text-gray-600 dark:text-dark-text-secondary">{t("flashcard.generating_flashcards")}</p>
+          <p className="mt-0.5 text-xs text-gray-400 dark:text-dark-text-muted">{t("flashcard.creating_study_cards")}</p>
         </div>
       </div>
     );
@@ -87,13 +89,13 @@ export function FlashcardViewer({ documentId, spaceId, renderSources }: Flashcar
   if (cards.length === 0) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center py-16 text-center px-6">
-        <Image src="/images/empty-flashcards.png" alt="No flashcards" width={160} height={160} className="rounded-xl opacity-80 mb-3" />
-        <p className="text-sm text-gray-500 dark:text-dark-text-muted">No flashcards generated</p>
+        <Image src="/images/empty-flashcards.png" alt={t("flashcard.no_flashcards_alt")} width={160} height={160} className="rounded-xl opacity-80 mb-3" />
+        <p className="text-sm text-gray-500 dark:text-dark-text-muted">{t("flashcard.no_flashcards_generated")}</p>
         <button
           onClick={fetchFlashcards}
           className="mt-3 text-xs font-medium text-gray-600 dark:text-dark-text-secondary hover:text-gray-900 dark:hover:text-dark-text dark:text-dark-text"
         >
-          Try again
+          {t("common.retry")}
         </button>
       </div>
     );
@@ -111,11 +113,11 @@ export function FlashcardViewer({ documentId, spaceId, renderSources }: Flashcar
         {aiGenerated ? (
           <span className="inline-flex items-center gap-1 rounded-full bg-yl-gold-bg dark:bg-yl-gold-bg-dark px-2 py-0.5 text-[10px] font-medium text-yl-gold">
             <Sparkles className="h-2.5 w-2.5" />
-            AI Generated
+            {t("common.ai_generated")}
           </span>
         ) : (
           <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 dark:bg-dark-card px-2 py-0.5 text-[10px] font-medium text-gray-400 dark:text-dark-text-muted">
-            Sample Data
+            {t("common.sample_data")}
           </span>
         )}
       </div>
@@ -136,7 +138,7 @@ export function FlashcardViewer({ documentId, spaceId, renderSources }: Flashcar
             <p className="text-center text-sm font-medium text-gray-900 dark:text-dark-text leading-relaxed">
               {card.front}
             </p>
-            <p className="mt-4 text-[10px] text-gray-300 dark:text-dark-text-muted">Tap to reveal answer</p>
+            <p className="mt-4 text-[10px] text-gray-300 dark:text-dark-text-muted">{t("flashcard.tap_to_reveal_answer")}</p>
           </div>
 
           {/* Back */}
@@ -198,7 +200,7 @@ export function FlashcardViewer({ documentId, spaceId, renderSources }: Flashcar
         className="mt-6 flex items-center gap-1.5 text-xs text-gray-400 dark:text-dark-text-muted hover:text-gray-600 dark:hover:text-dark-text-secondary dark:text-dark-text-secondary transition-colors"
       >
         <RotateCcw className="h-3 w-3" />
-        Regenerate
+        {t("flashcard.regenerate")}
       </button>
     </div>
   );
