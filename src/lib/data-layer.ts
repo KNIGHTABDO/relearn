@@ -101,3 +101,82 @@ export async function uploadTextAction(text: string): Promise<string | null> {
     return null;
   }
 }
+
+export async function getSpaceById(id: string): Promise<SpaceInfo | null> {
+  if (db.isDesktopMode()) {
+    const space = await db.getSpace(id);
+    if (!space) return null;
+    return {
+      id: space.id,
+      name: space.name,
+      description: space.description || '',
+      color: space.color || '#3B82F6',
+      icon: space.icon || '📚',
+      documentCount: space.documents?.length || 0,
+      updatedAt: space.updatedAt?.toISOString?.() || new Date().toISOString(),
+      tags: space.tags || [],
+    };
+  }
+  try {
+    const res = await fetch(`/api/spaces/${id}`);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+export interface DocumentInfo {
+  id: string;
+  title: string;
+  type: string;
+  createdAt: string;
+  spaceId?: string;
+}
+
+export async function getDocumentsBySpace(spaceId: string): Promise<DocumentInfo[]> {
+  if (db.isDesktopMode()) {
+    const docs = await db.getDocumentsBySpace(spaceId);
+    return docs.map((d) => ({
+      id: d.id,
+      title: d.title,
+      type: d.type,
+      createdAt: d.createdAt?.toISOString?.() || new Date().toISOString(),
+      spaceId: d.spaceId,
+    }));
+  }
+  try {
+    const res = await fetch(`/api/spaces/${spaceId}`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.documents || [];
+  } catch {
+    return [];
+  }
+}
+
+export async function deleteSpaceAction(id: string): Promise<boolean> {
+  if (db.isDesktopMode()) {
+    await db.deleteSpace(id);
+    return true;
+  }
+  try {
+    const res = await fetch(`/api/spaces/${id}`, { method: 'DELETE' });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+export async function deleteDocumentAction(id: string): Promise<boolean> {
+  if (db.isDesktopMode()) {
+    await db.deleteDocument(id);
+    return true;
+  }
+  try {
+    const res = await fetch(`/api/document/${id}`, { method: 'DELETE' });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
