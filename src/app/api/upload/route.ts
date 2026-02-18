@@ -16,6 +16,7 @@ export async function POST(request: NextRequest) {
     let fileSize = 0;
     let pageCount = 0;
     let url: string | undefined;
+    let fileData: string | undefined; // base64 encoded raw file
 
     if (file) {
       title = file.name.replace(/\.[^.]+$/, "");
@@ -24,6 +25,9 @@ export async function POST(request: NextRequest) {
 
       if (file.name.endsWith(".pdf")) {
         docType = "pdf";
+        // Store raw PDF as base64 for viewer rendering
+        fileData = buffer.toString("base64");
+
         try {
           const pdfParse = (await import("pdf-parse")).default;
           const pdfData = await pdfParse(buffer);
@@ -37,12 +41,12 @@ export async function POST(request: NextRequest) {
             .trim();
 
           if (!extractedText || extractedText.length < 20) {
-            extractedText = `[PDF Document: ${title}]\n\nThis PDF appears to be image-based or has no extractable text. OCR would be needed.\n\nPages: ${pageCount}\nSize: ${(file.size / 1024).toFixed(1)} KB`;
+            extractedText = `[PDF Document: ${title}]\n\nImage-based PDF — no extractable text. OCR would be needed.\nPages: ${pageCount}\nSize: ${(file.size / 1024).toFixed(1)} KB`;
           }
         } catch (pdfErr) {
           console.error("PDF parse error:", pdfErr);
           pageCount = Math.max(1, Math.floor(file.size / 3000));
-          extractedText = `[PDF Document: ${title}]\n\nPDF text extraction encountered an error. Pages: ~${pageCount}\nSize: ${(file.size / 1024).toFixed(1)} KB`;
+          extractedText = `[PDF Document: ${title}]\n\nPDF parsing error.\nPages: ~${pageCount}\nSize: ${(file.size / 1024).toFixed(1)} KB`;
         }
       } else if (file.name.endsWith(".txt") || file.name.endsWith(".md")) {
         docType = "text";
@@ -70,10 +74,9 @@ export async function POST(request: NextRequest) {
         const info = await fetchYouTubeInfo(youtubeUrl);
         title = info.title;
         extractedText = info.fullText;
-        pageCount = Math.ceil(info.duration / 60); // "pages" as minutes for YouTube
+        pageCount = Math.ceil(info.duration / 60);
       } catch (ytErr) {
         console.error("YouTube transcript error:", ytErr);
-        // Fallback: at least get the title via oEmbed
         try {
           const oembedRes = await fetch(
             `https://www.youtube.com/oembed?url=${encodeURIComponent(youtubeUrl)}&format=json`
@@ -83,7 +86,7 @@ export async function POST(request: NextRequest) {
             if (oembed.title) title = oembed.title;
           }
         } catch {}
-        extractedText = `[YouTube Video: ${title}]\nURL: ${youtubeUrl}\n\nTranscript extraction failed. The AI can still help with questions based on the video title and topic.`;
+        extractedText = `[YouTube Video: ${title}]\nURL: ${youtubeUrl}\n\nTranscript extraction failed.`;
       }
     } else if (text) {
       extractedText = text;
@@ -93,7 +96,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No content provided" }, { status: 400 });
     }
 
-    // Text chunking for RAG
     const chunks = chunkText(extractedText, 800, 100);
 
     const id = "doc-" + store.generateId();
@@ -106,6 +108,7 @@ export async function POST(request: NextRequest) {
       fileSize,
       pageCount,
       url,
+      fileData,
       createdAt: new Date(),
       spaceId: spaceId || undefined,
     });
