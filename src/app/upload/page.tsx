@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback , Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { SidebarDrawer } from "@/components/layout/sidebar-drawer";
@@ -24,7 +24,7 @@ interface UploadedFile {
   id?: string;
 }
 
-export default function UploadPage() {
+function UploadPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const spaceId = searchParams.get("spaceId");
@@ -183,5 +183,13 @@ export default function UploadPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function UploadPage() {
+  return (
+    <Suspense fallback={<div className="flex h-screen items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-purple-500" /></div>}>
+      <UploadPageInner />
+    </Suspense>
   );
 }
