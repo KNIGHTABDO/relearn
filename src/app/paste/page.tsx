@@ -14,11 +14,14 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/components/providers/i18n-provider";
+import { useDatabaseContext } from "@/components/providers/database-provider";
+import { uploadTextAction } from "@/lib/data-layer";
 
 type InputMode = "youtube" | "website" | "text";
 
 function PastePageInner() {
   const { t } = useI18n();
+  const { isDesktop } = useDatabaseContext();
   const router = useRouter();
   const searchParams = useSearchParams();
   const spaceId = searchParams.get("spaceId");
@@ -31,18 +34,26 @@ function PastePageInner() {
     if (!input.trim()) return;
     setLoading(true);
     try {
-      const formData = new FormData();
-      if (mode === "youtube") {
-        formData.append("youtube_url", input.trim());
+      if (isDesktop) {
+        // Desktop mode: save text directly to SQLite
+        const docId = await uploadTextAction(input.trim());
+        if (docId) {
+          router.push(`/learn?id=${docId}`);
+        }
       } else {
-        formData.append("text", input.trim());
-      }
-      if (spaceId) formData.append("space_id", spaceId);
+        const formData = new FormData();
+        if (mode === "youtube") {
+          formData.append("youtube_url", input.trim());
+        } else {
+          formData.append("text", input.trim());
+        }
+        if (spaceId) formData.append("space_id", spaceId);
 
-      const res = await fetch("/api/upload", { method: "POST", body: formData });
-      const data = await res.json();
-      if (data.id) {
-        router.push(`/learn?id=${data.id}`);
+        const res = await fetch("/api/upload", { method: "POST", body: formData });
+        const data = await res.json();
+        if (data.id) {
+          router.push(`/learn?id=${data.id}`);
+        }
       }
     } catch {
     } finally {
