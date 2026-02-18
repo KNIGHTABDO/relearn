@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef , Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { SidebarDrawer } from "@/components/layout/sidebar-drawer";
@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
 
 type RecordState = "idle" | "recording" | "paused" | "done";
 
-export default function RecordPage() {
+function RecordPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const spaceId = searchParams.get("spaceId");
@@ -261,5 +261,13 @@ export default function RecordPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function RecordPage() {
+  return (
+    <Suspense fallback={<div className="flex h-screen items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-purple-500" /></div>}>
+      <RecordPageInner />
+    </Suspense>
   );
 }
