@@ -181,7 +181,17 @@ export default function SettingsPage() {
     setConnState("connecting");
     setErrorMsg(null);
 
-    const deviceData = await startDeviceLogin();
+    console.log("[ReLearn] Starting GitHub device login...");
+    let deviceData;
+    try {
+      deviceData = await startDeviceLogin();
+      console.log("[ReLearn] Device login result:", deviceData);
+    } catch (err: any) {
+      console.error("[ReLearn] GitHub device login error:", err);
+      setConnState("error");
+      setErrorMsg("GitHub login failed: " + (err?.message || String(err)));
+      return;
+    }
     if (!deviceData) {
       setConnState("error");
       setErrorMsg("Failed to start login. Check your connection.");
@@ -229,7 +239,16 @@ export default function SettingsPage() {
 
   // Google auth handlers
   const handleGoogleConnect = async () => {
-    await startGoogleLogin();
+    setGoogleConnState("connecting");
+    try {
+      console.log("[ReLearn] Starting Google login...");
+      await startGoogleLogin();
+      console.log("[ReLearn] Google login flow initiated");
+    } catch (err: any) {
+      console.error("[ReLearn] Google login error:", err);
+      setGoogleConnState("error");
+      setErrorMsg("Google login failed: " + (err?.message || String(err)));
+    }
   };
 
   const handleGoogleDisconnect = () => {
