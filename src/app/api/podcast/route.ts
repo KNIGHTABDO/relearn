@@ -76,7 +76,7 @@ OUTPUT FORMAT — return ONLY valid JSON, no markdown fences:
     const response = await fetch("https://api.githubcopilot.com/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: \`Bearer \${copilotToken}\`,
+        Authorization: `Bearer ${copilotToken}`,
         "Content-Type": "application/json",
         "Copilot-Integration-Id": "vscode-chat",
       },
@@ -84,7 +84,7 @@ OUTPUT FORMAT — return ONLY valid JSON, no markdown fences:
         model: req.headers.get("x-model") || "gpt-4o",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: \`Generate a podcast script about the following study material:\n\n\${context}\` },
+          { role: "user", content: `Generate a podcast script about the following study material:\n\n${context}` },
         ],
         temperature: 0.7,
       }),
