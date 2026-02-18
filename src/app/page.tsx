@@ -1,160 +1,88 @@
 "use client";
 
-import React from "react";
-import { AppShell } from "@/components/layout";
-import {
-  Upload,
-  FileText,
-  MessageSquare,
-  BrainCircuit,
-  ArrowRight,
-  Sparkles,
-  Clock,
-  BookOpen,
-  TrendingUp,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+import React, { useState } from "react";
+import { Header } from "@/components/layout/header";
+import { SidebarDrawer } from "@/components/layout/sidebar-drawer";
+import { Upload, Link2, Mic, Sparkles, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-const stats = [
+const inputCards = [
   {
-    label: "Documents",
-    value: "0",
-    icon: FileText,
-    description: "Uploaded materials",
-  },
-  {
-    label: "AI Sessions",
-    value: "0",
-    icon: MessageSquare,
-    description: "Tutor conversations",
-  },
-  {
-    label: "Flashcards",
-    value: "0",
-    icon: BrainCircuit,
-    description: "Cards generated",
-  },
-  {
-    label: "Study Hours",
-    value: "0",
-    icon: Clock,
-    description: "Time learning",
-  },
-];
-
-const quickActions = [
-  {
-    title: "Upload Material",
-    description: "Drop a PDF, paste text, or add a YouTube link",
+    title: "Upload",
+    description: "File, audio, video",
     icon: Upload,
     href: "/upload",
-    primary: true,
+    color: "text-gray-700",
   },
   {
-    title: "AI Tutor Chat",
-    description: "Ask questions about your documents",
-    icon: MessageSquare,
-    href: "/chat",
+    title: "Paste",
+    description: "YouTube, website, text",
+    icon: Link2,
+    href: "/paste",
+    color: "text-gray-700",
   },
   {
-    title: "Study Flashcards",
-    description: "Review auto-generated flashcards",
-    icon: BrainCircuit,
-    href: "/study",
+    title: "Record",
+    description: "Record class, video call",
+    icon: Mic,
+    href: "/record",
+    color: "text-gray-700",
   },
 ];
 
-export default function DashboardPage() {
+export default function StartPage() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
-    <AppShell>
-      <div className="mx-auto max-w-5xl px-6 py-8">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Welcome back
+    <div className="flex h-screen flex-col bg-white">
+      <Header onMenuClick={() => setSidebarOpen(true)} />
+      <SidebarDrawer open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+      <main className="flex flex-1 flex-col items-center justify-center px-6">
+        <div className="w-full max-w-lg text-center">
+          {/* Main heading */}
+          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+            What do you want to learn?
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Upload your study materials and let AI transform them into
-            interactive learning tools.
-          </p>
-        </div>
 
-        {/* Stats Grid */}
-        <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-          {stats.map((stat) => (
-            <div
-              key={stat.label}
-              className="group rounded-lg border border-border/50 bg-card p-4 transition-colors hover:border-border"
-            >
-              <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-md bg-muted">
-                  <stat.icon className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <div>
-                  <p className="text-2xl font-semibold tabular-nums">
-                    {stat.value}
-                  </p>
-                </div>
-              </div>
-              <p className="mt-2 text-xs font-medium text-muted-foreground">
-                {stat.label}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        {/* Quick Actions */}
-        <div className="mb-8">
-          <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-muted-foreground">
-            Quick Actions
-          </h2>
-          <div className="grid gap-4 sm:grid-cols-3">
-            {quickActions.map((action) => (
+          {/* Input cards */}
+          <div className="mt-8 grid grid-cols-3 gap-3">
+            {inputCards.map((card) => (
               <Link
-                key={action.title}
-                href={action.href}
-                className={`group relative flex flex-col rounded-lg border p-5 transition-all hover:shadow-sm ${
-                  action.primary
-                    ? "border-primary/20 bg-primary/5 hover:border-primary/40"
-                    : "border-border/50 bg-card hover:border-border"
-                }`}
+                key={card.title}
+                href={card.href}
+                className="group flex flex-col items-center gap-2 rounded-2xl border border-gray-200 bg-white px-4 py-5 transition-all hover:border-gray-300 hover:shadow-sm"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
-                    <action.icon className="h-5 w-5 text-foreground" />
-                  </div>
-                  <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 transition-all group-hover:opacity-100 group-hover:translate-x-0.5" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50">
+                  <card.icon className="h-5 w-5 text-gray-600" />
                 </div>
-                <h3 className="mt-4 text-sm font-semibold">{action.title}</h3>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {action.description}
-                </p>
+                <span className="text-sm font-medium text-gray-900">
+                  {card.title}
+                </span>
+                <span className="text-[11px] text-gray-400">
+                  {card.description}
+                </span>
               </Link>
             ))}
           </div>
-        </div>
 
-        {/* Empty State - Get Started */}
-        <div className="rounded-lg border border-dashed border-border bg-muted/30 p-8 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-            <Sparkles className="h-6 w-6 text-muted-foreground" />
+          {/* Chat input - "Learn anything..." */}
+          <div className="relative mt-8">
+            <div className="flex items-center rounded-full border border-gray-200 bg-white px-5 py-3 shadow-sm transition-all focus-within:border-gray-300 focus-within:shadow-md">
+              <Sparkles className="mr-3 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Learn anything..."
+                className="flex-1 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 outline-none"
+              />
+              <button className="ml-2 flex items-center gap-1.5 rounded-full bg-black px-4 py-1.5 text-xs font-medium text-white transition-colors hover:bg-gray-800">
+                <span>Learn</span>
+                <ArrowRight className="h-3 w-3" />
+              </button>
+            </div>
           </div>
-          <h3 className="mt-4 text-base font-semibold">
-            Get started with ReLearn
-          </h3>
-          <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
-            Upload your first study material to unlock AI-powered summaries,
-            an interactive tutor, and smart flashcards.
-          </p>
-          <Button className="mt-6 gap-2" asChild>
-            <Link href="/upload">
-              <Upload className="h-4 w-4" />
-              Upload Your First Document
-            </Link>
-          </Button>
         </div>
-      </div>
-    </AppShell>
+      </main>
+    </div>
   );
 }
