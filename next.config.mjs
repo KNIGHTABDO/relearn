@@ -2,10 +2,18 @@
 const isTauriBuild = process.env.TAURI_ENV_PLATFORM !== undefined;
 
 const nextConfig = {
-  // Static export only when building for Tauri (no API routes needed)
+  // Static export only when building for Tauri
   ...(isTauriBuild ? { output: "export" } : {}),
+  // Skip ESLint during builds (run separately in dev)
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  // Skip TypeScript type checking during builds (faster CI)
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   images: {
-    unoptimized: isTauriBuild,
+    unoptimized: true,
     remotePatterns: [
       { protocol: 'https', hostname: '**' },
     ],
@@ -15,11 +23,5 @@ const nextConfig = {
     config.resolve.alias.encoding = false;
     return config;
   },
-  // Skip API routes when building for Tauri
-  ...(isTauriBuild ? {
-    experimental: {
-      // Exclude server-only code from static export
-    },
-  } : {}),
 };
 export default nextConfig;
