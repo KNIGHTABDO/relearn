@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { SidebarDrawer } from "@/components/layout/sidebar-drawer";
 import { Upload, Link2, Mic, Sparkles, ArrowRight } from "lucide-react";
@@ -12,26 +13,46 @@ const inputCards = [
     description: "File, audio, video",
     icon: Upload,
     href: "/upload",
-    color: "text-gray-700",
   },
   {
     title: "Paste",
     description: "YouTube, website, text",
     icon: Link2,
     href: "/paste",
-    color: "text-gray-700",
   },
   {
     title: "Record",
     description: "Record class, video call",
     icon: Mic,
     href: "/record",
-    color: "text-gray-700",
   },
 ];
 
 export default function StartPage() {
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [learnInput, setLearnInput] = useState("");
+
+  const handleLearn = async () => {
+    if (!learnInput.trim()) return;
+
+    // Submit as text content
+    const formData = new FormData();
+    formData.append("text", learnInput.trim());
+
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.id) {
+        router.push(`/learn?id=${data.id}`);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   return (
     <div className="flex h-screen flex-col bg-white">
@@ -66,16 +87,22 @@ export default function StartPage() {
             ))}
           </div>
 
-          {/* Chat input - "Learn anything..." */}
+          {/* Chat input */}
           <div className="relative mt-8">
             <div className="flex items-center rounded-full border border-gray-200 bg-white px-5 py-3 shadow-sm transition-all focus-within:border-gray-300 focus-within:shadow-md">
               <Sparkles className="mr-3 h-4 w-4 text-gray-400" />
               <input
                 type="text"
+                value={learnInput}
+                onChange={(e) => setLearnInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleLearn()}
                 placeholder="Learn anything..."
                 className="flex-1 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 outline-none"
               />
-              <button className="ml-2 flex items-center gap-1.5 rounded-full bg-black px-4 py-1.5 text-xs font-medium text-white transition-colors hover:bg-gray-800">
+              <button
+                onClick={handleLearn}
+                className="ml-2 flex items-center gap-1.5 rounded-full bg-black px-4 py-1.5 text-xs font-medium text-white transition-colors hover:bg-gray-800"
+              >
                 <span>Learn</span>
                 <ArrowRight className="h-3 w-3" />
               </button>
