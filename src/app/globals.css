@@ -11,6 +11,13 @@
   body {
     @apply bg-white text-gray-900 antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    /* iOS safe area support */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    /* Prevent iOS rubber-band overscroll on body */
+    overscroll-behavior: none;
   }
 }
 
@@ -44,4 +51,54 @@
 }
 .btn-pill-secondary {
   @apply btn-pill bg-white text-gray-900 border border-gray-200 hover:bg-gray-50;
+}
+
+/* 3D Flashcard transforms */
+.perspective-1000 {
+  perspective: 1000px;
+}
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+.backface-hidden {
+  backface-visibility: hidden;
+}
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+/* Touch-friendly targets for iPad */
+@media (pointer: coarse) {
+  button, a, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  /* Except tiny inline elements */
+  .inline-touch-ok {
+    min-height: auto;
+    min-width: auto;
+  }
+}
+
+/* react-pdf canvas responsive */
+.react-pdf__Page canvas {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* PDF text layer — make selectable */
+.react-pdf__Page__textContent {
+  user-select: text !important;
+}
+
+/* iPad landscape learning panel */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+  .learning-panel-tablet {
+    width: 340px;
+  }
+}
+
+/* Smooth iOS momentum scrolling */
+.scroll-ios {
+  -webkit-overflow-scrolling: touch;
 }
