@@ -147,7 +147,7 @@ export default function UploadPage() {
                       <p className="text-xs text-gray-400 dark:text-dark-text-muted">{(item.file.size / 1024 / 1024).toFixed(1)} MB</p>
                       {item.status === "uploading" && (
                         <div className="flex-1 h-1 rounded-full bg-gray-200 dark:bg-dark-border overflow-hidden">
-                          <div className="h-full bg-black rounded-full transition-all" style={{ width: \`\${item.progress}%\` }} />
+                          <div className="h-full bg-black rounded-full transition-all" style={{ width: `${item.progress}%` }} />
                         </div>
                       )}
                     </div>
@@ -168,9 +168,9 @@ export default function UploadPage() {
             <button
               onClick={() => {
                 if (spaceId) {
-                  router.push(\`/space/\${spaceId}\`);
+                  router.push(`/space/${spaceId}`);
                 } else {
-                  router.push(\`/learn?id=\${completed[0].id}\`);
+                  router.push(`/learn?id=${completed[0].id}`);
                 }
               }}
               className="mt-4 w-full btn-pill-primary py-3 text-sm"
