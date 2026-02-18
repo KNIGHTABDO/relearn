@@ -15,18 +15,26 @@ export default function LearnPage() {
   const spaceId = searchParams.get("spaceId") || undefined;
   const [docTitle, setDocTitle] = useState("Document");
   const [pageCount, setPageCount] = useState(19);
+  const [contentType, setContentType] = useState<"pdf" | "youtube" | "text" | "recording">("pdf");
+  const [youtubeUrl, setYoutubeUrl] = useState<string | undefined>();
 
   useEffect(() => {
     if (documentId) {
-      fetch(\`/api/document/\${documentId}\`)
+      fetch(`/api/document/${documentId}`)
         .then((res) => res.json())
         .then((data) => {
           if (data.title) setDocTitle(data.title);
           if (data.pageCount) setPageCount(data.pageCount);
+          if (data.type) setContentType(data.type);
+          // Extract YouTube URL from text if it's a YouTube doc
+          if (data.type === "youtube" && data.text) {
+            const urlMatch = data.text.match(/URL:\s*(https?:\/\/[^\s\n]+)/);
+            if (urlMatch) setYoutubeUrl(urlMatch[1]);
+          }
         })
         .catch(() => {});
     } else if (spaceId) {
-      fetch(\`/api/spaces/\${spaceId}\`)
+      fetch(`/api/spaces/${spaceId}`)
         .then((res) => res.json())
         .then((data) => {
           if (data.name) setDocTitle(data.name + " (Space)");
@@ -43,10 +51,17 @@ export default function LearnPage() {
       <div className="flex flex-1 overflow-hidden">
         {/* Left: Document Viewer */}
         <div className="relative flex-[3] overflow-hidden">
-          <DocumentViewer title={docTitle} totalPages={pageCount} />
-          <div className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2">
-            <FloatingActionBar />
-          </div>
+          <DocumentViewer
+            title={docTitle}
+            totalPages={pageCount}
+            contentType={contentType}
+            youtubeUrl={youtubeUrl}
+          />
+          {contentType !== "youtube" && (
+            <div className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2">
+              <FloatingActionBar />
+            </div>
+          )}
         </div>
 
         {/* Right: Learning Panel */}
