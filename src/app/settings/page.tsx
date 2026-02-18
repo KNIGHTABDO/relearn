@@ -42,7 +42,7 @@ import {
   getSelectedGeminiModel,
   setSelectedGeminiModel,
 } from "@/lib/google-auth";
-import { useI18n } from "@/components/providers/i18n-provider";
+import { useI18n } from "@/hooks/useI18n";
 
 type ConnectionState = "disconnected" | "connecting" | "awaiting_auth" | "connected" | "error";
 
@@ -132,7 +132,7 @@ export default function SettingsPage() {
     try {
       const token = await ensureCopilotToken();
       if (!token) {
-        setModelsError(t("settings.models_error"));
+        setModelsError(t("settings.copilot_token_error"));
         setLoadingModels(false);
         return;
       }
@@ -147,7 +147,7 @@ export default function SettingsPage() {
 
       if (!res.ok) {
         const err = await res.json();
-        setModelsError(err.error || t("settings.models_fetch_error"));
+        setModelsError(err.error || t("settings.fetch_models_error"));
         setLoadingModels(false);
         return;
       }
@@ -167,7 +167,7 @@ export default function SettingsPage() {
         setSelectedModel(defaultModel.id);
       }
     } catch {
-      setModelsError(t("settings.models_network_error"));
+      setModelsError(t("settings.network_error_fetching_models"));
     }
     setLoadingModels(false);
   }, [selectedModel, t]);
@@ -183,50 +183,39 @@ export default function SettingsPage() {
     setConnState("connecting");
     setErrorMsg(null);
 
-    console.log("[ReLearn] Starting GitHub device login...");
-    let deviceData;
     try {
-      deviceData = await startDeviceLogin();
-      console.log("[ReLearn] Device login result:", deviceData);
-    } catch (err: any) {
-      console.error("[ReLearn] GitHub device login error:", err);
-      setConnState("error");
-      setErrorMsg(t("settings.github_login_error") + ": " + (err?.message || String(err)));
-      return;
-    }
-    if (!deviceData) {
-      setConnState("error");
-      setErrorMsg(t("settings.failed_start_login"));
-      return;
-    }
+      const deviceData = await startDeviceLogin();
+      setDeviceCode(deviceData.device_code);
+      setUserCode(deviceData.user_code);
+      setVerificationUri(deviceData.verification_uri);
+      setConnState("awaiting_auth");
 
-    setDeviceCode(deviceData.device_code);
-    setUserCode(deviceData.user_code);
-    setVerificationUri(deviceData.verification_uri);
-    setConnState("awaiting_auth");
-
-    // Open verification URL — use system browser in Tauri, new tab in web
-    try {
-      if ((window as any).__TAURI_INTERNALS__) {
-        const { open } = await import("@tauri-apps/plugin-shell");
-        await open(deviceData.verification_uri);
-      } else {
+      // Open verification URL — use system browser in Tauri, new tab in web
+      try {
+        if ((window as any).__TAURI_INTERNALS__) {
+          const { open } = await import("@tauri-apps/plugin-shell");
+          await open(deviceData.verification_uri);
+        } else {
+          window.open(deviceData.verification_uri, "_blank");
+        }
+      } catch {
         window.open(deviceData.verification_uri, "_blank");
       }
-    } catch {
-      window.open(deviceData.verification_uri, "_blank");
-    }
 
-    const success = await pollForToken(deviceData.device_code, deviceData.interval || 5);
-    if (success) {
-      const auth = getStoredAuth();
-      setConnState("connected");
-      setUserLogin(auth?.login || null);
-      setUserEmail(auth?.email || null);
-      setUserAvatar(auth?.avatarUrl || null);
-    } else {
+      const success = await pollForToken(deviceData.device_code, deviceData.interval || 5);
+      if (success) {
+        const auth = getStoredAuth();
+        setConnState("connected");
+        setUserLogin(auth?.login || null);
+        setUserEmail(auth?.email || null);
+        setUserAvatar(auth?.avatarUrl || null);
+      } else {
+        setConnState("error");
+        setErrorMsg(t("settings.login_timeout"));
+      }
+    } catch (err: any) {
       setConnState("error");
-      setErrorMsg(t("settings.login_timed_out"));
+      setErrorMsg(t("settings.login_failed") + ": " + (err?.message || String(err)));
     }
   };
 
@@ -243,13 +232,10 @@ export default function SettingsPage() {
   const handleGoogleConnect = async () => {
     setGoogleConnState("connecting");
     try {
-      console.log("[ReLearn] Starting Google login...");
       await startGoogleLogin();
-      console.log("[ReLearn] Google login flow initiated");
     } catch (err: any) {
-      console.error("[ReLearn] Google login error:", err);
       setGoogleConnState("error");
-      setErrorMsg(t("settings.google_login_error") + ": " + (err?.message || String(err)));
+      setErrorMsg(t("settings.login_failed") + ": " + (err?.message || String(err)));
     }
   };
 
@@ -289,7 +275,7 @@ export default function SettingsPage() {
         <div className="mx-auto max-w-lg px-6 py-8">
 
           <p className="text-sm text-gray-500 dark:text-dark-text-muted mb-4">
-            {t("settings.connect_ai_provider")}
+            {t("settings.connect_provider")}
           </p>
 
           {/* ================================ */}
@@ -302,11 +288,9 @@ export default function SettingsPage() {
                   <Globe className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-base font-semibold text-gray-900 dark:text-dark-text">
-                    {t("settings.connect_provider")}
-                  </h2>
+                  <h2 className="text-base font-semibold text-gray-900 dark:text-dark-text">{t("settings.ai_provider")}</h2>
                   <p className="text-xs text-gray-500 dark:text-dark-text-muted">
-                    {t("settings.google_ai")}
+                    {t("settings.google_ai_desc")}
                   </p>
                 </div>
               </div>
@@ -405,7 +389,7 @@ export default function SettingsPage() {
                 >
                   <Globe className="h-5 w-5 text-blue-600" />
                   <span className="flex-1 text-sm font-medium text-gray-900 dark:text-dark-text">
-                    {t("settings.connect_google")}
+                    {t("settings.connect_google_account")}
                   </span>
                 </button>
               )}
@@ -422,11 +406,9 @@ export default function SettingsPage() {
                   <Github className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-base font-semibold text-gray-900 dark:text-dark-text">
-                    {t("settings.connect_provider")}
-                  </h2>
+                  <h2 className="text-base font-semibold text-gray-900 dark:text-dark-text">{t("settings.ai_provider")}</h2>
                   <p className="text-xs text-gray-500 dark:text-dark-text-muted">
-                    {t("settings.github_copilot")}
+                    {t("settings.github_copilot_desc")}
                   </p>
                 </div>
               </div>
@@ -444,7 +426,7 @@ export default function SettingsPage() {
                           <img src={userAvatar} alt="" className="h-6 w-6 rounded-full" />
                         )}
                         <span className="text-sm font-medium text-gray-900 dark:text-dark-text">
-                          {userLogin || t("settings.connected")}
+                          {userLogin || t("common.connected")}
                         </span>
                       </div>
                       {userEmail && (
@@ -476,4 +458,95 @@ export default function SettingsPage() {
                         disabled={loadingModels}
                         className="flex items-center gap-1 text-xs text-gray-400 dark:text-dark-text-muted hover:text-gray-600 dark:hover:text-dark-text-secondary transition-colors disabled:opacity-50"
                       >
-                        <RefreshCw className={
+                        <RefreshCw className={cn("h-3 w-3", loadingModels && "animate-spin")} />
+                        {t("settings.refresh_models")}
+                      </button>
+                    </div>
+
+                    {loadingModels && models.length === 0 && (
+                      <div className="flex items-center justify-center py-6">
+                        <Loader2 className="h-5 w-5 animate-spin text-gray-400 dark:text-dark-text-muted" />
+                        <span className="ml-2 text-sm text-gray-400 dark:text-dark-text-muted">
+                          {t("settings.fetching_models")}
+                        </span>
+                      </div>
+                    )}
+
+                    {modelsError && (
+                      <div className="flex items-center gap-2 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-xs text-red-600">
+                        <XCircle className="h-3.5 w-3.5 shrink-0" />
+                        {modelsError}
+                      </div>
+                    )}
+
+                    {models.length > 0 && (
+                      <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1">
+                        {models.map((model) => (
+                          <button
+                            key={model.id}
+                            onClick={() => handleSelectModel(model.id)}
+                            className={cn(
+                              "flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-all",
+                              selectedModel === model.id
+                                ? "border-gray-900 bg-gray-50 dark:bg-dark-surface shadow-sm dark:shadow-none"
+                                : "border-gray-100 dark:border-dark-border hover:border-gray-200 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface"
+                            )}
+                          >
+                            <div
+                              className={cn(
+                                "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs",
+                                selectedModel === model.id
+                                  ? "bg-gray-900 text-white"
+                                  : "bg-gray-100 dark:bg-dark-card text-gray-500 dark:text-dark-text-muted"
+                              )}
+                            >
+                              <Sparkles className="h-3.5 w-3.5" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p
+                                className={cn(
+                                  "text-sm font-medium truncate",
+                                  selectedModel === model.id
+                                    ? "text-gray-900 dark:text-dark-text"
+                                    : "text-gray-700 dark:text-dark-text-secondary"
+                                )}
+                              >
+                                {model.name}
+                              </p>
+                              {model.version && (
+                                <p className="text-[10px] text-gray-400 dark:text-dark-text-muted">
+                                  v{model.version}
+                                </p>
+                              )}
+                            </div>
+                            {selectedModel === model.id && (
+                              <Check className="h-4 w-4 text-gray-900 dark:text-dark-text shrink-0" />
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Disconnected */}
+              {connState !== "connected" && (
+                <button
+                  onClick={handleConnect}
+                  className="flex items-center gap-3 rounded-xl border border-gray-200 dark:border-dark-border p-3 text-left transition-all hover:border-gray-300 dark:hover:border-dark-border hover:bg-gray-50 dark:hover:bg-dark-hover"
+                >
+                  <Github className="h-5 w-5 text-gray-900 dark:text-dark-text" />
+                  <span className="flex-1 text-sm font-medium text-gray-900 dark:text-dark-text">
+                    {t("settings.connect_github_account")}
+                  </span>
+                </button>
+              )}
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+  );
+}
