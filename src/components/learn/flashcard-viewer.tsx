@@ -72,12 +72,12 @@ export function FlashcardViewer({ documentId, spaceId, renderSources }: Flashcar
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-3 py-16">
         <div className="relative">
-          <Loader2 className="h-8 w-8 animate-spin text-gray-300" />
+          <Loader2 className="h-8 w-8 animate-spin text-gray-300 dark:text-dark-text-muted" />
           <Sparkles className="absolute -right-1 -top-1 h-4 w-4 text-yl-gold animate-pulse" />
         </div>
         <div className="text-center">
-          <p className="text-sm font-medium text-gray-600">Generating flashcards...</p>
-          <p className="mt-0.5 text-xs text-gray-400">Creating study cards from your content</p>
+          <p className="text-sm font-medium text-gray-600 dark:text-dark-text-secondary">Generating flashcards...</p>
+          <p className="mt-0.5 text-xs text-gray-400 dark:text-dark-text-muted">Creating study cards from your content</p>
         </div>
       </div>
     );
@@ -86,10 +86,10 @@ export function FlashcardViewer({ documentId, spaceId, renderSources }: Flashcar
   if (cards.length === 0) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center py-16 text-center px-6">
-        <p className="text-sm text-gray-500">No flashcards generated</p>
+        <p className="text-sm text-gray-500 dark:text-dark-text-muted">No flashcards generated</p>
         <button
           onClick={fetchFlashcards}
-          className="mt-3 text-xs font-medium text-gray-600 hover:text-gray-900"
+          className="mt-3 text-xs font-medium text-gray-600 dark:text-dark-text-secondary hover:text-gray-900 dark:hover:text-dark-text dark:text-dark-text"
         >
           Try again
         </button>
@@ -103,16 +103,16 @@ export function FlashcardViewer({ documentId, spaceId, renderSources }: Flashcar
     <div className="flex flex-col items-center px-4 py-6">
       {/* Badge & counter */}
       <div className="mb-4 flex w-full items-center justify-between">
-        <span className="text-xs text-gray-400">
+        <span className="text-xs text-gray-400 dark:text-dark-text-muted">
           {currentIndex + 1} / {cards.length}
         </span>
         {aiGenerated ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-yl-gold-bg px-2 py-0.5 text-[10px] font-medium text-yl-gold">
+          <span className="inline-flex items-center gap-1 rounded-full bg-yl-gold-bg dark:bg-yl-gold-bg-dark px-2 py-0.5 text-[10px] font-medium text-yl-gold">
             <Sparkles className="h-2.5 w-2.5" />
             AI Generated
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-400">
+          <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 dark:bg-dark-card px-2 py-0.5 text-[10px] font-medium text-gray-400 dark:text-dark-text-muted">
             Sample Data
           </span>
         )}
@@ -130,16 +130,16 @@ export function FlashcardViewer({ documentId, spaceId, renderSources }: Flashcar
           )}
         >
           {/* Front */}
-          <div className="backface-hidden absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <p className="text-center text-sm font-medium text-gray-900 leading-relaxed">
+          <div className="backface-hidden absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg p-6 shadow-sm dark:shadow-none">
+            <p className="text-center text-sm font-medium text-gray-900 dark:text-dark-text leading-relaxed">
               {card.front}
             </p>
-            <p className="mt-4 text-[10px] text-gray-300">Tap to reveal answer</p>
+            <p className="mt-4 text-[10px] text-gray-300 dark:text-dark-text-muted">Tap to reveal answer</p>
           </div>
 
           {/* Back */}
-          <div className="backface-hidden rotate-y-180 absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-yl-green/30 bg-yl-green-bg/30 p-6 shadow-sm">
-            <div className="text-center text-sm text-gray-700 leading-relaxed">
+          <div className="backface-hidden rotate-y-180 absolute inset-0 flex flex-col items-center justify-center rounded-2xl border border-yl-green/30 bg-yl-green-bg dark:bg-yl-green-bg-dark/30 p-6 shadow-sm dark:shadow-none">
+            <div className="text-center text-sm text-gray-700 dark:text-dark-text-secondary leading-relaxed">
               {renderText(card.back)}
             </div>
           </div>
@@ -151,7 +151,7 @@ export function FlashcardViewer({ documentId, spaceId, renderSources }: Flashcar
         <button
           onClick={prev}
           disabled={currentIndex === 0}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-30 transition-all"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg text-gray-500 dark:text-dark-text-muted hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface disabled:opacity-30 transition-all"
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
@@ -161,7 +161,7 @@ export function FlashcardViewer({ documentId, spaceId, renderSources }: Flashcar
             setIsFlipped(false);
             setCurrentIndex(0);
           }}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 transition-all"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg text-gray-500 dark:text-dark-text-muted hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface transition-all"
         >
           <RotateCcw className="h-4 w-4" />
         </button>
@@ -169,7 +169,7 @@ export function FlashcardViewer({ documentId, spaceId, renderSources }: Flashcar
         <button
           onClick={next}
           disabled={currentIndex === cards.length - 1}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-30 transition-all"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg text-gray-500 dark:text-dark-text-muted hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface disabled:opacity-30 transition-all"
         >
           <ChevronRight className="h-4 w-4" />
         </button>
@@ -183,7 +183,7 @@ export function FlashcardViewer({ documentId, spaceId, renderSources }: Flashcar
             onClick={() => { setIsFlipped(false); setCurrentIndex(i); }}
             className={cn(
               "h-1.5 rounded-full transition-all",
-              i === currentIndex ? "w-4 bg-gray-900" : "w-1.5 bg-gray-200 hover:bg-gray-300"
+              i === currentIndex ? "w-4 bg-gray-900" : "w-1.5 bg-gray-200 dark:bg-dark-border hover:bg-gray-300"
             )}
           />
         ))}
@@ -193,7 +193,7 @@ export function FlashcardViewer({ documentId, spaceId, renderSources }: Flashcar
       <button
         onClick={fetchFlashcards}
         disabled={loading}
-        className="mt-6 flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+        className="mt-6 flex items-center gap-1.5 text-xs text-gray-400 dark:text-dark-text-muted hover:text-gray-600 dark:hover:text-dark-text-secondary dark:text-dark-text-secondary transition-colors"
       >
         <RotateCcw className="h-3 w-3" />
         Regenerate
