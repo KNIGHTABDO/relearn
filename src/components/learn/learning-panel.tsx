@@ -44,16 +44,16 @@ interface GenerateCard {
 }
 
 const generateCards: GenerateCard[] = [
-  { title: "Podcast", icon: Headphones, color: "bg-yl-purple-bg text-yl-purple", hasSettings: true, view: "podcast" },
-  { title: "Video", icon: Video, color: "bg-yl-blue-bg text-yl-blue", hasSettings: true, badge: "Beta", view: null },
-  { title: "Summary", icon: FileText, color: "bg-yl-sky-bg text-yl-sky", hasSettings: true, view: "summary" },
-  { title: "Quiz", icon: ClipboardCheck, color: "bg-yl-pink-bg text-yl-pink", hasSettings: true, view: "quiz" },
-  { title: "Flashcards", icon: Layers, color: "bg-yl-orange-bg text-yl-orange", hasSettings: true, view: "flashcards" },
-  { title: "Notes", icon: StickyNote, color: "bg-yl-gold-bg text-yl-gold", hasArrow: true, view: "notes" },
+  { title: "Podcast", icon: Headphones, color: "bg-yl-purple-bg dark:bg-yl-purple-bg-dark text-yl-purple", hasSettings: true, view: "podcast" },
+  { title: "Video", icon: Video, color: "bg-yl-blue-bg dark:bg-yl-blue-bg-dark text-yl-blue", hasSettings: true, badge: "Beta", view: null },
+  { title: "Summary", icon: FileText, color: "bg-yl-sky-bg dark:bg-yl-sky-bg-dark text-yl-sky", hasSettings: true, view: "summary" },
+  { title: "Quiz", icon: ClipboardCheck, color: "bg-yl-pink-bg dark:bg-yl-pink-bg-dark text-yl-pink", hasSettings: true, view: "quiz" },
+  { title: "Flashcards", icon: Layers, color: "bg-yl-orange-bg dark:bg-yl-orange-bg-dark text-yl-orange", hasSettings: true, view: "flashcards" },
+  { title: "Notes", icon: StickyNote, color: "bg-yl-gold-bg dark:bg-yl-gold-bg-dark text-yl-gold", hasArrow: true, view: "notes" },
 ];
 
 const fullWidthCards: GenerateCard[] = [
-  { title: "Chapters", icon: BookOpen, color: "bg-yl-green-bg text-yl-green", hasArrow: true, view: "chapters" },
+  { title: "Chapters", icon: BookOpen, color: "bg-yl-green-bg dark:bg-yl-green-bg-dark text-yl-green", hasArrow: true, view: "chapters" },
 ];
 
 interface LearningPanelProps {
@@ -72,10 +72,10 @@ function renderWithSources(text: string): React.ReactNode[] {
       return (
         <span
           key={i}
-          className="ml-1 inline-flex items-center gap-0.5 rounded-md bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-500 align-middle leading-none"
+          className="ml-1 inline-flex items-center gap-0.5 rounded-md bg-gray-100 dark:bg-dark-card px-1.5 py-0.5 text-[10px] font-medium text-gray-500 dark:text-dark-text-muted align-middle leading-none"
           title={`Source: ${sourceMatch[1]}`}
         >
-          <BookMarked className="h-2.5 w-2.5 text-gray-400 shrink-0" />
+          <BookMarked className="h-2.5 w-2.5 text-gray-400 dark:text-dark-text-muted shrink-0" />
           {sourceMatch[1]}
         </span>
       );
@@ -152,12 +152,12 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
   const LoadingOverlay = () => (
     <div className="flex flex-1 flex-col items-center justify-center gap-3 py-12">
       <div className="relative">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-300" />
+        <Loader2 className="h-8 w-8 animate-spin text-gray-300 dark:text-dark-text-muted" />
         <Sparkles className="absolute -right-1 -top-1 h-4 w-4 text-yl-gold animate-pulse" />
       </div>
       <div className="text-center">
-        <p className="text-sm font-medium text-gray-600">Generating with AI...</p>
-        <p className="mt-0.5 text-xs text-gray-400">Analyzing your document</p>
+        <p className="text-sm font-medium text-gray-600 dark:text-dark-text-secondary">Generating with AI...</p>
+        <p className="mt-0.5 text-xs text-gray-400 dark:text-dark-text-muted">Analyzing your document</p>
       </div>
     </div>
   );
@@ -165,30 +165,30 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
   // AI badge
   const AIBadge = ({ generated }: { generated?: boolean }) =>
     generated ? (
-      <span className="inline-flex items-center gap-1 rounded-full bg-yl-gold-bg px-2 py-0.5 text-[10px] font-medium text-yl-gold">
+      <span className="inline-flex items-center gap-1 rounded-full bg-yl-gold-bg dark:bg-yl-gold-bg-dark px-2 py-0.5 text-[10px] font-medium text-yl-gold">
         <Sparkles className="h-2.5 w-2.5" />
         AI Generated
       </span>
     ) : (
-      <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-400">
+      <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 dark:bg-dark-card px-2 py-0.5 text-[10px] font-medium text-gray-400 dark:text-dark-text-muted">
         Sample Data
       </span>
     );
 
   return (
-    <div className={cn("flex h-full flex-col border-l border-gray-100", className)}>
+    <div className={cn("flex h-full flex-col border-l border-gray-100 dark:border-dark-border", className)}>
       {/* Tab header */}
-      <div className="flex h-11 items-center justify-between border-b border-gray-100 px-4">
+      <div className="flex h-11 items-center justify-between border-b border-gray-100 dark:border-dark-border px-4">
         <div className="flex items-center gap-2">
           {activeView !== "generate" && (
             <button
               onClick={() => setActiveView("generate")}
-              className="flex h-7 w-7 items-center justify-center rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex h-7 w-7 items-center justify-center rounded-lg hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface transition-colors"
             >
-              <ArrowLeft className="h-3.5 w-3.5 text-gray-500" />
+              <ArrowLeft className="h-3.5 w-3.5 text-gray-500 dark:text-dark-text-muted" />
             </button>
           )}
-          <span className="text-sm font-medium text-gray-900">{viewLabel[activeView]}</span>
+          <span className="text-sm font-medium text-gray-900 dark:text-dark-text">{viewLabel[activeView]}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <button
@@ -197,7 +197,7 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
               "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all",
               activeView === "chat"
                 ? "bg-black text-white"
-                : "text-gray-500 hover:bg-gray-50"
+                : "text-gray-500 dark:text-dark-text-muted hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface dark:bg-dark-surface"
             )}
           >
             <MessageSquare className="h-3.5 w-3.5" />
@@ -214,11 +214,11 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
             {/* Quick chat input */}
             <div className="mb-4 flex items-center gap-2">
               <div
-                className="flex flex-1 items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 cursor-text"
+                className="flex flex-1 items-center gap-2 rounded-full border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg px-4 py-2 cursor-text"
                 onClick={() => setActiveView("chat")}
               >
-                <MessageSquare className="h-3.5 w-3.5 text-gray-400" />
-                <span className="text-sm text-gray-400">Ask about your document...</span>
+                <MessageSquare className="h-3.5 w-3.5 text-gray-400 dark:text-dark-text-muted" />
+                <span className="text-sm text-gray-400 dark:text-dark-text-muted">Ask about your document...</span>
               </div>
             </div>
 
@@ -228,25 +228,25 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
                 <button
                   key={card.title}
                   onClick={() => handleCardClick(card.view)}
-                  className="group flex flex-col items-start gap-2 rounded-2xl border border-gray-100 bg-white p-3 text-left transition-all hover:border-gray-200 hover:shadow-sm"
+                  className="group flex flex-col items-start gap-2 rounded-2xl border border-gray-100 dark:border-dark-border bg-white dark:bg-dark-bg p-3 text-left transition-all hover:border-gray-200 dark:border-dark-border hover:shadow-sm dark:shadow-none"
                 >
                   <div className="flex w-full items-center justify-between">
                     <div className={cn("flex h-8 w-8 items-center justify-center rounded-xl", card.color)}>
                       <card.icon className="h-4 w-4" />
                     </div>
                     {card.badge && (
-                      <span className="rounded-full bg-gray-100 px-1.5 py-0.5 text-[9px] font-medium text-gray-500">
+                      <span className="rounded-full bg-gray-100 dark:bg-dark-card px-1.5 py-0.5 text-[9px] font-medium text-gray-500 dark:text-dark-text-muted">
                         {card.badge}
                       </span>
                     )}
                     {card.hasSettings && !card.badge && (
-                      <Settings className="h-3 w-3 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <Settings className="h-3 w-3 text-gray-300 dark:text-dark-text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
                     )}
                     {card.hasArrow && (
-                      <ChevronRight className="h-3 w-3 text-gray-300" />
+                      <ChevronRight className="h-3 w-3 text-gray-300 dark:text-dark-text-muted" />
                     )}
                   </div>
-                  <span className="text-xs font-medium text-gray-700">{card.title}</span>
+                  <span className="text-xs font-medium text-gray-700 dark:text-dark-text-secondary">{card.title}</span>
                 </button>
               ))}
             </div>
@@ -257,13 +257,13 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
                 <button
                   key={card.title}
                   onClick={() => handleCardClick(card.view)}
-                  className="flex w-full items-center gap-3 rounded-2xl border border-gray-100 bg-white p-3 text-left transition-all hover:border-gray-200 hover:shadow-sm"
+                  className="flex w-full items-center gap-3 rounded-2xl border border-gray-100 dark:border-dark-border bg-white dark:bg-dark-bg p-3 text-left transition-all hover:border-gray-200 dark:border-dark-border hover:shadow-sm dark:shadow-none"
                 >
                   <div className={cn("flex h-8 w-8 items-center justify-center rounded-xl", card.color)}>
                     <card.icon className="h-4 w-4" />
                   </div>
-                  <span className="flex-1 text-xs font-medium text-gray-700">{card.title}</span>
-                  <ChevronRight className="h-3 w-3 text-gray-300" />
+                  <span className="flex-1 text-xs font-medium text-gray-700 dark:text-dark-text-secondary">{card.title}</span>
+                  <ChevronRight className="h-3 w-3 text-gray-300 dark:text-dark-text-muted" />
                 </button>
               ))}
             </div>
@@ -301,20 +301,20 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
             ) : summaryData?.summary ? (
               <div className="animate-fade-in space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-gray-900">{summaryData.summary.title}</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-dark-text">{summaryData.summary.title}</h3>
                   <AIBadge generated={summaryData.aiGenerated} />
                 </div>
 
                 {/* Key Points */}
                 {summaryData.summary.keyPoints?.length > 0 && (
-                  <div className="rounded-xl border border-yl-sky/20 bg-yl-sky-bg/30 p-3.5">
+                  <div className="rounded-xl border border-yl-sky/20 bg-yl-sky-bg dark:bg-yl-sky-bg-dark/30 p-3.5">
                     <h4 className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-yl-sky">
                       <Sparkles className="h-3 w-3" />
                       Key Takeaways
                     </h4>
                     <ul className="space-y-2">
                       {summaryData.summary.keyPoints.map((point: string, i: number) => (
-                        <li key={i} className="flex gap-2 text-xs leading-relaxed text-gray-700">
+                        <li key={i} className="flex gap-2 text-xs leading-relaxed text-gray-700 dark:text-dark-text-secondary">
                           <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-yl-sky/10 text-[9px] font-bold text-yl-sky">
                             {i + 1}
                           </span>
@@ -327,9 +327,9 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
 
                 {/* Sections */}
                 {summaryData.summary.sections?.map((section: any, i: number) => (
-                  <div key={i} className="rounded-xl border border-gray-100 p-3.5">
-                    <h4 className="mb-1.5 text-xs font-semibold text-gray-900">{section.heading}</h4>
-                    <p className="text-xs leading-relaxed text-gray-600">
+                  <div key={i} className="rounded-xl border border-gray-100 dark:border-dark-border p-3.5">
+                    <h4 className="mb-1.5 text-xs font-semibold text-gray-900 dark:text-dark-text">{section.heading}</h4>
+                    <p className="text-xs leading-relaxed text-gray-600 dark:text-dark-text-secondary">
                       {renderWithSources(section.content)}
                     </p>
                   </div>
@@ -337,9 +337,9 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <AlertCircle className="h-8 w-8 text-gray-300" />
-                <p className="mt-2 text-sm text-gray-500">Failed to generate summary</p>
-                <button onClick={() => fetchData("summary")} className="mt-3 text-xs font-medium text-gray-600 hover:text-gray-900">
+                <AlertCircle className="h-8 w-8 text-gray-300 dark:text-dark-text-muted" />
+                <p className="mt-2 text-sm text-gray-500 dark:text-dark-text-muted">Failed to generate summary</p>
+                <button onClick={() => fetchData("summary")} className="mt-3 text-xs font-medium text-gray-600 dark:text-dark-text-secondary hover:text-gray-900 dark:hover:text-dark-text dark:text-dark-text">
                   Try again
                 </button>
               </div>
@@ -355,7 +355,7 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
             ) : notesData?.notes ? (
               <div className="animate-fade-in space-y-3">
                 <div className="flex items-center justify-between mb-1">
-                  <h3 className="text-sm font-semibold text-gray-900">Study Notes</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-dark-text">Study Notes</h3>
                   <AIBadge generated={notesData.aiGenerated} />
                 </div>
                 {notesData.notes.map((note: any, i: number) => (
@@ -364,8 +364,8 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
                     className={cn(
                       "rounded-xl border p-3.5 transition-colors",
                       note.highlight
-                        ? "border-yl-gold/30 bg-yl-gold-bg/20"
-                        : "border-gray-100"
+                        ? "border-yl-gold/30 bg-yl-gold-bg dark:bg-yl-gold-bg-dark/20"
+                        : "border-gray-100 dark:border-dark-border"
                     )}
                   >
                     <div className="flex items-center gap-2 mb-2">
@@ -374,11 +374,11 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
                           <Sparkles className="h-2.5 w-2.5 text-yl-gold" />
                         </span>
                       )}
-                      <h4 className="text-xs font-semibold text-gray-900">{note.title}</h4>
+                      <h4 className="text-xs font-semibold text-gray-900 dark:text-dark-text">{note.title}</h4>
                     </div>
                     <div className="space-y-1">
                       {note.content.split("\\n").filter(Boolean).map((line: string, j: number) => (
-                        <p key={j} className="text-xs leading-relaxed text-gray-600">
+                        <p key={j} className="text-xs leading-relaxed text-gray-600 dark:text-dark-text-secondary">
                           {renderWithSources(line)}
                         </p>
                       ))}
@@ -388,9 +388,9 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <AlertCircle className="h-8 w-8 text-gray-300" />
-                <p className="mt-2 text-sm text-gray-500">Failed to generate notes</p>
-                <button onClick={() => fetchData("notes")} className="mt-3 text-xs font-medium text-gray-600 hover:text-gray-900">
+                <AlertCircle className="h-8 w-8 text-gray-300 dark:text-dark-text-muted" />
+                <p className="mt-2 text-sm text-gray-500 dark:text-dark-text-muted">Failed to generate notes</p>
+                <button onClick={() => fetchData("notes")} className="mt-3 text-xs font-medium text-gray-600 dark:text-dark-text-secondary hover:text-gray-900 dark:hover:text-dark-text dark:text-dark-text">
                   Try again
                 </button>
               </div>
@@ -406,32 +406,32 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
             ) : chaptersData?.chapters ? (
               <div className="animate-fade-in space-y-2">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-semibold text-gray-900">Chapters</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-dark-text">Chapters</h3>
                   <AIBadge generated={chaptersData.aiGenerated} />
                 </div>
                 {chaptersData.chapters.map((ch: any, i: number) => (
                   <button
                     key={ch.id || i}
-                    className="flex w-full items-center gap-3 rounded-xl border border-gray-100 p-3 text-left transition-all hover:border-gray-200 hover:bg-gray-50"
+                    className="flex w-full items-center gap-3 rounded-xl border border-gray-100 dark:border-dark-border p-3 text-left transition-all hover:border-gray-200 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface dark:bg-dark-surface"
                   >
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-yl-green-bg text-xs font-bold text-yl-green">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-yl-green-bg dark:bg-yl-green-bg-dark text-xs font-bold text-yl-green">
                       {i + 1}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-gray-900 truncate">{ch.title}</p>
-                      <p className="text-[10px] text-gray-400">
+                      <p className="text-xs font-medium text-gray-900 dark:text-dark-text truncate">{ch.title}</p>
+                      <p className="text-[10px] text-gray-400 dark:text-dark-text-muted">
                         Pages {ch.startPage}–{ch.endPage}
                       </p>
                     </div>
-                    <ChevronRight className="h-3 w-3 text-gray-300" />
+                    <ChevronRight className="h-3 w-3 text-gray-300 dark:text-dark-text-muted" />
                   </button>
                 ))}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <AlertCircle className="h-8 w-8 text-gray-300" />
-                <p className="mt-2 text-sm text-gray-500">Failed to generate chapters</p>
-                <button onClick={() => fetchData("chapters")} className="mt-3 text-xs font-medium text-gray-600 hover:text-gray-900">
+                <AlertCircle className="h-8 w-8 text-gray-300 dark:text-dark-text-muted" />
+                <p className="mt-2 text-sm text-gray-500 dark:text-dark-text-muted">Failed to generate chapters</p>
+                <button onClick={() => fetchData("chapters")} className="mt-3 text-xs font-medium text-gray-600 dark:text-dark-text-secondary hover:text-gray-900 dark:hover:text-dark-text dark:text-dark-text">
                   Try again
                 </button>
               </div>
@@ -442,11 +442,11 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
         {/* Podcast */}
         {activeView === "podcast" && (
           <div className="flex flex-col items-center justify-center p-8 text-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-yl-purple-bg">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-yl-purple-bg dark:bg-yl-purple-bg-dark">
               <Headphones className="h-6 w-6 text-yl-purple" />
             </div>
-            <h3 className="mt-3 text-sm font-semibold text-gray-900">AI Podcast</h3>
-            <p className="mt-1 text-xs text-gray-400">Coming soon — AI-generated audio summary of your document</p>
+            <h3 className="mt-3 text-sm font-semibold text-gray-900 dark:text-dark-text">AI Podcast</h3>
+            <p className="mt-1 text-xs text-gray-400 dark:text-dark-text-muted">Coming soon — AI-generated audio summary of your document</p>
           </div>
         )}
       </div>
