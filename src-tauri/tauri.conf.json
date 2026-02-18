@@ -5,7 +5,7 @@
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:3000",
-    "beforeBuildCommand": "npm run build",
+    "beforeBuildCommand": "node -e \"const fs=require('fs');fs.rmSync('src/app/api',{recursive:true,force:true});console.log('Removed API routes for static export')\" && npm run build",
     "frontendDist": "../out"
   },
   "app": {
