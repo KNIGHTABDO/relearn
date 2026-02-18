@@ -1,5 +1,4 @@
 {
-  "$schema": "https://raw.githubusercontent.com/nicegui/nicegui/main/nicegui/static/tauri-schema.json",
   "productName": "ReLearn",
   "version": "0.1.0",
   "identifier": "com.relearn.app",
@@ -7,7 +6,7 @@
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:3000",
     "beforeBuildCommand": "npm run build",
-    "frontendDist": "../out"
+    "frontendDist": "../.next"
   },
   "app": {
     "title": "ReLearn \u2014 AI Study Platform",
