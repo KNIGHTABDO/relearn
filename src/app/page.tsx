@@ -90,7 +90,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="flex h-screen flex-col bg-white">
+    <div className="flex h-screen flex-col bg-white dark:bg-dark-bg dark:bg-dark-bg">
       <Header onMenuClick={() => setSidebarOpen(true)} />
       <SidebarDrawer
         open={sidebarOpen}
@@ -102,7 +102,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-4xl px-6 py-8">
           {/* Hero */}
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-dark-text sm:text-3xl">
               What do you want to learn?
             </h1>
 
@@ -112,28 +112,28 @@ export default function HomePage() {
                 <Link
                   key={card.title}
                   href={card.href}
-                  className="group flex flex-col items-center gap-2 rounded-2xl border border-gray-200 bg-white px-4 py-5 transition-all hover:border-gray-300 hover:shadow-sm"
+                  className="group flex flex-col items-center gap-2 rounded-2xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg px-4 py-5 transition-all hover:border-gray-300 dark:border-dark-border hover:shadow-sm dark:shadow-none"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50">
-                    <card.icon className="h-5 w-5 text-gray-600" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 dark:bg-dark-surface dark:bg-dark-surface">
+                    <card.icon className="h-5 w-5 text-gray-600 dark:text-dark-text-secondary" />
                   </div>
-                  <span className="text-sm font-medium text-gray-900">{card.title}</span>
-                  <span className="text-[11px] text-gray-400">{card.description}</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-dark-text">{card.title}</span>
+                  <span className="text-[11px] text-gray-400 dark:text-dark-text-muted">{card.description}</span>
                 </Link>
               ))}
             </div>
 
             {/* Learn anything input */}
             <div className="mx-auto mt-6 max-w-lg">
-              <div className="flex items-center rounded-full border border-gray-200 bg-white px-5 py-3 shadow-sm transition-all focus-within:border-gray-300 focus-within:shadow-md">
-                <Sparkles className="mr-3 h-4 w-4 text-gray-400" />
+              <div className="flex items-center rounded-full border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg px-5 py-3 shadow-sm transition-all focus-within:border-gray-300 dark:focus-within:border-dark-border dark:border-dark-border focus-within:shadow-md">
+                <Sparkles className="mr-3 h-4 w-4 text-gray-400 dark:text-dark-text-muted" />
                 <input
                   type="text"
                   value={learnInput}
                   onChange={(e) => setLearnInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleLearn()}
                   placeholder="Learn anything..."
-                  className="flex-1 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 outline-none"
+                  className="flex-1 bg-transparent text-sm text-gray-900 dark:text-dark-text placeholder:text-gray-400 dark:placeholder:text-dark-text-muted dark:text-dark-text-muted outline-none"
                 />
                 <button
                   onClick={handleLearn}
@@ -148,13 +148,13 @@ export default function HomePage() {
 
           {/* Trusted by universities */}
           <div className="mt-10 text-center">
-            <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
+            <div className="flex items-center justify-center gap-2 text-xs text-gray-400 dark:text-dark-text-muted">
               <GraduationCap className="h-3.5 w-3.5" />
               <span>Trusted by students at top universities</span>
             </div>
             <div className="mt-3 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
               {universities.map((uni) => (
-                <span key={uni} className="text-xs font-medium text-gray-300">{uni}</span>
+                <span key={uni} className="text-xs font-medium text-gray-300 dark:text-dark-text-muted">{uni}</span>
               ))}
             </div>
           </div>
@@ -162,10 +162,10 @@ export default function HomePage() {
           {/* Spaces section */}
           <div className="mt-12">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">Your Spaces</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-dark-text">Your Spaces</h2>
               <button
                 onClick={() => setShowCreateSpace(true)}
-                className="flex items-center gap-1.5 rounded-full border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-1.5 rounded-full border border-gray-200 dark:border-dark-border px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface transition-colors"
               >
                 <Plus className="h-3 w-3" />
                 New Space
@@ -174,8 +174,8 @@ export default function HomePage() {
 
             {/* Create space inline form */}
             {showCreateSpace && (
-              <div className="mt-3 flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 p-3 animate-fade-in">
-                <FolderOpen className="h-5 w-5 text-gray-400" />
+              <div className="mt-3 flex items-center gap-2 rounded-xl border border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-surface p-3 animate-fade-in">
+                <FolderOpen className="h-5 w-5 text-gray-400 dark:text-dark-text-muted" />
                 <input
                   type="text"
                   value={newSpaceName}
@@ -183,7 +183,7 @@ export default function HomePage() {
                   onKeyDown={(e) => e.key === "Enter" && createSpace()}
                   placeholder="Space name (e.g., Biology 101)"
                   autoFocus
-                  className="flex-1 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 outline-none"
+                  className="flex-1 bg-transparent text-sm text-gray-900 dark:text-dark-text placeholder:text-gray-400 dark:placeholder:text-dark-text-muted dark:text-dark-text-muted outline-none"
                 />
                 <button
                   onClick={createSpace}
@@ -193,7 +193,7 @@ export default function HomePage() {
                 </button>
                 <button
                   onClick={() => setShowCreateSpace(false)}
-                  className="text-xs text-gray-400 hover:text-gray-600"
+                  className="text-xs text-gray-400 dark:text-dark-text-muted hover:text-gray-600 dark:hover:text-dark-text-secondary dark:text-dark-text-secondary"
                 >
                   Cancel
                 </button>
@@ -206,7 +206,7 @@ export default function HomePage() {
                 <Link
                   key={space.id}
                   href={`/space/${space.id}`}
-                  className="group flex flex-col rounded-2xl border border-gray-200 bg-white p-4 transition-all hover:border-gray-300 hover:shadow-sm"
+                  className="group flex flex-col rounded-2xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg p-4 transition-all hover:border-gray-300 dark:border-dark-border hover:shadow-sm dark:shadow-none"
                 >
                   <div className="flex items-center gap-3">
                     <div
@@ -216,15 +216,15 @@ export default function HomePage() {
                       {space.icon}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-semibold text-gray-900 truncate">
+                      <h3 className="text-sm font-semibold text-gray-900 dark:text-dark-text truncate">
                         {space.name}
                       </h3>
                       {space.description && (
-                        <p className="text-xs text-gray-400 truncate">{space.description}</p>
+                        <p className="text-xs text-gray-400 dark:text-dark-text-muted truncate">{space.description}</p>
                       )}
                     </div>
                   </div>
-                  <div className="mt-3 flex items-center justify-between text-xs text-gray-400">
+                  <div className="mt-3 flex items-center justify-between text-xs text-gray-400 dark:text-dark-text-muted">
                     <span className="flex items-center gap-1">
                       <FileText className="h-3 w-3" />
                       {space.documentCount} {space.documentCount === 1 ? "file" : "files"}
@@ -239,7 +239,7 @@ export default function HomePage() {
                       {space.tags.slice(0, 3).map((tag) => (
                         <span
                           key={tag}
-                          className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] text-gray-500"
+                          className="rounded-full bg-gray-100 dark:bg-dark-card px-2 py-0.5 text-[10px] text-gray-500 dark:text-dark-text-muted"
                         >
                           {tag}
                         </span>
@@ -250,12 +250,12 @@ export default function HomePage() {
               ))}
 
               {spaces.length === 0 && (
-                <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 py-12">
-                  <FolderOpen className="h-8 w-8 text-gray-300" />
-                  <p className="mt-2 text-sm text-gray-400">No spaces yet</p>
+                <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 dark:border-dark-border py-12">
+                  <FolderOpen className="h-8 w-8 text-gray-300 dark:text-dark-text-muted" />
+                  <p className="mt-2 text-sm text-gray-400 dark:text-dark-text-muted">No spaces yet</p>
                   <button
                     onClick={() => setShowCreateSpace(true)}
-                    className="mt-3 text-xs font-medium text-gray-600 hover:text-gray-900"
+                    className="mt-3 text-xs font-medium text-gray-600 dark:text-dark-text-secondary hover:text-gray-900 dark:hover:text-dark-text dark:text-dark-text"
                   >
                     Create your first space
                   </button>
