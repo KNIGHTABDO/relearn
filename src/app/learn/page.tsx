@@ -9,6 +9,8 @@ import { LearningPanel } from "@/components/learn/learning-panel";
 import { FloatingActionBar } from "@/components/learn/floating-action-bar";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useDatabaseContext } from "@/components/providers/database-provider";
+import { getDocumentById, getSpaceById } from "@/lib/data-layer";
 
 function LearnPageInner() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -35,40 +37,40 @@ function LearnPageInner() {
   }, []);
 
   useEffect(() => {
+    if (!dbReady) return;
     if (documentId) {
-      fetch(`/api/document/${documentId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.title) setDocTitle(data.title);
-          if (data.pageCount) setPageCount(data.pageCount);
-          if (data.type) setContentType(data.type);
-          if (data.text) setDocumentText(data.text);
+      getDocumentById(documentId).then((data) => {
+        if (!data) return;
+        if (data.title) setDocTitle(data.title);
+        if (data.pageCount) setPageCount(data.pageCount);
+        if (data.type) setContentType(data.type);
+        if (data.text) setDocumentText(data.text);
 
-          // For PDFs, set URL to the PDF serving endpoint
-          if (data.type === "pdf") {
+        // For PDFs, use base64 data URL or API endpoint
+        if (data.type === "pdf") {
+          if (data.fileData) {
+            setPdfUrl(`data:application/pdf;base64,${data.fileData}`);
+          } else {
             setPdfUrl(`/api/document/${documentId}/pdf`);
           }
+        }
 
-          // YouTube
-          if (data.type === "youtube") {
-            if (data.url) {
-              setYoutubeUrl(data.url);
-            } else if (data.text) {
-              const urlMatch = data.text.match(/URL:\s*(https?:\/\/[^\s\n]+)/);
-              if (urlMatch) setYoutubeUrl(urlMatch[1]);
-            }
+        // YouTube
+        if (data.type === "youtube") {
+          if (data.url) {
+            setYoutubeUrl(data.url);
+          } else if (data.text) {
+            const urlMatch = data.text.match(/URL:\s*(https?:\/\/[^\s\n]+)/);
+            if (urlMatch) setYoutubeUrl(urlMatch[1]);
           }
-        })
-        .catch(() => {});
+        }
+      }).catch(() => {});
     } else if (spaceId) {
-      fetch(`/api/spaces/${spaceId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.name) setDocTitle(data.name + " (Space)");
-        })
-        .catch(() => {});
+      getSpaceById(spaceId).then((data) => {
+        if (data?.name) setDocTitle(data.name + " (Space)");
+      }).catch(() => {});
     }
-  }, [documentId, spaceId]);
+  }, [documentId, spaceId, dbReady]);
 
   return (
     <div className="flex h-[100dvh] flex-col bg-white dark:bg-dark-bg dark:bg-dark-bg">
