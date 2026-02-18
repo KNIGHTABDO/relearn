@@ -42,7 +42,7 @@ import {
   getSelectedGeminiModel,
   setSelectedGeminiModel,
 } from "@/lib/google-auth";
-import { useI18n } from "@/hooks/useI18n";
+import { useI18n } from "@/components/providers/i18n-provider";
 
 type ConnectionState = "disconnected" | "connecting" | "awaiting_auth" | "connected" | "error";
 
