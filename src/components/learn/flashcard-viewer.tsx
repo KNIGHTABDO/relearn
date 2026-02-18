@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { RotateCcw, ChevronLeft, ChevronRight, Loader2, Sparkles, BookMarked } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 import { ensureCopilotToken, isAuthenticated, getSelectedModel } from "@/lib/github-auth";
 
 interface Flashcard {
@@ -86,6 +87,7 @@ export function FlashcardViewer({ documentId, spaceId, renderSources }: Flashcar
   if (cards.length === 0) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center py-16 text-center px-6">
+        <Image src="/images/empty-flashcards.png" alt="No flashcards" width={160} height={160} className="rounded-xl opacity-80 mb-3" />
         <p className="text-sm text-gray-500 dark:text-dark-text-muted">No flashcards generated</p>
         <button
           onClick={fetchFlashcards}
