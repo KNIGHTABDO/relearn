@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState , Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { SidebarDrawer } from "@/components/layout/sidebar-drawer";
@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 
 type InputMode = "youtube" | "website" | "text";
 
-export default function PastePage() {
+function PastePageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const spaceId = searchParams.get("spaceId");
@@ -137,5 +137,13 @@ export default function PastePage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function PastePage() {
+  return (
+    <Suspense fallback={<div className="flex h-screen items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-purple-500" /></div>}>
+      <PastePageInner />
+    </Suspense>
   );
 }
