@@ -19,11 +19,14 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/components/providers/i18n-provider";
+import { useDatabaseContext } from "@/components/providers/database-provider";
+import { uploadTextAction } from "@/lib/data-layer";
 
 type RecordState = "idle" | "recording" | "paused" | "done";
 
 function RecordPageInner() {
   const { t } = useI18n();
+  const { isDesktop } = useDatabaseContext();
   const router = useRouter();
   const searchParams = useSearchParams();
   const spaceId = searchParams.get("spaceId");
@@ -89,9 +92,16 @@ function RecordPageInner() {
     if (spaceId) formData.append("space_id", spaceId);
 
     try {
-      const res = await fetch("/api/upload", { method: "POST", body: formData });
-      const data = await res.json();
-      if (data.id) router.push(`/learn?id=${data.id}`);
+      if (isDesktop) {
+        const text = `[${t("record.title")} - ${formatTime(elapsed)}]\n\n${t("record.transcript_preview")}\n\n${t("record.duration")}: ${formatTime(elapsed)}\nRecorded at: ${new Date().toLocaleString()}`;
+        const docId = await uploadTextAction(text);
+        if (docId) router.push(`/learn?id=${docId}`);
+        else router.push("/");
+      } else {
+        const res = await fetch("/api/upload", { method: "POST", body: formData });
+        const data = await res.json();
+        if (data.id) router.push(`/learn?id=${data.id}`);
+      }
     } catch {
       router.push("/");
     }
