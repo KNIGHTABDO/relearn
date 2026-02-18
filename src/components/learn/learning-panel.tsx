@@ -20,11 +20,16 @@ import {
   Volume2,
   Play,
   Pause,
+  Loader2,
+  Sparkles,
+  BookMarked,
+  AlertCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ChatPanel } from "./chat-panel";
 import { FlashcardViewer } from "./flashcard-viewer";
 import { QuizViewer } from "./quiz-viewer";
+import { ensureCopilotToken, isAuthenticated, getSelectedModel } from "@/lib/github-auth";
 
 type ActiveView = "generate" | "chat" | "flashcards" | "quiz" | "summary" | "notes" | "chapters" | "podcast";
 
@@ -57,12 +62,43 @@ interface LearningPanelProps {
   className?: string;
 }
 
+// Source tag renderer — converts [Source: X] to styled inline badges
+function renderWithSources(text: string): React.ReactNode[] {
+  if (!text) return [text];
+  const parts = text.split(/(\[Source:\s*[^\]]+\])/g);
+  return parts.map((part, i) => {
+    const sourceMatch = part.match(/\[Source:\s*([^\]]+)\]/);
+    if (sourceMatch) {
+      return (
+        <span
+          key={i}
+          className="ml-1 inline-flex items-center gap-0.5 rounded-md bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-500 align-middle leading-none"
+          title={`Source: ${sourceMatch[1]}`}
+        >
+          <BookMarked className="h-2.5 w-2.5 text-gray-400 shrink-0" />
+          {sourceMatch[1]}
+        </span>
+      );
+    }
+    return <span key={i}>{part}</span>;
+  });
+}
+
 export function LearningPanel({ documentId, spaceId, className }: LearningPanelProps) {
   const [activeView, setActiveView] = useState<ActiveView>("generate");
   const [chatInput, setChatInput] = useState("");
   const [summaryData, setSummaryData] = useState<any>(null);
   const [notesData, setNotesData] = useState<any>(null);
   const [chaptersData, setChaptersData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [isAI, setIsAI] = useState(false);
+
+  useEffect(() => {
+    setIsAI(isAuthenticated());
+    const handler = () => setIsAI(isAuthenticated());
+    window.addEventListener("github-auth-changed", handler);
+    return () => window.removeEventListener("github-auth-changed", handler);
+  }, []);
 
   const viewLabel: Record<ActiveView, string> = {
     generate: "Learn Tab",
@@ -76,241 +112,344 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
   };
 
   const fetchData = async (type: string) => {
+    setLoading(true);
     try {
+      const copilotToken = isAI ? await ensureCopilotToken() : null;
+      const model = getSelectedModel();
+
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (copilotToken) headers["x-copilot-token"] = copilotToken;
+
       const res = await fetch("/api/generate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ documentId, spaceId, type }),
+        headers,
+        body: JSON.stringify({ documentId, spaceId, type, model }),
       });
-      return await res.json();
-    } catch { return null; }
-  };
+      const data = await res.json();
 
-  const openView = async (view: ActiveView) => {
-    setActiveView(view);
-    if (view === "summary" && !summaryData) setSummaryData(await fetchData("summary"));
-    if (view === "notes" && !notesData) setNotesData(await fetchData("notes"));
-    if (view === "chapters" && !chaptersData) setChaptersData(await fetchData("chapters"));
-  };
+      if (type === "summary") setSummaryData(data);
+      if (type === "notes") setNotesData(data);
+      if (type === "chapters") setChaptersData(data);
 
-  const renderContent = () => {
-    switch (activeView) {
-      case "chat": return <ChatPanel documentId={documentId} spaceId={spaceId} />;
-      case "flashcards": return <FlashcardViewer documentId={documentId} />;
-      case "quiz": return <QuizViewer documentId={documentId} />;
-      case "summary": return renderSummary();
-      case "notes": return renderNotes();
-      case "chapters": return renderChapters();
-      case "podcast": return renderPodcast();
-      default: return renderGenerateView();
+      return data;
+    } catch (err) {
+      console.error("Generate error:", err);
+      return null;
+    } finally {
+      setLoading(false);
     }
   };
 
-  const renderSummary = () => (
-    <div className="flex-1 overflow-y-auto px-4 py-4">
-      {summaryData?.summary ? (
-        <div className="space-y-4 animate-fade-in">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wider text-gray-400 mb-2">Key Points</p>
-            <ul className="space-y-2">
-              {summaryData.summary.keyPoints.map((point: string, i: number) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                  <div className="mt-1.5 h-1.5 w-1.5 rounded-full bg-yl-sky shrink-0" />
-                  {point}
-                </li>
-              ))}
-            </ul>
-          </div>
-          {summaryData.summary.sections.map((sec: any, i: number) => (
-            <div key={i} className="rounded-xl border border-gray-100 p-4">
-              <h4 className="text-sm font-semibold text-gray-900 mb-1">{sec.heading}</h4>
-              <p className="text-sm text-gray-600 leading-relaxed">{sec.content}</p>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="flex h-full items-center justify-center">
-          <FileText className="h-8 w-8 text-gray-300 animate-pulse" />
-        </div>
-      )}
-    </div>
-  );
+  const handleCardClick = async (view: ActiveView | null) => {
+    if (!view) return;
+    setActiveView(view);
+    if (view === "summary" && !summaryData) fetchData("summary");
+    if (view === "notes" && !notesData) fetchData("notes");
+    if (view === "chapters" && !chaptersData) fetchData("chapters");
+  };
 
-  const renderNotes = () => (
-    <div className="flex-1 overflow-y-auto px-4 py-4">
-      {notesData?.notes ? (
-        <div className="space-y-3 animate-fade-in">
-          {notesData.notes.map((note: any) => (
-            <div key={note.id} className={cn("rounded-xl border p-4", note.highlight ? "border-yl-gold bg-yl-gold-bg/30" : "border-gray-100")}>
-              <h4 className="text-sm font-semibold text-gray-900 mb-2">{note.title}</h4>
-              <pre className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap font-sans">{note.content}</pre>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="flex h-full items-center justify-center">
-          <StickyNote className="h-8 w-8 text-gray-300 animate-pulse" />
-        </div>
-      )}
-    </div>
-  );
-
-  const renderChapters = () => (
-    <div className="flex-1 overflow-y-auto px-4 py-4">
-      {chaptersData?.chapters ? (
-        <div className="space-y-2 animate-fade-in">
-          {chaptersData.chapters.map((ch: any, i: number) => (
-            <button key={ch.id} className="flex w-full items-center gap-3 rounded-xl border border-gray-100 p-3 text-left hover:border-gray-200 hover:bg-gray-50 transition-all">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-yl-green-bg text-xs font-bold text-yl-green">{i + 1}</div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-800">{ch.title}</p>
-                <p className="text-xs text-gray-400">Pages {ch.startPage}–{ch.endPage}</p>
-              </div>
-              <ChevronRight className="h-3.5 w-3.5 text-gray-300" />
-            </button>
-          ))}
-        </div>
-      ) : (
-        <div className="flex h-full items-center justify-center">
-          <BookOpen className="h-8 w-8 text-gray-300 animate-pulse" />
-        </div>
-      )}
-    </div>
-  );
-
-  const renderPodcast = () => (
-    <div className="flex-1 overflow-y-auto px-4 py-4">
-      <div className="flex flex-col items-center justify-center h-full text-center animate-fade-in">
-        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-yl-purple-bg">
-          <Headphones className="h-9 w-9 text-yl-purple" />
-        </div>
-        <h3 className="mt-4 text-base font-semibold text-gray-900">AI Podcast</h3>
-        <p className="mt-1 text-sm text-gray-500 max-w-xs">
-          Generate a podcast-style audio summary of your material
-        </p>
-        <button className="mt-4 btn-pill-primary text-sm gap-1.5">
-          <Play className="h-3.5 w-3.5" />
-          Generate Podcast
-        </button>
-        <p className="mt-3 text-xs text-gray-400">~6 min • Powered by AI</p>
-        {/* Mock audio player */}
-        <div className="mt-6 w-full max-w-xs rounded-xl border border-gray-200 p-3">
-          <div className="flex items-center gap-3">
-            <button className="flex h-8 w-8 items-center justify-center rounded-full bg-yl-purple text-white">
-              <Play className="h-3.5 w-3.5 ml-0.5" />
-            </button>
-            <div className="flex-1">
-              <div className="h-1 w-full rounded-full bg-gray-200">
-                <div className="h-full w-0 rounded-full bg-yl-purple" />
-              </div>
-              <div className="mt-1 flex justify-between text-[10px] text-gray-400">
-                <span>0:00</span>
-                <span>6:24</span>
-              </div>
-            </div>
-            <Volume2 className="h-3.5 w-3.5 text-gray-400" />
-          </div>
-        </div>
+  // Loading overlay
+  const LoadingOverlay = () => (
+    <div className="flex flex-1 flex-col items-center justify-center gap-3 py-12">
+      <div className="relative">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-300" />
+        <Sparkles className="absolute -right-1 -top-1 h-4 w-4 text-yl-gold animate-pulse" />
+      </div>
+      <div className="text-center">
+        <p className="text-sm font-medium text-gray-600">Generating with AI...</p>
+        <p className="mt-0.5 text-xs text-gray-400">Analyzing your document</p>
       </div>
     </div>
   );
 
-  const renderGenerateView = () => (
-    <div className="flex h-full flex-col">
-      <div className="flex-1 overflow-y-auto px-4 py-4">
-        <p className="mb-3 text-xs font-medium uppercase tracking-wider text-gray-400">Generate</p>
-        <div className="grid grid-cols-2 gap-2">
-          {generateCards.map((card) => (
-            <button
-              key={card.title}
-              onClick={() => card.view && openView(card.view)}
-              className={cn(
-                "group flex items-center gap-2.5 rounded-xl border border-gray-100 bg-white p-3 text-left transition-all hover:border-gray-200 hover:shadow-sm",
-                card.view ? "cursor-pointer" : "cursor-default opacity-70"
-              )}
-            >
-              <div className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-lg", card.color)}>
-                <card.icon className="h-4 w-4" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1">
-                  <span className="text-sm font-medium text-gray-800">{card.title}</span>
-                  {card.badge && <span className="rounded bg-yl-green-bg px-1 py-0.5 text-[9px] font-bold uppercase text-yl-green">{card.badge}</span>}
-                </div>
-              </div>
-              {card.hasSettings && card.view && <Settings className="h-3.5 w-3.5 text-gray-300 opacity-0 group-hover:opacity-100" />}
-              {card.hasArrow && <ChevronRight className="h-3.5 w-3.5 text-gray-300" />}
-            </button>
-          ))}
-        </div>
-        <div className="mt-2 space-y-2">
-          {fullWidthCards.map((card) => (
-            <button
-              key={card.title}
-              onClick={() => card.view && openView(card.view)}
-              className="group flex w-full items-center gap-2.5 rounded-xl border border-gray-100 bg-white p-3 text-left transition-all hover:border-gray-200 hover:shadow-sm"
-            >
-              <div className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-lg", card.color)}>
-                <card.icon className="h-4 w-4" />
-              </div>
-              <span className="flex-1 text-sm font-medium text-gray-800">{card.title}</span>
-              <ChevronRight className="h-3.5 w-3.5 text-gray-300" />
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className="border-t border-gray-100 p-3">
-        <div className="flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2.5 focus-within:border-gray-300 focus-within:shadow-sm">
-          <input
-            type="text"
-            value={chatInput}
-            onChange={(e) => setChatInput(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter" && chatInput.trim()) setActiveView("chat"); }}
-            onFocus={() => setActiveView("chat")}
-            placeholder="Learn anything"
-            className="flex-1 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 outline-none"
-          />
-          <button className="flex items-center gap-1.5 rounded-full bg-black px-3 py-1.5 text-[11px] font-medium text-white hover:bg-gray-800">
-            <AudioLines className="h-3 w-3" />
-            <span>Voice</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+  // AI badge
+  const AIBadge = ({ generated }: { generated?: boolean }) =>
+    generated ? (
+      <span className="inline-flex items-center gap-1 rounded-full bg-yl-gold-bg px-2 py-0.5 text-[10px] font-medium text-yl-gold">
+        <Sparkles className="h-2.5 w-2.5" />
+        AI Generated
+      </span>
+    ) : (
+      <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-400">
+        Sample Data
+      </span>
+    );
 
   return (
-    <div className={cn("flex h-full flex-col border-l border-gray-100 bg-white", className)}>
-      <div className="flex h-11 items-center justify-between border-b border-gray-100 px-3">
+    <div className={cn("flex h-full flex-col border-l border-gray-100", className)}>
+      {/* Tab header */}
+      <div className="flex h-11 items-center justify-between border-b border-gray-100 px-4">
         <div className="flex items-center gap-2">
           {activeView !== "generate" && (
-            <button onClick={() => setActiveView("generate")} className="flex h-7 w-7 items-center justify-center rounded-lg hover:bg-gray-100 mr-1">
+            <button
+              onClick={() => setActiveView("generate")}
+              className="flex h-7 w-7 items-center justify-center rounded-lg hover:bg-gray-50 transition-colors"
+            >
               <ArrowLeft className="h-3.5 w-3.5 text-gray-500" />
             </button>
           )}
-          <div className="flex items-center gap-1.5 rounded-full bg-gray-50 px-3 py-1">
-            <div className="h-2 w-2 rounded-full bg-yl-green" />
-            <span className="text-xs font-medium text-gray-700">{viewLabel[activeView]}</span>
-            <button onClick={() => setActiveView("generate")} className="ml-1 flex h-4 w-4 items-center justify-center rounded-full hover:bg-gray-200">
-              <X className="h-2.5 w-2.5 text-gray-400" />
-            </button>
-          </div>
-          <button className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-gray-100">
-            <Plus className="h-3.5 w-3.5 text-gray-400" />
-          </button>
+          <span className="text-sm font-medium text-gray-900">{viewLabel[activeView]}</span>
         </div>
-        <div className="flex items-center gap-1">
-          {activeView === "generate" && (
-            <button onClick={() => setActiveView("chat")} className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-gray-50">
-              <MessageSquare className="h-3.5 w-3.5 text-gray-400" />
-            </button>
-          )}
-          <button className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-gray-50">
-            <Maximize2 className="h-3.5 w-3.5 text-gray-400" />
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => setActiveView("chat")}
+            className={cn(
+              "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all",
+              activeView === "chat"
+                ? "bg-black text-white"
+                : "text-gray-500 hover:bg-gray-50"
+            )}
+          >
+            <MessageSquare className="h-3.5 w-3.5" />
+            Chat
           </button>
         </div>
       </div>
-      {renderContent()}
+
+      {/* Views */}
+      <div className="flex-1 overflow-y-auto">
+        {/* Generate home */}
+        {activeView === "generate" && (
+          <div className="p-4">
+            {/* Quick chat input */}
+            <div className="mb-4 flex items-center gap-2">
+              <div
+                className="flex flex-1 items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 cursor-text"
+                onClick={() => setActiveView("chat")}
+              >
+                <MessageSquare className="h-3.5 w-3.5 text-gray-400" />
+                <span className="text-sm text-gray-400">Ask about your document...</span>
+              </div>
+            </div>
+
+            {/* Generate cards grid */}
+            <div className="grid grid-cols-2 gap-2">
+              {generateCards.map((card) => (
+                <button
+                  key={card.title}
+                  onClick={() => handleCardClick(card.view)}
+                  className="group flex flex-col items-start gap-2 rounded-2xl border border-gray-100 bg-white p-3 text-left transition-all hover:border-gray-200 hover:shadow-sm"
+                >
+                  <div className="flex w-full items-center justify-between">
+                    <div className={cn("flex h-8 w-8 items-center justify-center rounded-xl", card.color)}>
+                      <card.icon className="h-4 w-4" />
+                    </div>
+                    {card.badge && (
+                      <span className="rounded-full bg-gray-100 px-1.5 py-0.5 text-[9px] font-medium text-gray-500">
+                        {card.badge}
+                      </span>
+                    )}
+                    {card.hasSettings && !card.badge && (
+                      <Settings className="h-3 w-3 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    )}
+                    {card.hasArrow && (
+                      <ChevronRight className="h-3 w-3 text-gray-300" />
+                    )}
+                  </div>
+                  <span className="text-xs font-medium text-gray-700">{card.title}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Full-width cards */}
+            <div className="mt-2 space-y-2">
+              {fullWidthCards.map((card) => (
+                <button
+                  key={card.title}
+                  onClick={() => handleCardClick(card.view)}
+                  className="flex w-full items-center gap-3 rounded-2xl border border-gray-100 bg-white p-3 text-left transition-all hover:border-gray-200 hover:shadow-sm"
+                >
+                  <div className={cn("flex h-8 w-8 items-center justify-center rounded-xl", card.color)}>
+                    <card.icon className="h-4 w-4" />
+                  </div>
+                  <span className="flex-1 text-xs font-medium text-gray-700">{card.title}</span>
+                  <ChevronRight className="h-3 w-3 text-gray-300" />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Chat */}
+        {activeView === "chat" && (
+          <ChatPanel documentId={documentId} spaceId={spaceId} className="h-full" />
+        )}
+
+        {/* Flashcards */}
+        {activeView === "flashcards" && (
+          <FlashcardViewer
+            documentId={documentId}
+            spaceId={spaceId}
+            renderSources={renderWithSources}
+          />
+        )}
+
+        {/* Quiz */}
+        {activeView === "quiz" && (
+          <QuizViewer
+            documentId={documentId}
+            spaceId={spaceId}
+            renderSources={renderWithSources}
+          />
+        )}
+
+        {/* Summary */}
+        {activeView === "summary" && (
+          <div className="p-4">
+            {loading ? (
+              <LoadingOverlay />
+            ) : summaryData?.summary ? (
+              <div className="animate-fade-in space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold text-gray-900">{summaryData.summary.title}</h3>
+                  <AIBadge generated={summaryData.aiGenerated} />
+                </div>
+
+                {/* Key Points */}
+                {summaryData.summary.keyPoints?.length > 0 && (
+                  <div className="rounded-xl border border-yl-sky/20 bg-yl-sky-bg/30 p-3.5">
+                    <h4 className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-yl-sky">
+                      <Sparkles className="h-3 w-3" />
+                      Key Takeaways
+                    </h4>
+                    <ul className="space-y-2">
+                      {summaryData.summary.keyPoints.map((point: string, i: number) => (
+                        <li key={i} className="flex gap-2 text-xs leading-relaxed text-gray-700">
+                          <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-yl-sky/10 text-[9px] font-bold text-yl-sky">
+                            {i + 1}
+                          </span>
+                          <span>{renderWithSources(point)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Sections */}
+                {summaryData.summary.sections?.map((section: any, i: number) => (
+                  <div key={i} className="rounded-xl border border-gray-100 p-3.5">
+                    <h4 className="mb-1.5 text-xs font-semibold text-gray-900">{section.heading}</h4>
+                    <p className="text-xs leading-relaxed text-gray-600">
+                      {renderWithSources(section.content)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <AlertCircle className="h-8 w-8 text-gray-300" />
+                <p className="mt-2 text-sm text-gray-500">Failed to generate summary</p>
+                <button onClick={() => fetchData("summary")} className="mt-3 text-xs font-medium text-gray-600 hover:text-gray-900">
+                  Try again
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Notes */}
+        {activeView === "notes" && (
+          <div className="p-4">
+            {loading ? (
+              <LoadingOverlay />
+            ) : notesData?.notes ? (
+              <div className="animate-fade-in space-y-3">
+                <div className="flex items-center justify-between mb-1">
+                  <h3 className="text-sm font-semibold text-gray-900">Study Notes</h3>
+                  <AIBadge generated={notesData.aiGenerated} />
+                </div>
+                {notesData.notes.map((note: any, i: number) => (
+                  <div
+                    key={note.id || i}
+                    className={cn(
+                      "rounded-xl border p-3.5 transition-colors",
+                      note.highlight
+                        ? "border-yl-gold/30 bg-yl-gold-bg/20"
+                        : "border-gray-100"
+                    )}
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      {note.highlight && (
+                        <span className="flex h-4 w-4 items-center justify-center rounded bg-yl-gold/10">
+                          <Sparkles className="h-2.5 w-2.5 text-yl-gold" />
+                        </span>
+                      )}
+                      <h4 className="text-xs font-semibold text-gray-900">{note.title}</h4>
+                    </div>
+                    <div className="space-y-1">
+                      {note.content.split("\\n").filter(Boolean).map((line: string, j: number) => (
+                        <p key={j} className="text-xs leading-relaxed text-gray-600">
+                          {renderWithSources(line)}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <AlertCircle className="h-8 w-8 text-gray-300" />
+                <p className="mt-2 text-sm text-gray-500">Failed to generate notes</p>
+                <button onClick={() => fetchData("notes")} className="mt-3 text-xs font-medium text-gray-600 hover:text-gray-900">
+                  Try again
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Chapters */}
+        {activeView === "chapters" && (
+          <div className="p-4">
+            {loading ? (
+              <LoadingOverlay />
+            ) : chaptersData?.chapters ? (
+              <div className="animate-fade-in space-y-2">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm font-semibold text-gray-900">Chapters</h3>
+                  <AIBadge generated={chaptersData.aiGenerated} />
+                </div>
+                {chaptersData.chapters.map((ch: any, i: number) => (
+                  <button
+                    key={ch.id || i}
+                    className="flex w-full items-center gap-3 rounded-xl border border-gray-100 p-3 text-left transition-all hover:border-gray-200 hover:bg-gray-50"
+                  >
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-yl-green-bg text-xs font-bold text-yl-green">
+                      {i + 1}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-gray-900 truncate">{ch.title}</p>
+                      <p className="text-[10px] text-gray-400">
+                        Pages {ch.startPage}–{ch.endPage}
+                      </p>
+                    </div>
+                    <ChevronRight className="h-3 w-3 text-gray-300" />
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <AlertCircle className="h-8 w-8 text-gray-300" />
+                <p className="mt-2 text-sm text-gray-500">Failed to generate chapters</p>
+                <button onClick={() => fetchData("chapters")} className="mt-3 text-xs font-medium text-gray-600 hover:text-gray-900">
+                  Try again
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Podcast */}
+        {activeView === "podcast" && (
+          <div className="flex flex-col items-center justify-center p-8 text-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-yl-purple-bg">
+              <Headphones className="h-6 w-6 text-yl-purple" />
+            </div>
+            <h3 className="mt-3 text-sm font-semibold text-gray-900">AI Podcast</h3>
+            <p className="mt-1 text-xs text-gray-400">Coming soon — AI-generated audio summary of your document</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
