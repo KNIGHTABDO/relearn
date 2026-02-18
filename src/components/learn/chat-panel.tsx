@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Send, AudioLines, Sparkles, Copy, Check, Plus, FileText, X } from "lucide-react";
+import { Send, AudioLines, Sparkles, Copy, Check, Plus, FileText, X, Zap, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ensureCopilotToken, isAuthenticated, getSelectedModel } from "@/lib/github-auth";
 
 interface Message {
   id: string;
@@ -23,10 +24,10 @@ export function ChatPanel({ documentId, spaceId, className }: ChatPanelProps) {
   const [copied, setCopied] = useState<string | null>(null);
   const [showAddContext, setShowAddContext] = useState(false);
   const [addedContexts, setAddedContexts] = useState<string[]>([]);
+  const [usingAI, setUsingAI] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Mock available docs for "Add Context"
   const availableDocs = [
     { id: "doc-genetics", title: "The Genetic Code & Translation" },
     { id: "doc-cell", title: "Cell Division & Mitosis" },
@@ -38,6 +39,13 @@ export function ChatPanel({ documentId, spaceId, className }: ChatPanelProps) {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages]);
 
+  useEffect(() => {
+    setUsingAI(isAuthenticated());
+    const handler = () => setUsingAI(isAuthenticated());
+    window.addEventListener("github-auth-changed", handler);
+    return () => window.removeEventListener("github-auth-changed", handler);
+  }, []);
+
   const sendMessage = async () => {
     if (!input.trim() || isStreaming) return;
     const userMsg: Message = { id: Date.now().toString(), role: "user", content: input.trim() };
@@ -47,15 +55,24 @@ export function ChatPanel({ documentId, spaceId, className }: ChatPanelProps) {
     setIsStreaming(true);
 
     try {
+      // Get copilot token if authenticated
+      const copilotToken = usingAI ? await ensureCopilotToken() : null;
+      const model = getSelectedModel();
+
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (copilotToken) headers["x-copilot-token"] = copilotToken;
+
       const res = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({
           messages: [...messages, userMsg].map((m) => ({ role: m.role, content: m.content })),
           documentId,
           spaceId,
+          model,
         }),
       });
+
       const reader = res.body?.getReader();
       const decoder = new TextDecoder();
       if (reader) {
@@ -68,7 +85,7 @@ export function ChatPanel({ documentId, spaceId, className }: ChatPanelProps) {
         }
       }
     } catch {
-      setMessages((p) => p.map((m) => m.id === aiMsg.id ? { ...m, content: "Sorry, something went wrong." } : m));
+      setMessages((p) => p.map((m) => m.id === aiMsg.id ? { ...m, content: "Sorry, something went wrong. Check your connection." } : m));
     } finally {
       setIsStreaming(false);
       inputRef.current?.focus();
@@ -83,6 +100,16 @@ export function ChatPanel({ documentId, spaceId, className }: ChatPanelProps) {
 
   return (
     <div className={cn("flex h-full flex-col", className)}>
+      {/* AI status indicator */}
+      {usingAI && (
+        <div className="flex items-center gap-1.5 border-b border-gray-50 px-4 py-1.5 bg-gray-50/50">
+          <Zap className="h-3 w-3 text-yl-gold" />
+          <span className="text-[10px] text-gray-500">
+            AI: <span className="font-medium text-gray-700">{getSelectedModel()}</span>
+          </span>
+        </div>
+      )}
+
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">
         {messages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center text-center">
@@ -93,7 +120,10 @@ export function ChatPanel({ documentId, spaceId, className }: ChatPanelProps) {
               {spaceId ? "Ask about all documents in this space" : "Ask anything about your document"}
             </p>
             <p className="mt-1 text-xs text-gray-400">
-              Try: "Summarize this", "Create flashcards", or "Explain the main ideas"
+              {usingAI
+                ? "Powered by GitHub Copilot AI"
+                : "Connect GitHub in Settings to unlock AI responses"
+              }
             </p>
           </div>
         ) : (
@@ -186,7 +216,6 @@ export function ChatPanel({ documentId, spaceId, className }: ChatPanelProps) {
 
       <div className="border-t border-gray-100 p-3">
         <div className="flex items-center gap-2">
-          {/* Add Context button */}
           <button
             onClick={() => setShowAddContext(!showAddContext)}
             className={cn(
