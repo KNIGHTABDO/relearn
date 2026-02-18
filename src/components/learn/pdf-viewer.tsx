@@ -21,6 +21,7 @@ import {
   Plus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SelectionToolbar, SelectionAction } from "./selection-toolbar";
 
 // Set pdf.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -54,6 +55,17 @@ export function PDFViewer({ file, title }: PDFViewerProps) {
 
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const pdfContentRef = useRef<HTMLDivElement>(null);
+
+  // Handle PDF text selection actions
+  const handleSelectionAction = useCallback((action: SelectionAction, text: string) => {
+    // Dispatch a custom event that the learning panel / chat panel can listen to
+    window.dispatchEvent(
+      new CustomEvent("pdf-selection-action", {
+        detail: { action, text },
+      })
+    );
+  }, []);
 
   // Measure container width for responsive page sizing
   useEffect(() => {
@@ -256,6 +268,8 @@ export function PDFViewer({ file, title }: PDFViewerProps) {
 
       {/* PDF Pages Scroll Area */}
       <div ref={scrollRef} className="flex-1 overflow-auto bg-gray-100 dark:bg-dark-border">
+        <div ref={pdfContentRef} className="relative">
+          <SelectionToolbar containerRef={pdfContentRef} onAction={handleSelectionAction} />
         {!file ? (
           <div className="flex h-full items-center justify-center">
             <p className="text-sm text-gray-400 dark:text-dark-text-muted">No PDF file loaded</p>
@@ -303,6 +317,7 @@ export function PDFViewer({ file, title }: PDFViewerProps) {
             </div>
           </Document>
         )}
+        </div>
       </div>
     </div>
   );
