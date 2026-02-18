@@ -146,7 +146,7 @@ export function Header({ title, onMenuClick }: HeaderProps) {
                 {languages.map((langOpt) => (
                   <button
                     key={langOpt.code}
-                    onClick={() => { setLang(langOpt.code as Language); setShowLangDropdown(false); setShowLangDropdown(false); }}
+                    onClick={() => { console.log("[ReLearn] Changing language to:", langOpt.code); setLang(langOpt.code as Language); setShowLangDropdown(false); setShowLangDropdown(false); }}
                     className={cn(
                       "flex w-full items-center gap-2.5 px-3 py-2 text-xs transition-colors",
                       selectedLang.code === langOpt.code
