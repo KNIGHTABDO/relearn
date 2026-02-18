@@ -23,6 +23,7 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { fetchSpaces, createSpaceAction, uploadTextAction, SpaceInfo } from "@/lib/data-layer";
 
 interface SpaceCard {
   id: string;
@@ -55,39 +56,24 @@ export default function HomePage() {
   const [newSpaceName, setNewSpaceName] = useState("");
 
   useEffect(() => {
-    fetch("/api/spaces")
-      .then((r) => r.json())
-      .then((d) => setSpaces(d.spaces || []))
-      .catch(() => {});
+    fetchSpaces().then((s) => setSpaces(s)).catch(() => {});
   }, []);
 
   const handleLearn = async () => {
     if (!learnInput.trim()) return;
-    const formData = new FormData();
-    formData.append("text", learnInput.trim());
     try {
-      const res = await fetch("/api/upload", { method: "POST", body: formData });
-      const data = await res.json();
-      if (data.id) router.push(`/learn?id=${data.id}`);
+      const id = await uploadTextAction(learnInput.trim());
+      if (id) router.push(`/learn?id=${id}`);
     } catch (e) {}
   };
 
   const createSpace = async () => {
     if (!newSpaceName.trim()) return;
-    const colors = ["#10B981", "#3B82F6", "#A855F7", "#F43F5E", "#F97316", "#EAB308"];
-    const icons = ["📚", "🧬", "💻", "🧠", "📐", "🎨", "⚡", "🌍"];
     try {
-      const res = await fetch("/api/spaces", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: newSpaceName.trim(),
-          color: colors[Math.floor(Math.random() * colors.length)],
-          icon: icons[Math.floor(Math.random() * icons.length)],
-        }),
-      });
-      const space = await res.json();
-      setSpaces((prev) => [{ ...space, documentCount: 0 }, ...prev]);
+      const space = await createSpaceAction(newSpaceName.trim());
+      if (space) {
+        setSpaces((prev) => [space, ...prev]);
+      }
       setNewSpaceName("");
       setShowCreateSpace(false);
     } catch (e) {}
