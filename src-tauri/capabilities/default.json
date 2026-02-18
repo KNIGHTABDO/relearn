@@ -1,0 +1,18 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nicegui/nicegui/main/nicegui/static/tauri-schema.json",
+  "identifier": "default",
+  "description": "Default permissions for ReLearn",
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "core:default",
+    "sql:default",
+    "sql:allow-execute",
+    "sql:allow-select",
+    "shell:allow-open",
+    "dialog:default",
+    "fs:default",
+    "opener:default"
+  ]
+}
