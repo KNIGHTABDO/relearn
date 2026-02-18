@@ -1,90 +1,84 @@
-use tauri::Manager;
 use std::fs;
-use std::io::Write;
 use std::path::PathBuf;
 
-fn get_log_path() -> Option<PathBuf> {
-    // Try AppData/Local/ReLearn on Windows, ~/.local/share/ReLearn on Linux
-    if let Ok(val) = std::env::var("LOCALAPPDATA") {
-        return Some(PathBuf::from(val).join("ReLearn").join("crash.log"));
+mod oauth_plugin;
+
+fn get_log_path() -> PathBuf {
+    #[cfg(target_os = "windows")]
+    {
+        let appdata = std::env::var("LOCALAPPDATA").unwrap_or_else(|_| ".".to_string());
+        PathBuf::from(appdata).join("ReLearn")
     }
-    if let Ok(val) = std::env::var("HOME") {
-        return Some(PathBuf::from(val).join(".relearn").join("crash.log"));
+    #[cfg(not(target_os = "windows"))]
+    {
+        let home = std::env::var("HOME").unwrap_or_else(|_| ".".to_string());
+        PathBuf::from(home).join(".relearn")
     }
-    None
 }
 
-fn write_log(msg: &str) {
-    if let Some(log_path) = get_log_path() {
-        let _ = fs::create_dir_all(log_path.parent().unwrap());
-        if let Ok(mut file) = fs::OpenOptions::new()
-            .create(true)
-            .append(true)
-            .open(&log_path)
-        {
-            let _ = writeln!(file, "{}", msg);
-        }
-    }
+fn log_crash(msg: &str) {
+    let log_dir = get_log_path();
+    let _ = fs::create_dir_all(&log_dir);
+    let log_file = log_dir.join("crash.log");
+    let timestamp = chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string();
+    let entry = format!("[{}] {}\n", timestamp, msg);
+    let _ = fs::write(&log_file, entry);
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    // Set up panic handler
-    let default_panic = std::panic::take_hook();
-    std::panic::set_hook(Box::new(move |info| {
-        write_log(&format!("PANIC: {:?}", info));
-        default_panic(info);
+    // Set up panic hook for crash logging
+    std::panic::set_hook(Box::new(|info| {
+        let msg = format!("PANIC: {}", info);
+        log_crash(&msg);
     }));
 
-    write_log("ReLearn starting...");
-
-    let result = tauri::Builder::default()
-        .plugin(tauri_plugin_sql::Builder::new().build())
+    let app = tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
-        .plugin(tauri_plugin_dialog::init())
-        .plugin(tauri_plugin_fs::init())
-        .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_sql::Builder::default().build())
+        .plugin(oauth_plugin::init())
         .setup(|_app| {
-            write_log("Tauri setup complete — window should appear now");
             Ok(())
         })
         .build(tauri::generate_context!());
 
-    match result {
+    match app {
         Ok(app) => {
-            write_log("Tauri built successfully — running event loop");
+            log_crash("App built successfully, starting...");
             app.run(|_app_handle, event| {
-                // Log window events for debugging
                 match &event {
                     tauri::RunEvent::Ready => {
-                        write_log("RunEvent::Ready — app is fully loaded");
+                        log_crash("RunEvent::Ready — app window should be visible");
                     }
                     tauri::RunEvent::ExitRequested { .. } => {
-                        write_log("RunEvent::ExitRequested");
+                        log_crash("RunEvent::ExitRequested");
                     }
                     _ => {}
                 }
             });
         }
         Err(e) => {
-            let msg = format!("FATAL: Failed to build Tauri app: {}", e);
-            write_log(&msg);
-            // Show error dialog on Windows
+            let error_msg = format!("FATAL: Failed to build Tauri app: {}", e);
+            log_crash(&error_msg);
+
             #[cfg(target_os = "windows")]
             {
                 use std::ffi::CString;
-                let c_msg = CString::new(msg.clone()).unwrap_or_default();
-                let c_title = CString::new("ReLearn Error").unwrap_or_default();
+                let text = CString::new(error_msg.clone()).unwrap_or_default();
+                let title = CString::new("ReLearn Error").unwrap_or_default();
                 unsafe {
-                    // MessageBoxA
+                    #[link(name = "user32")]
                     extern "system" {
                         fn MessageBoxA(hwnd: *mut std::ffi::c_void, text: *const i8, caption: *const i8, utype: u32) -> i32;
                     }
-                    MessageBoxA(std::ptr::null_mut(), c_msg.as_ptr(), c_title.as_ptr(), 0x10);
+                    MessageBoxA(std::ptr::null_mut(), text.as_ptr(), title.as_ptr(), 0x10);
                 }
             }
-            eprintln!("{}", msg);
-            std::process::exit(1);
+
+            #[cfg(not(target_os = "windows"))]
+            {
+                eprintln!("{}", error_msg);
+            }
         }
     }
 }
