@@ -87,7 +87,7 @@ export default function ExamPage() {
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
-    return \`\${m}:\${s.toString().padStart(2, "0")}\`;
+    return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
   if (loading || !exam) {
@@ -243,7 +243,7 @@ export default function ExamPage() {
           <div className="mb-6 h-1.5 w-full rounded-full bg-gray-100 dark:bg-dark-card overflow-hidden">
             <div
               className="h-full rounded-full bg-yl-pink transition-all duration-300"
-              style={{ width: \`\${((currentIndex + 1) / exam.questions.length) * 100}%\` }}
+              style={{ width: `${((currentIndex + 1) / exam.questions.length) * 100}%` }}
             />
           </div>
 
