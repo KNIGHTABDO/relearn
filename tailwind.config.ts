@@ -2,6 +2,7 @@ import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
 
 const config: Config = {
+  darkMode: "class",
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -13,7 +14,6 @@ const config: Config = {
         sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
       },
       colors: {
-        // YouLearn pastel palette
         yl: {
           purple: "#A855F7",
           blue: "#3B82F6",
@@ -23,7 +23,6 @@ const config: Config = {
           gold: "#EAB308",
           green: "#10B981",
           teal: "#0D9488",
-          // Soft pastel backgrounds
           "purple-bg": "#F3E8FF",
           "blue-bg": "#DBEAFE",
           "sky-bg": "#E0F2FE",
@@ -32,6 +31,27 @@ const config: Config = {
           "gold-bg": "#FEF9C3",
           "green-bg": "#D1FAE5",
           "teal-bg": "#CCFBF1",
+          // Dark mode pastel backgrounds — muted, rich
+          "purple-bg-dark": "#2e1065",
+          "blue-bg-dark": "#172554",
+          "sky-bg-dark": "#0c4a6e",
+          "pink-bg-dark": "#4c0519",
+          "orange-bg-dark": "#431407",
+          "gold-bg-dark": "#422006",
+          "green-bg-dark": "#064e3b",
+          "teal-bg-dark": "#134e4a",
+        },
+        // Dark mode surface colors
+        dark: {
+          bg: "#0a0a0a",
+          surface: "#141414",
+          card: "#1a1a1a",
+          border: "#262626",
+          "border-subtle": "#1f1f1f",
+          hover: "#1f1f1f",
+          text: "#fafafa",
+          "text-secondary": "#a3a3a3",
+          "text-muted": "#737373",
         },
       },
       borderRadius: {
