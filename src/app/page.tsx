@@ -24,7 +24,7 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { fetchSpaces, createSpaceAction, uploadTextAction, SpaceInfo } from "@/lib/data-layer";
+import { fetchSpaces, createSpaceAction, uploadTextAction, uploadYouTubeAction, SpaceInfo } from "@/lib/data-layer";
 import { useDatabaseContext } from "@/components/providers/database-provider";
 
 interface SpaceCard {
@@ -93,7 +93,11 @@ export default function HomePage() {
   const handleLearn = async () => {
     if (!learnInput.trim()) return;
     try {
-      const id = await uploadTextAction(learnInput.trim());
+      const input = learnInput.trim();
+      const isYouTube = /(?:youtube\.com\/watch|youtu\.be\/)/.test(input);
+      const id = isYouTube
+        ? await uploadYouTubeAction(input)
+        : await uploadTextAction(input);
       if (id) router.push(`/learn?id=${id}`);
     } catch (e) {}
   };

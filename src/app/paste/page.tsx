@@ -15,7 +15,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/components/providers/i18n-provider";
 import { useDatabaseContext } from "@/components/providers/database-provider";
-import { uploadTextAction } from "@/lib/data-layer";
+import { uploadTextAction, uploadYouTubeAction } from "@/lib/data-layer";
 
 type InputMode = "youtube" | "website" | "text";
 
@@ -35,8 +35,13 @@ function PastePageInner() {
     setLoading(true);
     try {
       if (isDesktop) {
-        // Desktop mode: save text directly to SQLite
-        const docId = await uploadTextAction(input.trim());
+        // Desktop mode: save directly to SQLite
+        let docId: string | null = null;
+        if (mode === "youtube") {
+          docId = await uploadYouTubeAction(input.trim(), spaceId || undefined);
+        } else {
+          docId = await uploadTextAction(input.trim());
+        }
         if (docId) {
           router.push(`/learn?id=${docId}`);
         }

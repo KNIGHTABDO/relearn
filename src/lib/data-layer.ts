@@ -214,7 +214,7 @@ export async function getDocumentById(id: string): Promise<FullDocument | null> 
     };
   }
   try {
-    const res = await fetch(\`/api/document/\${id}\`);
+    const res = await fetch(`/api/document/${id}`);
     if (!res.ok) return null;
     return await res.json();
   } catch {
@@ -228,7 +228,7 @@ export async function getDocumentPdfData(id: string): Promise<string | null> {
     return doc?.fileData || null;
   }
   try {
-    const res = await fetch(\`/api/document/\${id}/pdf\`);
+    const res = await fetch(`/api/document/${id}/pdf`);
     if (!res.ok) return null;
     const blob = await res.blob();
     return new Promise((resolve) => {
@@ -327,6 +327,45 @@ export async function uploadFileAction(
     const res = await fetch('/api/upload', { method: 'POST', body: formData });
     if (!res.ok) return null;
     return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+export async function uploadYouTubeAction(youtubeUrl: string, spaceId?: string): Promise<string | null> {
+  const id = crypto.randomUUID();
+  const now = new Date();
+
+  // Extract video ID for title
+  const videoIdMatch = youtubeUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?\s]+)/);
+  const videoId = videoIdMatch ? videoIdMatch[1] : 'unknown';
+  const title = `YouTube Video (${videoId})`;
+
+  if (db.isDesktopMode()) {
+    await db.saveDocument({
+      id,
+      title,
+      type: 'youtube',
+      text: `YouTube URL: ${youtubeUrl}`,
+      chunks: [],
+      fileSize: 0,
+      pageCount: 0,
+      url: youtubeUrl,
+      createdAt: now,
+      spaceId: spaceId || undefined,
+    } as any);
+    return id;
+  }
+
+  // Web mode: use API route
+  const formData = new FormData();
+  formData.append('youtube_url', youtubeUrl);
+  if (spaceId) formData.append('space_id', spaceId);
+  try {
+    const res = await fetch('/api/upload', { method: 'POST', body: formData });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.id || null;
   } catch {
     return null;
   }
