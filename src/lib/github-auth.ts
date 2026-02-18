@@ -119,7 +119,7 @@ export async function startDeviceLogin(): Promise<{
         user_code: string;
         verification_uri: string;
         interval: number;
-      }>("plugin:oauth|github_device_code");
+      }>("github_device_code");
       return result;
     } else {
       // Web mode — direct call (works if same-origin or CORS allowed)
@@ -157,7 +157,7 @@ export async function pollForToken(deviceCode: string, interval: number): Promis
           email?: string;
           avatar_url?: string;
           error?: string;
-        }>("plugin:oauth|github_poll_token", { deviceCode });
+        }>("github_poll_token", { deviceCode });
 
         if (result.status === "success" && result.access_token) {
           storeAuth({
