@@ -38,6 +38,7 @@ import { ChatPanel } from "./chat-panel";
 import { FlashcardViewer } from "./flashcard-viewer";
 import { QuizViewer } from "./quiz-viewer";
 import { ensureCopilotToken, isAuthenticated, getSelectedModel } from "@/lib/github-auth";
+import { ensureGoogleToken, isGoogleAuthenticated, getSelectedGeminiModel } from "@/lib/google-auth";
 import { PodcastPlayer } from "./podcast-player";
 import { VoiceTutor } from "./voice-tutor";
 import { StudyPlanner } from "./study-planner";
@@ -117,8 +118,8 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
   const [isAI, setIsAI] = useState(false);
 
   useEffect(() => {
-    setIsAI(isAuthenticated());
-    const handler = () => setIsAI(isAuthenticated());
+    setIsAI((isGoogleAuthenticated() || isAuthenticated()));
+    const handler = () => setIsAI((isGoogleAuthenticated() || isAuthenticated()));
     window.addEventListener("github-auth-changed", handler);
     return () => window.removeEventListener("github-auth-changed", handler);
   }, []);
@@ -137,11 +138,17 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
   const fetchData = async (type: string) => {
     setLoading(true);
     try {
-      const copilotToken = isAI ? await ensureCopilotToken() : null;
-      const model = getSelectedModel();
+      const googleToken = isAI ? await ensureGoogleToken() : null;
+      const copilotToken = isAI && !googleToken ? await ensureCopilotToken() : null;
+      const model = googleToken ? getSelectedGeminiModel() : getSelectedModel();
 
       const headers: Record<string, string> = { "Content-Type": "application/json" };
-      if (copilotToken) headers["x-copilot-token"] = copilotToken;
+      if (googleToken) {
+        headers["x-google-token"] = googleToken;
+        headers["x-gemini-model"] = model;
+      } else if (copilotToken) {
+        headers["x-copilot-token"] = copilotToken;
+      }
 
       const res = await fetch("/api/generate", {
         method: "POST",
