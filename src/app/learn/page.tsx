@@ -71,7 +71,7 @@ export default function LearnPage() {
   }, [documentId, spaceId]);
 
   return (
-    <div className="flex h-[100dvh] flex-col bg-white">
+    <div className="flex h-[100dvh] flex-col bg-white dark:bg-dark-bg dark:bg-dark-bg">
       <Header title={docTitle} onMenuClick={() => setSidebarOpen(true)} />
       <SidebarDrawer open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
@@ -97,21 +97,21 @@ export default function LearnPage() {
         <button
           onClick={() => setShowPanel(!showPanel)}
           className={cn(
-            "absolute right-0 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-l-lg border border-r-0 border-gray-200 bg-white shadow-sm hover:bg-gray-50 transition-all",
+            "absolute right-0 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-l-lg border border-r-0 border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg shadow-sm hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface transition-all",
             showPanel && "lg:right-[380px] right-[320px]"
           )}
         >
           {showPanel ? (
-            <PanelLeftClose className="h-3.5 w-3.5 text-gray-500" />
+            <PanelLeftClose className="h-3.5 w-3.5 text-gray-500 dark:text-dark-text-muted" />
           ) : (
-            <PanelLeftOpen className="h-3.5 w-3.5 text-gray-500" />
+            <PanelLeftOpen className="h-3.5 w-3.5 text-gray-500 dark:text-dark-text-muted" />
           )}
         </button>
 
         {/* Right: Learning Panel — slide in/out */}
         <div
           className={cn(
-            "shrink-0 border-l border-gray-100 transition-all duration-200 overflow-hidden",
+            "shrink-0 border-l border-gray-100 dark:border-dark-border transition-all duration-200 overflow-hidden",
             showPanel ? "w-[320px] lg:w-[380px]" : "w-0"
           )}
         >
@@ -127,7 +127,7 @@ export default function LearnPage() {
         {/* Mobile overlay for learning panel */}
         {showPanel && (
           <div
-            className="fixed inset-0 z-10 bg-black/20 lg:hidden"
+            className="fixed inset-0 z-10 bg-black/20 dark:bg-black/50 lg:hidden"
             onClick={() => setShowPanel(false)}
           />
         )}
