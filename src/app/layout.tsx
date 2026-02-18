@@ -31,10 +31,9 @@ export default function RootLayout({
                   }
                   document.documentElement.classList.add(resolved);
                   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', resolved === 'dark' ? '#0a0a0a' : '#ffffff');
-                  // Also set language direction
+                  // Set language (direction disabled — RTL not ready)
                   var lang = localStorage.getItem('relearn-language') || 'en';
                   document.documentElement.lang = lang;
-                  if (lang === 'ar') document.documentElement.dir = 'rtl';
                 } catch(e) {}
               })();
             `,
