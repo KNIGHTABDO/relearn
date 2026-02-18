@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState , Suspense } from "react";
+import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { SidebarDrawer } from "@/components/layout/sidebar-drawer";
@@ -13,10 +13,12 @@ import {
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/components/providers/i18n-provider";
 
 type InputMode = "youtube" | "website" | "text";
 
 function PastePageInner() {
+  const { t } = useI18n();
   const router = useRouter();
   const searchParams = useSearchParams();
   const spaceId = searchParams.get("spaceId");
@@ -49,9 +51,9 @@ function PastePageInner() {
   };
 
   const modes = [
-    { id: "youtube" as InputMode, label: "YouTube", icon: Youtube, placeholder: "Paste YouTube URL..." },
-    { id: "website" as InputMode, label: "Website", icon: Globe, placeholder: "Paste website URL..." },
-    { id: "text" as InputMode, label: "Text", icon: FileText, placeholder: "Paste your text content here..." },
+    { id: "youtube" as InputMode, label: t("paste.youtube"), icon: Youtube, placeholder: t("paste.placeholder_yt") },
+    { id: "website" as InputMode, label: t("paste.website"), icon: Globe, placeholder: t("paste.placeholder_web") },
+    { id: "text" as InputMode, label: t("paste.text"), icon: FileText, placeholder: t("paste.placeholder_text") },
   ];
 
   const activeMode = modes.find((m) => m.id === mode)!;
@@ -67,9 +69,9 @@ function PastePageInner() {
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-50 dark:bg-dark-surface dark:bg-dark-surface">
               <Link2 className="h-6 w-6 text-gray-400 dark:text-dark-text-muted" />
             </div>
-            <h1 className="mt-4 text-2xl font-bold text-gray-900 dark:text-dark-text">Paste content</h1>
+            <h1 className="mt-4 text-2xl font-bold text-gray-900 dark:text-dark-text">{t("paste.title")}</h1>
             <p className="mt-2 text-sm text-gray-500 dark:text-dark-text-muted">
-              {spaceId ? "Add content to your space" : "YouTube videos, websites, or text"}
+              {spaceId ? t("home.upload") : t("paste.subtitle")}
             </p>
           </div>
 
@@ -125,11 +127,11 @@ function PastePageInner() {
             {loading ? (
               <>
                 <Sparkles className="h-3.5 w-3.5 animate-pulse" />
-                Processing...
+                {t("upload.processing")}
               </>
             ) : (
               <>
-                Start Learning
+                {t("paste.submit")}
                 <ArrowRight className="h-3.5 w-3.5" />
               </>
             )}
