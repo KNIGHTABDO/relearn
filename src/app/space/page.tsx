@@ -22,6 +22,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/components/providers/i18n-provider";
+import { useDatabaseContext } from "@/components/providers/database-provider";
+import { getSpaceById, getDocumentsBySpace, deleteDocumentAction } from "@/lib/data-layer";
 
 interface SpaceData {
   id: string;
@@ -42,6 +44,7 @@ interface SpaceData {
 
 function SpacePageInner() {
   const { t } = useI18n();
+  const { ready: dbReady } = useDatabaseContext();
   const searchParams = useSearchParams();
   const router = useRouter();
   const spaceId = searchParams.get("id") || "";
@@ -50,18 +53,18 @@ function SpacePageInner() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`/api/spaces/${spaceId}`)
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.error) {
-          router.push("/");
-        } else {
-          setSpace(d);
-        }
-      })
-      .catch(() => router.push("/"))
+    if (!dbReady || !spaceId) return;
+    getSpaceById(spaceId).then((s) => {
+      if (!s) {
+        router.push("/");
+      } else {
+        getDocumentsBySpace(spaceId).then((docs) => {
+          setSpace({ ...s, documents: docs });
+        }).catch(() => {});
+      }
+    }).catch(() => router.push("/"))
       .finally(() => setLoading(false));
-  }, [spaceId, router]);
+  }, [spaceId, router, dbReady]);
 
   const handleUploadToSpace = () => {
     router.push(`/upload?spaceId=${spaceId}`);
@@ -72,7 +75,7 @@ function SpacePageInner() {
   };
 
   const deleteDocument = async (docId: string) => {
-    await fetch(`/api/document/${docId}`, { method: "DELETE" });
+    await deleteDocumentAction(docId);
     setSpace((prev) =>
       prev ? { ...prev, documents: prev.documents.filter((d) => d.id !== docId) } : null
     );
