@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Menu, ChevronDown, Check, Zap, Sun, Moon, Monitor } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useI18n, Language } from "@/components/providers/i18n-provider";
 import { isAuthenticated, getSelectedModel, getStoredAuth } from "@/lib/github-auth";
 import { useTheme } from "@/components/theme-provider";
 
@@ -28,7 +29,8 @@ const languages = [
 export function Header({ title, onMenuClick }: HeaderProps) {
   const { theme, resolvedTheme, setTheme } = useTheme();
   const [showLangDropdown, setShowLangDropdown] = useState(false);
-  const [selectedLang, setSelectedLang] = useState(languages[0]);
+  const { lang, setLang, t } = useI18n();
+  const selectedLang = languages.find(l => l.code === lang) || languages[0];
   const [showThemeDropdown, setShowThemeDropdown] = useState(false);
   const [authed, setAuthed] = useState(false);
   const [model, setModel] = useState("");
@@ -141,20 +143,20 @@ export function Header({ title, onMenuClick }: HeaderProps) {
             <>
               <div className="fixed inset-0 z-30" onClick={() => setShowLangDropdown(false)} />
               <div className="absolute right-0 top-full z-40 mt-1 w-44 rounded-xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-card py-1 shadow-lg max-h-64 overflow-y-auto animate-fade-in">
-                {languages.map((lang) => (
+                {languages.map((langOpt) => (
                   <button
-                    key={lang.code}
-                    onClick={() => { setSelectedLang(lang); setShowLangDropdown(false); }}
+                    key={langOpt.code}
+                    onClick={() => { setLang(langOpt.code as Language); setShowLangDropdown(false); setShowLangDropdown(false); }}
                     className={cn(
                       "flex w-full items-center gap-2.5 px-3 py-2 text-xs transition-colors",
-                      selectedLang.code === lang.code
+                      selectedLang.code === langOpt.code
                         ? "bg-gray-50 dark:bg-dark-hover text-gray-900 dark:text-dark-text font-medium"
                         : "text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover"
                     )}
                   >
-                    <span className="text-base leading-none">{lang.flag}</span>
-                    <span>{lang.label}</span>
-                    {selectedLang.code === lang.code && <Check className="h-3 w-3 ml-auto text-yl-green" />}
+                    <span className="text-base leading-none">{langOpt.flag}</span>
+                    <span>{langOpt.label}</span>
+                    {selectedLang.code === langOpt.code && <Check className="h-3 w-3 ml-auto text-yl-green" />}
                   </button>
                 ))}
               </div>
