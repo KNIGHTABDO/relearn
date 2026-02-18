@@ -93,7 +93,7 @@ export async function ensureGoogleToken(): Promise<string | null> {
 
       if (isTauri()) {
         const { invoke } = await import("@tauri-apps/api/core");
-        data = await invoke("plugin:oauth|google_refresh_token", {
+        data = await invoke("google_refresh_token", {
           refreshToken: auth.refreshToken,
           clientId: GOOGLE_CLIENT_ID,
         });
@@ -169,7 +169,7 @@ async function startTauriGoogleOAuth(
     const { invoke } = await import("@tauri-apps/api/core");
 
     // Step 1: Start loopback OAuth server
-    const port: number = await invoke("plugin:oauth|start_oauth_server");
+    const port: number = await invoke("start_oauth_server");
     const redirectUri = "http://127.0.0.1:" + port + "/callback";
 
     // Step 2: Listen for callback event
@@ -187,7 +187,7 @@ async function startTauriGoogleOAuth(
 
       try {
         // Step 4: Exchange code for tokens via Rust (no CORS)
-        const data: any = await invoke("plugin:oauth|google_exchange_token", {
+        const data: any = await invoke("google_exchange_token", {
           code,
           redirectUri,
           codeVerifier,
