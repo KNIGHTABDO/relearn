@@ -137,22 +137,27 @@ export default function SettingsPage() {
         return;
       }
 
-      const res = await fetch("https://api.githubcopilot.com/models", {
-        headers: {
-          Authorization: "Bearer " + token,
-          Accept: "application/json",
-          "Copilot-Integration-Id": "vscode-chat",
-        },
-      });
-
-      if (!res.ok) {
-        const err = await res.json();
-        setModelsError(err.error || t("settings.fetch_models_error"));
-        setLoadingModels(false);
-        return;
+      let data: any;
+      if ((window as any).__TAURI_INTERNALS__) {
+        const { invoke } = await import("@tauri-apps/api/core");
+        const raw: string = await invoke("github_fetch_models", { token });
+        data = JSON.parse(raw);
+      } else {
+        const res = await fetch("https://api.githubcopilot.com/models", {
+          headers: {
+            Authorization: "Bearer " + token,
+            Accept: "application/json",
+            "Copilot-Integration-Id": "vscode-chat",
+          },
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          setModelsError(err.error || t("settings.fetch_models_error"));
+          setLoadingModels(false);
+          return;
+        }
+        data = await res.json();
       }
-
-      const data = await res.json();
       const modelList: Model[] = (data.data || data.models || []).map((m: any) => ({
         id: m.id || m.name,
         name: m.id || m.name,
