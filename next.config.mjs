@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
+const isProd = process.env.NODE_ENV === 'production';
+const internalHost = process.env.TAURI_DEV_HOST || 'localhost';
+
 const nextConfig = {
-  // Static export when building for Tauri (API routes get removed by beforeBuildCommand)
-  ...(process.env.TAURI_ENV_PLATFORM ? { output: "export" } : {}),
+  output: "export",
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -10,10 +12,8 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
-    remotePatterns: [
-      { protocol: 'https', hostname: '**' },
-    ],
   },
+  assetPrefix: isProd ? undefined : `http://${internalHost}:3000`,
   webpack: (config) => {
     config.resolve.alias.canvas = false;
     config.resolve.alias.encoding = false;
