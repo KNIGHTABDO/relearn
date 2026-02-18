@@ -94,16 +94,16 @@ export default function UploadPage() {
   const completed = uploadedFiles.filter((f) => f.status === "done");
 
   return (
-    <div className="flex h-screen flex-col bg-white">
+    <div className="flex h-screen flex-col bg-white dark:bg-dark-bg dark:bg-dark-bg">
       <Header onMenuClick={() => setSidebarOpen(true)} />
       <SidebarDrawer open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <main className="flex flex-1 flex-col items-center justify-center px-6">
         <div className="w-full max-w-lg">
-          <h1 className="text-center text-2xl font-bold text-gray-900">
+          <h1 className="text-center text-2xl font-bold text-gray-900 dark:text-dark-text">
             Upload your material
           </h1>
-          <p className="mt-2 text-center text-sm text-gray-500">
+          <p className="mt-2 text-center text-sm text-gray-500 dark:text-dark-text-muted">
             {spaceId ? "Adding files to your space" : "Drop files to start learning"}
           </p>
 
@@ -119,44 +119,44 @@ export default function UploadPage() {
             {...getRootProps()}
             className={cn(
               "mt-6 flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-12 transition-all",
-              isDragActive ? "border-gray-400 bg-gray-50 scale-[1.02]" : "border-gray-200 bg-white hover:border-gray-300"
+              isDragActive ? "border-gray-400 bg-gray-50 dark:bg-dark-surface scale-[1.02]" : "border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg hover:border-gray-300 dark:border-dark-border"
             )}
           >
             <input {...getInputProps()} />
-            <div className={cn("flex h-14 w-14 items-center justify-center rounded-2xl", isDragActive ? "bg-gray-200" : "bg-gray-50")}>
-              <Upload className={cn("h-6 w-6", isDragActive ? "text-gray-600" : "text-gray-400")} />
+            <div className={cn("flex h-14 w-14 items-center justify-center rounded-2xl", isDragActive ? "bg-gray-200 dark:bg-dark-border" : "bg-gray-50 dark:bg-dark-surface dark:bg-dark-surface")}>
+              <Upload className={cn("h-6 w-6", isDragActive ? "text-gray-600 dark:text-dark-text-secondary" : "text-gray-400 dark:text-dark-text-muted")} />
             </div>
-            <p className="mt-4 text-sm font-medium text-gray-700">
+            <p className="mt-4 text-sm font-medium text-gray-700 dark:text-dark-text-secondary">
               {isDragActive ? "Drop here" : "Drag and drop files"}
             </p>
-            <p className="mt-1 text-xs text-gray-400">or click to browse • PDF, DOC, TXT up to 50MB</p>
+            <p className="mt-1 text-xs text-gray-400 dark:text-dark-text-muted">or click to browse • PDF, DOC, TXT up to 50MB</p>
           </div>
 
           {uploadedFiles.length > 0 && (
             <div className="mt-4 space-y-2">
               {uploadedFiles.map((item, idx) => (
-                <div key={idx} className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-3 animate-fade-in">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white">
+                <div key={idx} className="flex items-center gap-3 rounded-xl border border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-surface p-3 animate-fade-in">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white dark:bg-dark-bg dark:bg-dark-bg">
                     {item.status === "done" ? <CheckCircle2 className="h-5 w-5 text-yl-green" /> :
                      item.status === "error" ? <AlertCircle className="h-5 w-5 text-yl-pink" /> :
-                     <FileText className="h-5 w-5 text-gray-400" />}
+                     <FileText className="h-5 w-5 text-gray-400 dark:text-dark-text-muted" />}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="truncate text-sm font-medium text-gray-900">{item.file.name}</p>
+                    <p className="truncate text-sm font-medium text-gray-900 dark:text-dark-text">{item.file.name}</p>
                     <div className="flex items-center gap-2">
-                      <p className="text-xs text-gray-400">{(item.file.size / 1024 / 1024).toFixed(1)} MB</p>
+                      <p className="text-xs text-gray-400 dark:text-dark-text-muted">{(item.file.size / 1024 / 1024).toFixed(1)} MB</p>
                       {item.status === "uploading" && (
-                        <div className="flex-1 h-1 rounded-full bg-gray-200 overflow-hidden">
+                        <div className="flex-1 h-1 rounded-full bg-gray-200 dark:bg-dark-border overflow-hidden">
                           <div className="h-full bg-black rounded-full transition-all" style={{ width: \`\${item.progress}%\` }} />
                         </div>
                       )}
                     </div>
                   </div>
                   {item.status === "uploading" ? (
-                    <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+                    <Loader2 className="h-4 w-4 animate-spin text-gray-400 dark:text-dark-text-muted" />
                   ) : (
-                    <button onClick={() => removeFile(item.file)} className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-gray-200">
-                      <X className="h-3.5 w-3.5 text-gray-400" />
+                    <button onClick={() => removeFile(item.file)} className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-dark-hover dark:bg-dark-border">
+                      <X className="h-3.5 w-3.5 text-gray-400 dark:text-dark-text-muted" />
                     </button>
                   )}
                 </div>
@@ -179,7 +179,7 @@ export default function UploadPage() {
             </button>
           )}
 
-          <p className="mt-6 text-center text-[11px] text-gray-300">PDF, DOCX, TXT • Max 50MB</p>
+          <p className="mt-6 text-center text-[11px] text-gray-300 dark:text-dark-text-muted">PDF, DOCX, TXT • Max 50MB</p>
         </div>
       </main>
     </div>
