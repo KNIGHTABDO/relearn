@@ -11,7 +11,7 @@ import {
   MessageCircle,
   Sparkles,
 } from 'lucide-react';
-import cn from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import axios from 'axios';
 
 interface VoiceTutorProps {
