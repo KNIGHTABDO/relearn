@@ -1,0 +1,7 @@
+# Rust build artifacts
+target/
+
+# SQLite database (user data)
+*.db
+*.db-journal
+*.db-wal
