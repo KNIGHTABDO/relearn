@@ -1,5 +1,3 @@
-tsx
-// src/components/learn/infographic-viewer.tsx
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
@@ -412,23 +410,4 @@ export default function InfographicViewer() {
   if (loading) return renderSkeleton();
   if (!data) return renderPreGeneration();
   return renderInfographic();
-}
-
-/* --------------------------------------------------------------
-   Tailwind custom animation (add to your global CSS if not present)
-   -------------------------------------------------------------- */
-@layer utilities {
-  @keyframes scaleIn {
-    0% {
-      opacity: 0;
-      transform: scale(0);
-    }
-    100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-  .animate-\[scaleIn_0\.5s_ease-out_forwards\] {
-    animation: scaleIn 0.5s ease-out forwards;
-  }
 }
