@@ -1,25 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
+import { store } from "@/lib/store";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const store = (globalThis as any).__documentStore as Map<string, any>;
-  if (!store) {
-    return NextResponse.json({ error: "Store not initialized" }, { status: 500 });
-  }
-
-  const doc = store.get(params.id);
+  const doc = store.getDocument(params.id);
   if (!doc) {
-    return NextResponse.json({ error: "Document not found" }, { status: 404 });
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-
   return NextResponse.json({
     id: doc.id,
     title: doc.title,
+    type: doc.type,
     text: doc.text,
+    fileSize: doc.fileSize,
+    pageCount: doc.pageCount,
     chunkCount: doc.chunks.length,
-    textLength: doc.text.length,
+    spaceId: doc.spaceId,
     createdAt: doc.createdAt,
   });
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const deleted = store.removeDocument(params.id);
+  if (!deleted) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+  return NextResponse.json({ success: true });
 }
