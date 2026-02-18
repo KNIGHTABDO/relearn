@@ -1,11 +1,11 @@
 {
   "productName": "ReLearn",
   "version": "0.1.0",
-  "identifier": "com.relearn.app",
+  "identifier": "com.relearn.desktop",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:3000",
-    "beforeBuildCommand": "node -e \"const fs=require('fs');fs.rmSync('src/app/api',{recursive:true,force:true});console.log('Removed API routes for static export')\" && npm run build",
+    "beforeBuildCommand": "node prebuild.js && npm run build",
     "frontendDist": "../out"
   },
   "app": {
