@@ -17,16 +17,21 @@ export interface SpaceInfo {
 export async function fetchSpaces(): Promise<SpaceInfo[]> {
   if (db.isDesktopMode()) {
     const spaces = await db.getSpaces();
-    return spaces.map((s) => ({
-      id: s.id,
-      name: s.name,
-      description: s.description || '',
-      color: s.color || '#3B82F6',
-      icon: s.icon || '\u{1f4da}',
-      documentCount: s.documents?.length || 0,
-      updatedAt: s.updatedAt?.toISOString?.() || new Date().toISOString(),
-      tags: s.tags || [],
-    }));
+    const result: SpaceInfo[] = [];
+    for (const s of spaces) {
+      const docs = await db.getDocumentsBySpace(s.id);
+      result.push({
+        id: s.id,
+        name: s.name,
+        description: s.description || '',
+        color: s.color || '#3B82F6',
+        icon: s.icon || '\u{1f4da}',
+        documentCount: docs.length,
+        updatedAt: s.updatedAt?.toISOString?.() || new Date().toISOString(),
+        tags: s.tags || [],
+      });
+    }
+    return result;
   }
   try {
     const res = await fetch('/api/spaces');

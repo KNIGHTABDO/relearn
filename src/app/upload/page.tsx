@@ -230,7 +230,7 @@ function UploadPageInner() {
             <button
               onClick={() => {
                 if (spaceId) {
-                  router.push(`/space/${spaceId}`);
+                  router.push(`/space?id=${spaceId}`);
                 } else {
                   router.push(`/learn?id=${completed[0].id}`);
                 }

@@ -24,7 +24,7 @@ import { cn } from "@/lib/utils";
 import { SelectionToolbar, SelectionAction } from "./selection-toolbar";
 
 // Set pdf.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 interface PDFViewerProps {
   /** The file source: URL string, File object, or ArrayBuffer */

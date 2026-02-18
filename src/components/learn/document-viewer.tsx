@@ -100,7 +100,7 @@ export function DocumentViewer({
         <div className="relative w-full flex-1 min-h-0">
           {videoId ? (
             <iframe
-              src={`https://www.youtube.com/embed/${videoId}?rel=0`}
+              src={`https://www.youtube-nocookie.com/embed/${videoId}?rel=0`}
               className="absolute inset-0 h-full w-full"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen

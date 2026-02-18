@@ -22,3 +22,13 @@ if (fs.existsSync(apiDir)) {
 } else {
   console.log('No API routes to remove');
 }
+
+// Copy pdfjs worker to public/ for CSP-compatible loading
+const pdfWorkerSrc = path.join(__dirname, 'node_modules', 'pdfjs-dist', 'build', 'pdf.worker.min.mjs');
+const pdfWorkerDest = path.join(__dirname, 'public', 'pdf.worker.min.mjs');
+if (fs.existsSync(pdfWorkerSrc)) {
+  fs.copyFileSync(pdfWorkerSrc, pdfWorkerDest);
+  console.log('[prebuild] Copied pdf.worker.min.mjs to public/');
+} else {
+  console.warn('[prebuild] pdf.worker.min.mjs not found in node_modules — PDF viewer may not work');
+}
