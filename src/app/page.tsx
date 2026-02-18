@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { SidebarDrawer } from "@/components/layout/sidebar-drawer";
+import { Footer } from "@/components/layout/footer";
 import {
   Upload,
   Link2,
@@ -14,6 +15,7 @@ import {
   FolderOpen,
   FileText,
   Clock,
+  GraduationCap,
 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -33,6 +35,11 @@ const inputCards = [
   { title: "Upload", description: "File, audio, video", icon: Upload, href: "/upload" },
   { title: "Paste", description: "YouTube, website, text", icon: Link2, href: "/paste" },
   { title: "Record", description: "Record class, video call", icon: Mic, href: "/record" },
+];
+
+const universities = [
+  "MIT", "Stanford", "Harvard", "Princeton", "UCLA",
+  "UMich", "UPenn", "UChicago", "Yale", "Columbia",
 ];
 
 export default function HomePage() {
@@ -57,7 +64,7 @@ export default function HomePage() {
     try {
       const res = await fetch("/api/upload", { method: "POST", body: formData });
       const data = await res.json();
-      if (data.id) router.push(\`/learn?id=\${data.id}\`);
+      if (data.id) router.push(`/learn?id=${data.id}`);
     } catch (e) {}
   };
 
@@ -93,7 +100,7 @@ export default function HomePage() {
 
       <main className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-4xl px-6 py-8">
-          {/* Header section */}
+          {/* Hero */}
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
               What do you want to learn?
@@ -136,6 +143,19 @@ export default function HomePage() {
                   <ArrowRight className="h-3 w-3" />
                 </button>
               </div>
+            </div>
+          </div>
+
+          {/* Trusted by universities */}
+          <div className="mt-10 text-center">
+            <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
+              <GraduationCap className="h-3.5 w-3.5" />
+              <span>Trusted by students at top universities</span>
+            </div>
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+              {universities.map((uni) => (
+                <span key={uni} className="text-xs font-medium text-gray-300">{uni}</span>
+              ))}
             </div>
           </div>
 
@@ -185,7 +205,7 @@ export default function HomePage() {
               {spaces.map((space) => (
                 <Link
                   key={space.id}
-                  href={\`/space/\${space.id}\`}
+                  href={`/space/${space.id}`}
                   className="group flex flex-col rounded-2xl border border-gray-200 bg-white p-4 transition-all hover:border-gray-300 hover:shadow-sm"
                 >
                   <div className="flex items-center gap-3">
@@ -229,7 +249,6 @@ export default function HomePage() {
                 </Link>
               ))}
 
-              {/* Empty state */}
               {spaces.length === 0 && (
                 <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 py-12">
                   <FolderOpen className="h-8 w-8 text-gray-300" />
@@ -245,6 +264,9 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+
+        {/* Footer */}
+        <Footer />
       </main>
     </div>
   );
