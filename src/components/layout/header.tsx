@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
-import { Menu, ChevronDown, Check } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Menu, ChevronDown, Check, Zap } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { isAuthenticated, getSelectedModel, getStoredAuth } from "@/lib/github-auth";
 
 interface HeaderProps {
   title?: string;
@@ -26,6 +27,25 @@ const languages = [
 export function Header({ title, onMenuClick }: HeaderProps) {
   const [showLangDropdown, setShowLangDropdown] = useState(false);
   const [selectedLang, setSelectedLang] = useState(languages[0]);
+  const [authed, setAuthed] = useState(false);
+  const [model, setModel] = useState("");
+  const [avatar, setAvatar] = useState<string | null>(null);
+
+  useEffect(() => {
+    const update = () => {
+      setAuthed(isAuthenticated());
+      setModel(getSelectedModel());
+      const auth = getStoredAuth();
+      setAvatar(auth?.avatarUrl || null);
+    };
+    update();
+    window.addEventListener("github-auth-changed", update);
+    window.addEventListener("model-changed", update);
+    return () => {
+      window.removeEventListener("github-auth-changed", update);
+      window.removeEventListener("model-changed", update);
+    };
+  }, []);
 
   return (
     <header className="flex h-14 shrink-0 items-center justify-between border-b border-gray-100 px-4">
@@ -51,6 +71,17 @@ export function Header({ title, onMenuClick }: HeaderProps) {
         )}
       </div>
       <div className="flex items-center gap-2">
+        {/* Active model indicator */}
+        {authed && model && (
+          <Link
+            href="/settings"
+            className="hidden sm:flex items-center gap-1.5 rounded-lg bg-gray-50 px-2.5 py-1.5 text-[11px] text-gray-500 hover:bg-gray-100 transition-colors"
+          >
+            <Zap className="h-3 w-3 text-yl-gold" />
+            <span className="font-medium text-gray-700">{model}</span>
+          </Link>
+        )}
+
         {/* Language selector */}
         <div className="relative">
           <button
@@ -86,9 +117,13 @@ export function Header({ title, onMenuClick }: HeaderProps) {
         {/* Profile button */}
         <Link
           href="/settings"
-          className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 text-xs font-medium text-white hover:bg-gray-700 transition-colors"
+          className="flex h-8 w-8 items-center justify-center rounded-full overflow-hidden bg-gray-900 text-xs font-medium text-white hover:bg-gray-700 transition-colors"
         >
-          A
+          {avatar ? (
+            <img src={avatar} alt="" className="h-full w-full object-cover" />
+          ) : (
+            "A"
+          )}
         </Link>
       </div>
     </header>
