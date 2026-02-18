@@ -23,27 +23,56 @@ export async function POST(request: NextRequest) {
 
       if (file.name.endsWith(".pdf")) {
         docType = "pdf";
-        pageCount = Math.max(1, Math.floor(file.size / 3000));
-        const content = buffer.toString("utf-8");
-        const textMatches = content.match(/\(([^)]+)\)|BT[\s\S]*?ET/g);
-        if (textMatches) {
-          extractedText = textMatches
-            .map((m) => m.replace(/[()]/g, "").replace(/BT|ET/g, ""))
-            .join(" ")
-            .replace(/\s+/g, " ")
+        try {
+          // Use pdf-parse for real text extraction
+          const pdfParse = (await import("pdf-parse")).default;
+          const pdfData = await pdfParse(buffer);
+          extractedText = pdfData.text || "";
+          pageCount = pdfData.numpages || 1;
+
+          // Clean up extracted text
+          extractedText = extractedText
+            .replace(/\r\n/g, "\n")
+            .replace(/\n{3,}/g, "\n\n")
+            .replace(/\s{2,}/g, " ")
             .trim();
+
+          if (!extractedText || extractedText.length < 20) {
+            extractedText = `[PDF Document: ${title}]\n\nThis PDF appears to be image-based or has no extractable text. OCR processing would be needed for text extraction.\n\nPages: ${pageCount}\nSize: ${(file.size / 1024).toFixed(1)} KB`;
+          }
+        } catch (pdfErr) {
+          console.error("PDF parse error:", pdfErr);
+          // Fallback: try raw text extraction
+          const rawText = buffer.toString("utf-8");
+          const textMatches = rawText.match(/\(([^)]+)\)/g);
+          if (textMatches && textMatches.length > 5) {
+            extractedText = textMatches
+              .map((m) => m.replace(/[()]/g, ""))
+              .join(" ")
+              .replace(/\s+/g, " ")
+              .trim();
+          }
+          if (!extractedText || extractedText.length < 50) {
+            pageCount = Math.max(1, Math.floor(file.size / 3000));
+            extractedText = `[PDF Document: ${title}]\n\nPDF text extraction encountered an error. The document has been uploaded and is available for viewing.\n\nPages: ~${pageCount}\nSize: ${(file.size / 1024).toFixed(1)} KB`;
+          }
         }
-        if (!extractedText || extractedText.length < 50) {
-          extractedText = \`[PDF Document: \${title}]\n\nThis PDF has been uploaded and is ready for study. The AI tutor can answer questions about this document's content. In production, full text extraction would use pdf-parse or pdfjs-dist.\n\nDocument: \${title}\nPages: ~\${pageCount}\nSize: \${(file.size / 1024).toFixed(1)} KB\`;
-        }
-      } else if (file.name.endsWith(".txt")) {
+      } else if (file.name.endsWith(".txt") || file.name.endsWith(".md")) {
         docType = "text";
         extractedText = buffer.toString("utf-8");
-      } else {
+      } else if (file.name.endsWith(".csv")) {
         docType = "text";
-        extractedText = buffer.toString("utf-8").replace(/[^\x20-\x7E\n\r\t]/g, " ").replace(/\s+/g, " ").trim();
+        extractedText = buffer.toString("utf-8");
+        title = file.name;
+      } else {
+        // Generic: try to read as text
+        docType = "text";
+        extractedText = buffer.toString("utf-8")
+          .replace(/[^\x20-\x7E\n\r\t]/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
         if (!extractedText || extractedText.length < 50) {
-          extractedText = \`[Document: \${title}] Uploaded for processing.\`;
+          extractedText = `[Document: ${title}]\n\nUploaded file (${(file.size / 1024).toFixed(1)} KB). Content type may not be supported for text extraction.`;
         }
       }
     } else if (text) {
@@ -53,10 +82,25 @@ export async function POST(request: NextRequest) {
     } else if (youtubeUrl) {
       title = "YouTube Video";
       docType = "youtube";
-      extractedText = \`[YouTube Video]\nURL: \${youtubeUrl}\n\nIn production, the YouTube transcript would be fetched via the YouTube API. The AI tutor can answer questions about this video.\`;
+
+      // Try to fetch YouTube transcript via oEmbed for title
+      try {
+        const oembedRes = await fetch(
+          `https://www.youtube.com/oembed?url=${encodeURIComponent(youtubeUrl)}&format=json`
+        );
+        if (oembedRes.ok) {
+          const oembed = await oembedRes.json();
+          if (oembed.title) title = oembed.title;
+        }
+      } catch {}
+
+      extractedText = `[YouTube Video: ${title}]\nURL: ${youtubeUrl}\n\nVideo uploaded for study. AI features will analyze available information about this video. For full transcript analysis, production would use YouTube Data API v3 transcript endpoint.`;
     } else {
       return NextResponse.json({ error: "No content provided" }, { status: 400 });
     }
+
+    // Text chunking for RAG
+    const chunks = chunkText(extractedText, 800, 100);
 
     const id = "doc-" + store.generateId();
     const doc = store.addDocument({
@@ -64,6 +108,7 @@ export async function POST(request: NextRequest) {
       title,
       type: docType,
       text: extractedText,
+      chunks,
       fileSize,
       pageCount,
       createdAt: new Date(),
@@ -76,10 +121,37 @@ export async function POST(request: NextRequest) {
       type: doc.type,
       textLength: doc.text.length,
       chunkCount: doc.chunks.length,
+      pageCount: doc.pageCount,
       spaceId: spaceId || null,
     });
   } catch (error) {
     console.error("Upload error:", error);
-    return NextResponse.json({ error: "Failed to process" }, { status: 500 });
+    return NextResponse.json({ error: "Upload failed" }, { status: 500 });
   }
+}
+
+function chunkText(text: string, chunkSize: number, overlap: number): string[] {
+  if (!text || text.length <= chunkSize) return text ? [text] : [];
+
+  const chunks: string[] = [];
+  let start = 0;
+
+  while (start < text.length) {
+    let end = start + chunkSize;
+
+    // Try to break at sentence boundary
+    if (end < text.length) {
+      const lastPeriod = text.lastIndexOf(".", end);
+      const lastNewline = text.lastIndexOf("\n", end);
+      const breakPoint = Math.max(lastPeriod, lastNewline);
+      if (breakPoint > start + chunkSize * 0.5) {
+        end = breakPoint + 1;
+      }
+    }
+
+    chunks.push(text.substring(start, end).trim());
+    start = end - overlap;
+  }
+
+  return chunks.filter((c) => c.length > 20);
 }
