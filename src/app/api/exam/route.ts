@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { store } from "@/lib/store";
 
+export const runtime = "nodejs";
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
-  const { spaceId, questionCount = 10, timeLimit = 30 } = await request.json();
+  const { spaceId, questionCount = 10 } = await request.json();
+  const copilotToken = request.headers.get("x-copilot-token");
 
   if (!spaceId) {
     return NextResponse.json({ error: "spaceId required" }, { status: 400 });
@@ -13,130 +17,110 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Space not found" }, { status: 404 });
   }
 
-  const docTitles = space.documents.map((d) => d.title);
+  const context = store.getSpaceContext(spaceId);
 
-  // Generate exam questions from all documents in the space
-  const questions = generateExamQuestions(docTitles, questionCount);
+  // If copilot token, generate real exam questions
+  if (copilotToken && context.length > 100) {
+    try {
+      const res = await fetch("https://api.githubcopilot.com/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${copilotToken}`,
+          "Content-Type": "application/json",
+          "Copilot-Integration-Id": "vscode-chat",
+          "Editor-Version": "vscode/1.99.0",
+          "Editor-Plugin-Version": "copilot-chat/0.26.0",
+          "Openai-Intent": "conversation-panel",
+          "User-Agent": "ReLearn/1.0",
+        },
+        body: JSON.stringify({
+          model: "gpt-4o",
+          messages: [
+            {
+              role: "system",
+              content: `You are an expert exam writer for the course "${space.name}". Create a rigorous practice exam.
 
-  return NextResponse.json({
-    id: "exam-" + store.generateId(),
-    title: \`\${space.name} Practice Exam\`,
-    spaceId,
-    questionCount: questions.length,
-    timeLimit,
-    questions,
-    documentsCovered: docTitles,
-  });
-}
+STRICT OUTPUT RULES:
+- Return ONLY a valid JSON array. No markdown, no fences, no preamble.
+- Generate exactly ${questionCount} multiple-choice questions.
+- Each object: { "question": "...", "options": ["A", "B", "C", "D"], "correctIndex": 0-3, "explanation": "..." }
+- "question": Clear, exam-style. Test comprehension, analysis, and application — not just recall.
+- "options": Exactly 4 choices. All plausible. Only ONE correct. No "A)" prefixes.
+- "correctIndex": 0-based index.
+- "explanation": 2-3 sentences. Explain the correct answer AND why common wrong choices fail. End with [Source: <topic from material>].
+- Distribution: 30% easy (definitions/recall), 40% medium (understanding/application), 30% hard (analysis/synthesis).
+- Cover ALL documents in the space evenly. Don't cluster on one topic.`
+            },
+            {
+              role: "user",
+              content: `COURSE: ${space.name}\n\nSOURCE MATERIAL FROM ALL DOCUMENTS:\n${context.substring(0, 12000)}\n\nGenerate the exam now. Return ONLY JSON.`
+            },
+          ],
+          stream: false,
+          temperature: 0.4,
+          max_tokens: 4096,
+        }),
+      });
 
-function generateExamQuestions(docTitles: string[], count: number) {
-  const questionPool = [
-    {
-      id: "e1",
-      question: "Which of the following best describes the genetic code?",
-      options: [
-        "A set of rules for DNA replication",
-        "The rules by which genetic material is translated into proteins",
-        "A method of gene expression regulation",
-        "The structure of chromosomes",
-      ],
-      correctIndex: 1,
-      explanation: "The genetic code is the set of rules by which information in DNA/RNA is translated into proteins by living cells.",
-      source: docTitles[0] || "Document 1",
-    },
-    {
-      id: "e2",
-      question: "How many codons exist in the standard genetic code?",
-      options: ["20", "32", "64", "128"],
-      correctIndex: 2,
-      explanation: "There are 64 codons total: 61 coding for amino acids and 3 stop codons.",
-      source: docTitles[0] || "Document 1",
-    },
-    {
-      id: "e3",
-      question: "What is the difference between mitosis and meiosis?",
-      options: [
-        "Mitosis produces 4 cells, meiosis produces 2",
-        "Mitosis produces identical cells, meiosis produces genetically diverse cells",
-        "They are the same process",
-        "Mitosis only occurs in plants",
-      ],
-      correctIndex: 1,
-      explanation: "Mitosis produces two genetically identical daughter cells, while meiosis produces four genetically diverse haploid cells.",
-      source: docTitles[1] || "Document 2",
-    },
-    {
-      id: "e4",
-      question: "What is the purpose of translation in molecular biology?",
-      options: [
-        "Copying DNA",
-        "Converting mRNA into protein",
-        "Repairing damaged DNA",
-        "Cell division",
-      ],
-      correctIndex: 1,
-      explanation: "Translation is the process by which ribosomes synthesize proteins from an mRNA template.",
-      source: docTitles[0] || "Document 1",
-    },
-    {
-      id: "e5",
-      question: "Which organelle is responsible for protein synthesis?",
-      options: ["Mitochondria", "Ribosome", "Golgi apparatus", "Nucleus"],
-      correctIndex: 1,
-      explanation: "Ribosomes are the molecular machines that read mRNA and assemble amino acids into proteins.",
-      source: docTitles[0] || "Document 1",
-    },
-    {
-      id: "e6",
-      question: "What phase of the cell cycle does DNA replication occur?",
-      options: ["G1 phase", "S phase", "G2 phase", "M phase"],
-      correctIndex: 1,
-      explanation: "DNA replication occurs during the S (synthesis) phase of the cell cycle.",
-      source: docTitles[1] || "Document 2",
-    },
-    {
-      id: "e7",
-      question: "What is the start codon in translation?",
-      options: ["UAA", "UAG", "AUG", "UGA"],
-      correctIndex: 2,
-      explanation: "AUG is the universal start codon that initiates protein synthesis and codes for methionine.",
-      source: docTitles[0] || "Document 1",
-    },
-    {
-      id: "e8",
-      question: "What characterizes the G1 phase of the cell cycle?",
-      options: [
-        "DNA is replicated",
-        "Cell grows and prepares for DNA synthesis",
-        "Chromosomes separate",
-        "Cytokinesis occurs",
-      ],
-      correctIndex: 1,
-      explanation: "During G1, the cell grows, produces proteins, and prepares for DNA replication in S phase.",
-      source: docTitles[1] || "Document 2",
-    },
-    {
-      id: "e9",
-      question: "Which type of RNA carries amino acids to the ribosome?",
-      options: ["mRNA", "rRNA", "tRNA", "snRNA"],
-      correctIndex: 2,
-      explanation: "Transfer RNA (tRNA) carries specific amino acids to the ribosome during protein synthesis.",
-      source: docTitles[0] || "Document 1",
-    },
-    {
-      id: "e10",
-      question: "What is the result of meiosis I?",
-      options: [
-        "Four haploid cells",
-        "Two diploid cells",
-        "Two haploid cells",
-        "One tetraploid cell",
-      ],
-      correctIndex: 2,
-      explanation: "Meiosis I is a reductional division that produces two haploid cells from one diploid cell.",
-      source: docTitles[1] || "Document 2",
-    },
+      if (res.ok) {
+        const data = await res.json();
+        const raw = data.choices?.[0]?.message?.content || "";
+        const cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+
+        try {
+          const parsed = JSON.parse(cleaned);
+          const questions = (Array.isArray(parsed) ? parsed : []).map((q: any, i: number) => ({
+            id: String(i + 1),
+            question: q.question || "",
+            options: q.options || [],
+            correctIndex: typeof q.correctIndex === "number" ? q.correctIndex : 0,
+            explanation: q.explanation || "",
+          }));
+
+          return NextResponse.json({
+            title: `${space.name} — Practice Exam`,
+            questions,
+            timeLimit: Math.max(10, questions.length * 2),
+            aiGenerated: true,
+          });
+        } catch {
+          // JSON parse failed, try extraction
+          const jsonMatch = raw.match(/[\[{][\s\S]*[\]}]/);
+          if (jsonMatch) {
+            try {
+              const extracted = JSON.parse(jsonMatch[0]);
+              const questions = (Array.isArray(extracted) ? extracted : []).map((q: any, i: number) => ({
+                id: String(i + 1),
+                question: q.question || "",
+                options: q.options || [],
+                correctIndex: typeof q.correctIndex === "number" ? q.correctIndex : 0,
+                explanation: q.explanation || "",
+              }));
+              return NextResponse.json({
+                title: `${space.name} — Practice Exam`,
+                questions,
+                timeLimit: Math.max(10, questions.length * 2),
+                aiGenerated: true,
+              });
+            } catch {}
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Exam AI error:", err);
+    }
+  }
+
+  // Fallback mock exam
+  const questions = [
+    { id: "1", question: "What is the primary function of the material covered in this course?", options: ["Entertainment", "Education and deep understanding", "Data storage", "Social networking"], correctIndex: 1, explanation: "This course focuses on building deep understanding of the subject matter through multiple study tools. [Source: Course Overview]" },
+    { id: "2", question: "Which study method is most effective for long-term retention?", options: ["Passive reading", "Active recall through flashcards and quizzes", "Highlighting text", "Copying notes verbatim"], correctIndex: 1, explanation: "Active recall, tested through flashcards and quizzes, is proven to be significantly more effective for long-term retention than passive methods. [Source: Study Methodology]" },
   ];
 
-  return questionPool.slice(0, Math.min(count, questionPool.length));
+  return NextResponse.json({
+    title: `${space.name} — Practice Exam`,
+    questions,
+    timeLimit: 20,
+    aiGenerated: false,
+  });
 }
