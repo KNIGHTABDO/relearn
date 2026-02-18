@@ -206,7 +206,7 @@ class AppStore {
     const space = this.spaces.get(spaceId);
     if (!space) return "";
     return space.documents
-      .map((d) => \`--- \${d.title} ---\n\${d.text}\`)
+      .map((d) => `--- ${d.title} ---\n${d.text}`)
       .join("\n\n");
   }
 
