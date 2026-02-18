@@ -24,11 +24,21 @@ if (fs.existsSync(apiDir)) {
 }
 
 // Copy pdfjs worker to public/ for CSP-compatible loading
-const pdfWorkerSrc = path.join(__dirname, 'node_modules', 'pdfjs-dist', 'build', 'pdf.worker.min.mjs');
+// react-pdf depends on pdfjs-dist — find it whether hoisted or nested
+const workerPaths = [
+  path.join(__dirname, 'node_modules', 'pdfjs-dist', 'build', 'pdf.worker.min.mjs'),
+  path.join(__dirname, 'node_modules', 'react-pdf', 'node_modules', 'pdfjs-dist', 'build', 'pdf.worker.min.mjs'),
+];
 const pdfWorkerDest = path.join(__dirname, 'public', 'pdf.worker.min.mjs');
-if (fs.existsSync(pdfWorkerSrc)) {
-  fs.copyFileSync(pdfWorkerSrc, pdfWorkerDest);
-  console.log('[prebuild] Copied pdf.worker.min.mjs to public/');
-} else {
+let found = false;
+for (const src of workerPaths) {
+  if (fs.existsSync(src)) {
+    fs.copyFileSync(src, pdfWorkerDest);
+    console.log('[prebuild] Copied pdf.worker.min.mjs from', src);
+    found = true;
+    break;
+  }
+}
+if (!found) {
   console.warn('[prebuild] pdf.worker.min.mjs not found in node_modules — PDF viewer may not work');
 }

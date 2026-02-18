@@ -23,7 +23,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' ipc: http://ipc.localhost https://api.github.com https://generativelanguage.googleapis.com https://api.githubcopilot.com https://lh3.googleusercontent.com https://*.googleapis.com https://oauth2.googleapis.com https://accounts.google.com https://www.googleapis.com; media-src 'self' blob: data:; frame-src https://accounts.google.com https://www.youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:"
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' ipc: http://ipc.localhost https://api.github.com https://generativelanguage.googleapis.com https://api.githubcopilot.com https://lh3.googleusercontent.com https://*.googleapis.com https://oauth2.googleapis.com https://accounts.google.com https://www.googleapis.com https://www.youtube.com https://youtubei.googleapis.com; media-src 'self' blob: data:; frame-src https://accounts.google.com https://www.youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:"
     }
   },
   "bundle": {

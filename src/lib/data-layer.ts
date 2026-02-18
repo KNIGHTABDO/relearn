@@ -278,8 +278,10 @@ export async function uploadFileAction(
       fileData = base64Data;
       try {
         // Use pdfjs-dist for client-side PDF text extraction
-        const pdfjsLib = await import('pdfjs-dist');
-        pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+        const { pdfjs: pdfjsLib } = await import('react-pdf');
+        if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
+          pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
+        }
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
         pageCount = pdf.numPages;
         const pages: string[] = [];
@@ -344,15 +346,26 @@ export async function uploadYouTubeAction(youtubeUrl: string, spaceId?: string):
   // Extract video ID for title
   const videoIdMatch = youtubeUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?\s]+)/);
   const videoId = videoIdMatch ? videoIdMatch[1] : 'unknown';
-  const title = `YouTube Video (${videoId})`;
+  let title = `YouTube Video (${videoId})`;
+  let text = `YouTube URL: ${youtubeUrl}`;
 
   if (db.isDesktopMode()) {
+    // Try to fetch transcript client-side
+    try {
+      const { fetchYouTubeInfo } = await import('@/lib/youtube');
+      const info = await fetchYouTubeInfo(youtubeUrl);
+      if (info.title) title = info.title;
+      if (info.fullText) text = info.fullText;
+    } catch (e) {
+      console.warn('[YouTube] Transcript fetch failed, saving URL only:', e);
+    }
+
     await db.saveDocument({
       id,
       title,
       type: 'youtube',
-      text: `YouTube URL: ${youtubeUrl}`,
-      chunks: [],
+      text,
+      chunks: text.length > 100 ? chunkText(text, 800, 100) : [],
       fileSize: 0,
       pageCount: 0,
       url: youtubeUrl,

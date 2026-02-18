@@ -1,6 +1,8 @@
 "use client";
 
 import { useI18n } from "@/components/providers/i18n-provider";
+import { useDatabaseContext } from "@/components/providers/database-provider";
+import { fetchSpaces, SpaceInfo } from "@/lib/data-layer";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
@@ -29,7 +31,22 @@ interface SidebarDrawerProps {
   }>;
 }
 
-export function SidebarDrawer({ open, onClose, spaces = [] }: SidebarDrawerProps) {
+export function SidebarDrawer({ open, onClose, spaces: propSpaces = [] }: SidebarDrawerProps) {
+  const { ready: dbReady } = useDatabaseContext();
+  const [spaces, setSpaces] = useState<SpaceInfo[]>(propSpaces);
+
+  useEffect(() => {
+    if (dbReady) {
+      fetchSpaces().then(s => setSpaces(s)).catch(() => {});
+    }
+  }, [dbReady, open]);
+
+  // Merge prop spaces when they change
+  useEffect(() => {
+    if (propSpaces.length > 0) setSpaces(propSpaces);
+  }, [propSpaces]);
+
+
   const [showSearch, setShowSearch] = useState(false);
   const { t } = useI18n();
   const [searchQuery, setSearchQuery] = useState("");

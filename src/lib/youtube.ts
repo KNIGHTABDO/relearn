@@ -1,7 +1,7 @@
 // YouTube Transcript Extraction via Innertube API
 // Works without API keys by impersonating Android client
 
-import { parseStringPromise } from "xml2js";
+// XML parsing via browser-native DOMParser (no server deps needed)
 
 export interface TranscriptEntry {
   text: string;
@@ -117,10 +117,11 @@ export async function fetchYouTubeInfo(url: string, language = "en"): Promise<Yo
 
   let transcript: TranscriptEntry[] = [];
   try {
-    const parsed = await parseStringPromise(xml);
-    transcript = (parsed.transcript?.text || []).map((entry: any) => ({
-      text: (entry._ || entry || "")
-        .toString()
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xml, "text/xml");
+    const textElements = xmlDoc.querySelectorAll("text");
+    transcript = Array.from(textElements).map((el) => ({
+      text: (el.textContent || "")
         .replace(/&#39;/g, "'")
         .replace(/&amp;/g, "&")
         .replace(/&quot;/g, '"')
@@ -128,9 +129,9 @@ export async function fetchYouTubeInfo(url: string, language = "en"): Promise<Yo
         .replace(/&gt;/g, ">")
         .replace(/\n/g, " ")
         .trim(),
-      startTime: parseFloat(entry.$?.start || "0"),
+      startTime: parseFloat(el.getAttribute("start") || "0"),
       endTime:
-        parseFloat(entry.$?.start || "0") + parseFloat(entry.$?.dur || "0"),
+        parseFloat(el.getAttribute("start") || "0") + parseFloat(el.getAttribute("dur") || "0"),
     }));
   } catch (parseErr) {
     console.error("Caption XML parse error:", parseErr);
