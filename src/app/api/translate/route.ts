@@ -1,6 +1,5 @@
 typescript
 import { NextResponse } from 'next/server';
-import { LpuCopilot } from '@groq/lpu-copilot';
 
 const token = process.env.COPILOT_TOKEN;
 
