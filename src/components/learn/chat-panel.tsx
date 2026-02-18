@@ -5,6 +5,7 @@ import { Send, AudioLines, Sparkles, Copy, Check, Plus, FileText, X, Zap, AlertC
 import { cn } from "@/lib/utils";
 import { ensureCopilotToken, isAuthenticated, getSelectedModel } from "@/lib/github-auth";
 import { ensureGoogleToken, isGoogleAuthenticated, getSelectedGeminiModel } from "@/lib/google-auth";
+import { useI18n } from "@/components/providers/i18n-provider";
 
 interface Message {
   id: string;
@@ -19,6 +20,7 @@ interface ChatPanelProps {
 }
 
 export function ChatPanel({ documentId, spaceId, className }: ChatPanelProps) {
+  const { t } = useI18n();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
@@ -160,7 +162,7 @@ const sendMessage = async () => {
         <div className="flex items-center gap-1.5 border-b border-gray-50 px-4 py-1.5 bg-gray-50/50">
           <Zap className="h-3 w-3 text-yl-gold" />
           <span className="text-[10px] text-gray-500 dark:text-dark-text-muted">
-            AI: <span className="font-medium text-gray-700 dark:text-dark-text-secondary">{getSelectedModel()}</span>
+            {t("common.ai_label")} <span className="font-medium text-gray-700 dark:text-dark-text-secondary">{getSelectedModel()}</span>
           </span>
         </div>
       )}
@@ -172,12 +174,12 @@ const sendMessage = async () => {
               <Sparkles className="h-6 w-6 text-gray-300 dark:text-dark-text-muted" />
             </div>
             <p className="mt-3 text-sm font-medium text-gray-500 dark:text-dark-text-muted">
-              {spaceId ? "Ask about all documents in this space" : "Ask anything about your document"}
+              {spaceId ? t("chat.empty_all_documents") : t("chat.empty_anything_document")}
             </p>
             <p className="mt-1 text-xs text-gray-400 dark:text-dark-text-muted">
               {usingAI
-                ? "Powered by GitHub Copilot AI"
-                : "Connect GitHub in Settings to unlock AI responses"
+                ? t("chat.powered_by_copilot")
+                : t("chat.connect_github_settings")
               }
             </p>
           </div>
@@ -228,7 +230,7 @@ const sendMessage = async () => {
       {/* Added contexts indicator */}
       {addedContexts.length > 0 && (
         <div className="flex flex-wrap items-center gap-1.5 border-t border-gray-50 px-4 py-2">
-          <span className="text-[10px] text-gray-400 dark:text-dark-text-muted uppercase tracking-wider">Context:</span>
+          <span className="text-[10px] text-gray-400 dark:text-dark-text-muted uppercase tracking-wider">{t("common.context")}</span>
           {addedContexts.map((id) => {
             const doc = availableDocs.find((d) => d.id === id);
             return (
@@ -247,8 +249,8 @@ const sendMessage = async () => {
       {showAddContext && (
         <div className="border-t border-gray-100 dark:border-dark-border px-4 py-3 animate-fade-in">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-medium text-gray-700 dark:text-dark-text-secondary">Add files to context</span>
-            <button onClick={() => setShowAddContext(false)} className="text-xs text-gray-400 dark:text-dark-text-muted hover:text-gray-600 dark:hover:text-dark-text-secondary dark:text-dark-text-secondary">Done</button>
+            <span className="text-xs font-medium text-gray-700 dark:text-dark-text-secondary">{t("common.add_files_to_context")}</span>
+            <button onClick={() => setShowAddContext(false)} className="text-xs text-gray-400 dark:text-dark-text-muted hover:text-gray-600 dark:hover:text-dark-text-secondary dark:text-dark-text-secondary">{t("common.done")}</button>
           </div>
           <div className="space-y-1 max-h-32 overflow-y-auto">
             {availableDocs.filter((d) => d.id !== documentId).map((doc) => (
@@ -277,7 +279,7 @@ const sendMessage = async () => {
               "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition-colors",
               showAddContext ? "border-gray-300 dark:border-dark-border bg-gray-100 dark:bg-dark-border" : "border-gray-200 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface dark:bg-dark-surface"
             )}
-            title="Add Context"
+            title={t("common.add_context")}
           >
             <Plus className="h-3.5 w-3.5 text-gray-500 dark:text-dark-text-muted" />
           </button>
@@ -288,7 +290,7 @@ const sendMessage = async () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
-              placeholder={spaceId ? "Ask about this space..." : "Ask about your document..."}
+              placeholder={spaceId ? t("chat.placeholder_space") : t("chat.placeholder_document")}
               disabled={isStreaming}
               className="flex-1 bg-transparent text-sm text-gray-900 dark:text-dark-text placeholder:text-gray-400 dark:placeholder:text-dark-text-muted dark:text-dark-text-muted outline-none disabled:opacity-50"
             />
@@ -299,7 +301,7 @@ const sendMessage = async () => {
             ) : (
               <button className="flex items-center gap-1.5 rounded-full bg-black px-3 py-1.5 text-[11px] font-medium text-white hover:bg-gray-800">
                 <AudioLines className="h-3 w-3" />
-                <span>Voice</span>
+                <span>{t("common.voice")}</span>
               </button>
             )}
           </div>
