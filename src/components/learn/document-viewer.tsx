@@ -119,7 +119,7 @@ export function DocumentViewer({
               onClick={() => setYtTab("video")}
               className={cn(
                 "rounded-t-lg px-3 py-2 text-xs font-medium transition-colors md:px-4",
-                ytTab === "video" ? "bg-gray-800 text-white" : "text-gray-400 hover:text-gray-300"
+                ytTab === "video" ? "bg-gray-800 text-white" : "text-gray-400 dark:text-dark-text-muted hover:text-gray-300 dark:text-dark-text-muted"
               )}
             >
               Video
@@ -128,7 +128,7 @@ export function DocumentViewer({
               onClick={() => setYtTab("transcript")}
               className={cn(
                 "flex items-center gap-1.5 rounded-t-lg px-3 py-2 text-xs font-medium transition-colors md:px-4",
-                ytTab === "transcript" ? "bg-gray-800 text-white" : "text-gray-400 hover:text-gray-300"
+                ytTab === "transcript" ? "bg-gray-800 text-white" : "text-gray-400 dark:text-dark-text-muted hover:text-gray-300 dark:text-dark-text-muted"
               )}
             >
               <AlignLeft className="h-3 w-3" />
@@ -153,14 +153,14 @@ export function DocumentViewer({
                           {entry.time}
                         </span>
                       )}
-                      <p className="text-xs leading-relaxed text-gray-300 group-hover:text-white transition-colors">
+                      <p className="text-xs leading-relaxed text-gray-300 dark:text-dark-text-muted group-hover:text-white transition-colors">
                         {entry.text}
                       </p>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-gray-500 text-center py-4">
+                <p className="text-xs text-gray-500 dark:text-dark-text-muted text-center py-4">
                   No transcript available for this video
                 </p>
               )}
@@ -177,13 +177,13 @@ export function DocumentViewer({
   return (
     <div className="flex h-full flex-col">
       {/* Toolbar */}
-      <div className="flex h-11 shrink-0 items-center justify-between border-b border-gray-100 px-3 md:px-4">
+      <div className="flex h-11 shrink-0 items-center justify-between border-b border-gray-100 dark:border-dark-border px-3 md:px-4">
         <div className="flex items-center gap-2 md:gap-3">
           <button
             onClick={toggleListen}
             className={cn(
               "flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-medium transition-all",
-              isListening ? "bg-black text-white" : "text-gray-600 hover:bg-gray-50"
+              isListening ? "bg-black text-white" : "text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface dark:bg-dark-surface"
             )}
           >
             {isListening ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
@@ -191,26 +191,26 @@ export function DocumentViewer({
           </button>
           {isListening && (
             <div className="flex items-center gap-2 animate-fade-in">
-              <div className="h-1 w-16 md:w-24 rounded-full bg-gray-200 overflow-hidden">
+              <div className="h-1 w-16 md:w-24 rounded-full bg-gray-200 dark:bg-dark-border overflow-hidden">
                 <div className="h-full rounded-full bg-black transition-all" style={{ width: `${listenProgress}%` }} />
               </div>
-              <Volume2 className="h-3 w-3 text-gray-400 hidden sm:block" />
+              <Volume2 className="h-3 w-3 text-gray-400 dark:text-dark-text-muted hidden sm:block" />
             </div>
           )}
         </div>
-        <div className="flex items-center gap-1 text-xs text-gray-400">
+        <div className="flex items-center gap-1 text-xs text-gray-400 dark:text-dark-text-muted">
           <FileText className="h-3 w-3" />
           <span className="hidden sm:inline">{contentType === "recording" ? "Recording" : "Text Document"}</span>
         </div>
       </div>
 
       {/* Text content */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 bg-white md:px-8">
+      <div className="flex-1 overflow-y-auto px-4 py-6 bg-white dark:bg-dark-bg md:px-8">
         <div className="mx-auto max-w-2xl">
-          <h1 className="text-lg font-bold text-gray-900 mb-4 md:text-xl">{title}</h1>
+          <h1 className="text-lg font-bold text-gray-900 dark:text-dark-text mb-4 md:text-xl">{title}</h1>
           <div className="prose prose-sm prose-gray max-w-none">
             {(documentText || "No content available.").split("\n\n").map((para, i) => (
-              <p key={i} className="text-sm leading-relaxed text-gray-700 mb-3">
+              <p key={i} className="text-sm leading-relaxed text-gray-700 dark:text-dark-text-secondary mb-3">
                 {para}
               </p>
             ))}
