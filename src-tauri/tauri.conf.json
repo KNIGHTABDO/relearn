@@ -6,13 +6,12 @@
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:3000",
     "beforeBuildCommand": "npm run build",
-    "frontendDist": "../.next"
+    "frontendDist": "../out"
   },
   "app": {
-    "title": "ReLearn \u2014 AI Study Platform",
     "windows": [
       {
-        "title": "ReLearn",
+        "title": "ReLearn \u2014 AI Study Platform",
         "width": 1280,
         "height": 800,
         "minWidth": 800,
