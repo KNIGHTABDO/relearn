@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { store } from "@/lib/store";
+import { getProviderFromHeaders, callGemini, callCopilot, type AIMessage } from "@/lib/gemini-adapter";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
   const { documentId, spaceId, type, model } = await request.json();
+  const { provider, token, model: headerModel } = getProviderFromHeaders(request.headers);
+  // Legacy support
   const copilotToken = request.headers.get("x-copilot-token");
 
   // Gather context
@@ -30,7 +33,7 @@ export async function POST(request: NextRequest) {
   }
 
   // If no copilot token, return mock data (existing behavior)
-  if (!copilotToken) {
+  if (!provider && !copilotToken) {
     return generateMockResponse(type, docTitle);
   }
 
