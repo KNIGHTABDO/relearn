@@ -17,21 +17,16 @@ export interface SpaceInfo {
 export async function fetchSpaces(): Promise<SpaceInfo[]> {
   if (db.isDesktopMode()) {
     const spaces = await db.getSpaces();
-    const results: SpaceInfo[] = [];
-    for (const s of spaces) {
-      const docs = await db.getDocuments(s.id);
-      results.push({
-        id: s.id,
-        name: s.name,
-        description: s.description || '',
-        color: (s as any).color || '#3B82F6',
-        icon: (s as any).icon || '\u{1f4da}',
-        documentCount: docs.length,
-        updatedAt: (s as any).updated_at || (s as any).created_at || new Date().toISOString(),
-        tags: [],
-      });
-    }
-    return results;
+    return spaces.map((s) => ({
+      id: s.id,
+      name: s.name,
+      description: s.description || '',
+      color: s.color || '#3B82F6',
+      icon: s.icon || '\u{1f4da}',
+      documentCount: s.documents?.length || 0,
+      updatedAt: s.updatedAt?.toISOString?.() || new Date().toISOString(),
+      tags: s.tags || [],
+    }));
   }
   try {
     const res = await fetch('/api/spaces');
@@ -52,16 +47,18 @@ export async function createSpaceAction(name: string): Promise<SpaceInfo | null>
   const id = crypto.randomUUID();
 
   if (db.isDesktopMode()) {
+    const nowDate = new Date(now);
     await db.saveSpace({
       id,
       name,
       description: '',
       color,
       icon,
-      created_at: now,
-      updated_at: now,
-      tags: '[]',
-    } as any);
+      documents: [],
+      createdAt: nowDate,
+      updatedAt: nowDate,
+      tags: [],
+    });
     return { id, name, description: '', color, icon, documentCount: 0, updatedAt: now, tags: [] };
   }
   try {
