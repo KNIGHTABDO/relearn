@@ -24,14 +24,31 @@ import {
   Sparkles,
   BookMarked,
   AlertCircle,
+  Mic,
+  Brain,
+  BarChart3,
+  Image,
+  FileBarChart,
+  RefreshCw,
+  Camera,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ChatPanel } from "./chat-panel";
 import { FlashcardViewer } from "./flashcard-viewer";
 import { QuizViewer } from "./quiz-viewer";
 import { ensureCopilotToken, isAuthenticated, getSelectedModel } from "@/lib/github-auth";
+import { PodcastPlayer } from "./podcast-player";
+import { VoiceTutor } from "./voice-tutor";
+import { StudyPlanner } from "./study-planner";
+import { AnalyticsDashboard } from "./analytics-dashboard";
+import { InfographicViewer } from "./infographic-viewer";
+import { StudyReport } from "./study-report";
+import { SpacedRepetition } from "./spaced-repetition";
+import { SnapProblem } from "./snap-problem";
+import { CollabPanel } from "./collab-panel";
 
-type ActiveView = "generate" | "chat" | "flashcards" | "quiz" | "summary" | "notes" | "chapters" | "podcast";
+type ActiveView = "generate" | "chat" | "flashcards" | "quiz" | "summary" | "notes" | "chapters" | "podcast" | "voice-tutor" | "study-planner" | "analytics" | "infographic" | "study-report" | "spaced-repetition" | "snap-problem" | "collab";
 
 interface GenerateCard {
   title: string;
@@ -45,11 +62,17 @@ interface GenerateCard {
 
 const generateCards: GenerateCard[] = [
   { title: "Podcast", icon: Headphones, color: "bg-yl-purple-bg dark:bg-yl-purple-bg-dark text-yl-purple", hasSettings: true, view: "podcast" },
-  { title: "Video", icon: Video, color: "bg-yl-blue-bg dark:bg-yl-blue-bg-dark text-yl-blue", hasSettings: true, badge: "Beta", view: null },
+  { title: "Voice Tutor", icon: Mic, color: "bg-yl-pink-bg dark:bg-yl-pink-bg-dark text-yl-pink", view: "voice-tutor", badge: "New" },
   { title: "Summary", icon: FileText, color: "bg-yl-sky-bg dark:bg-yl-sky-bg-dark text-yl-sky", hasSettings: true, view: "summary" },
   { title: "Quiz", icon: ClipboardCheck, color: "bg-yl-pink-bg dark:bg-yl-pink-bg-dark text-yl-pink", hasSettings: true, view: "quiz" },
   { title: "Flashcards", icon: Layers, color: "bg-yl-orange-bg dark:bg-yl-orange-bg-dark text-yl-orange", hasSettings: true, view: "flashcards" },
+  { title: "Spaced Review", icon: RefreshCw, color: "bg-yl-green-bg dark:bg-yl-green-bg-dark text-yl-green", view: "spaced-repetition", badge: "New" },
+  { title: "Mind Map", icon: Image, color: "bg-yl-teal-bg dark:bg-yl-teal-bg-dark text-yl-teal", view: "infographic", badge: "New" },
+  { title: "Study Report", icon: FileBarChart, color: "bg-yl-blue-bg dark:bg-yl-blue-bg-dark text-yl-blue", view: "study-report" },
   { title: "Notes", icon: StickyNote, color: "bg-yl-gold-bg dark:bg-yl-gold-bg-dark text-yl-gold", hasArrow: true, view: "notes" },
+  { title: "Snap Problem", icon: Camera, color: "bg-yl-orange-bg dark:bg-yl-orange-bg-dark text-yl-orange", view: "snap-problem", badge: "New" },
+  { title: "Study Planner", icon: Brain, color: "bg-yl-purple-bg dark:bg-yl-purple-bg-dark text-yl-purple", view: "study-planner", badge: "AI" },
+  { title: "Collaborate", icon: Users, color: "bg-yl-sky-bg dark:bg-yl-sky-bg-dark text-yl-sky", view: "collab", badge: "New" },
 ];
 
 const fullWidthCards: GenerateCard[] = [
@@ -441,13 +464,39 @@ export function LearningPanel({ documentId, spaceId, className }: LearningPanelP
 
         {/* Podcast */}
         {activeView === "podcast" && (
-          <div className="flex flex-col items-center justify-center p-8 text-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-yl-purple-bg dark:bg-yl-purple-bg-dark">
-              <Headphones className="h-6 w-6 text-yl-purple" />
-            </div>
-            <h3 className="mt-3 text-sm font-semibold text-gray-900 dark:text-dark-text">AI Podcast</h3>
-            <p className="mt-1 text-xs text-gray-400 dark:text-dark-text-muted">Coming soon — AI-generated audio summary of your document</p>
-          </div>
+          <PodcastPlayer documentId={documentId} spaceId={spaceId} />
+        )}
+
+        {activeView === "voice-tutor" && (
+          <VoiceTutor documentId={documentId} spaceId={spaceId} onClose={() => setActiveView("generate")} />
+        )}
+
+        {activeView === "study-planner" && (
+          <StudyPlanner spaceId={spaceId} />
+        )}
+
+        {activeView === "analytics" && (
+          <AnalyticsDashboard />
+        )}
+
+        {activeView === "infographic" && (
+          <InfographicViewer documentId={documentId} spaceId={spaceId} />
+        )}
+
+        {activeView === "study-report" && (
+          <StudyReport documentId={documentId} spaceId={spaceId} />
+        )}
+
+        {activeView === "spaced-repetition" && (
+          <SpacedRepetition documentId={documentId} spaceId={spaceId} />
+        )}
+
+        {activeView === "snap-problem" && (
+          <SnapProblem />
+        )}
+
+        {activeView === "collab" && (
+          <CollabPanel spaceId={spaceId} />
         )}
       </div>
     </div>
