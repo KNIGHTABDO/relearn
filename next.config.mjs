@@ -1,14 +1,10 @@
 /** @type {import('next').NextConfig} */
-const isTauriBuild = process.env.TAURI_ENV_PLATFORM !== undefined;
-
 const nextConfig = {
-  // Static export only when building for Tauri
-  ...(isTauriBuild ? { output: "export" } : {}),
-  // Skip ESLint during builds (run separately in dev)
+  // Static export when building for Tauri (API routes get removed by beforeBuildCommand)
+  ...(process.env.TAURI_ENV_PLATFORM ? { output: "export" } : {}),
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // Skip TypeScript type checking during builds (faster CI)
   typescript: {
     ignoreBuildErrors: true,
   },
