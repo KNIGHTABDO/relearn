@@ -2,14 +2,18 @@
 
 import React, { useState, useEffect } from "react";
 import {
-  ClipboardCheck,
-  Check,
-  X as XIcon,
-  RotateCcw,
+  CheckCircle2,
+  XCircle,
   ChevronRight,
+  RotateCcw,
+  Loader2,
+  Sparkles,
   Trophy,
+  BookMarked,
+  Target,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ensureCopilotToken, isAuthenticated, getSelectedModel } from "@/lib/github-auth";
 
 interface QuizQuestion {
   id: string;
@@ -21,188 +25,221 @@ interface QuizQuestion {
 
 interface QuizViewerProps {
   documentId?: string;
-  onClose?: () => void;
+  spaceId?: string;
+  renderSources?: (text: string) => React.ReactNode[];
 }
 
-export function QuizViewer({ documentId, onClose }: QuizViewerProps) {
+export function QuizViewer({ documentId, spaceId, renderSources }: QuizViewerProps) {
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-  const [showExplanation, setShowExplanation] = useState(false);
-  const [score, setScore] = useState({ correct: 0, total: 0 });
-  const [completed, setCompleted] = useState(false);
+  const [showResult, setShowResult] = useState(false);
+  const [score, setScore] = useState(0);
+  const [answeredCount, setAnsweredCount] = useState(0);
+  const [isComplete, setIsComplete] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [aiGenerated, setAiGenerated] = useState(false);
 
   useEffect(() => {
     fetchQuiz();
-  }, [documentId]);
+  }, [documentId, spaceId]);
 
   const fetchQuiz = async () => {
     setLoading(true);
+    setCurrentIndex(0);
+    setSelectedAnswer(null);
+    setShowResult(false);
+    setScore(0);
+    setAnsweredCount(0);
+    setIsComplete(false);
+
     try {
+      const copilotToken = isAuthenticated() ? await ensureCopilotToken() : null;
+      const model = getSelectedModel();
+
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (copilotToken) headers["x-copilot-token"] = copilotToken;
+
       const res = await fetch("/api/generate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ documentId, type: "quiz" }),
+        headers,
+        body: JSON.stringify({ documentId, spaceId, type: "quiz", model }),
       });
       const data = await res.json();
-      setQuestions(data.questions || []);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
+      if (data.questions) {
+        setQuestions(data.questions);
+        setAiGenerated(!!data.aiGenerated);
+      }
+    } catch (err) {
+      console.error("Quiz fetch error:", err);
     }
+    setLoading(false);
   };
 
-  const currentQuestion = questions[currentIndex];
-
-  const selectAnswer = (idx: number) => {
-    if (selectedAnswer !== null) return;
-    setSelectedAnswer(idx);
-    setShowExplanation(true);
-    setScore((prev) => ({
-      correct: prev.correct + (idx === currentQuestion.correctIndex ? 1 : 0),
-      total: prev.total + 1,
-    }));
+  const handleAnswer = (optionIndex: number) => {
+    if (showResult) return;
+    setSelectedAnswer(optionIndex);
+    setShowResult(true);
+    setAnsweredCount((p) => p + 1);
+    if (optionIndex === questions[currentIndex].correctIndex) {
+      setScore((p) => p + 1);
+    }
   };
 
   const nextQuestion = () => {
-    if (currentIndex < questions.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-      setSelectedAnswer(null);
-      setShowExplanation(false);
-    } else {
-      setCompleted(true);
+    if (currentIndex === questions.length - 1) {
+      setIsComplete(true);
+      return;
     }
+    setSelectedAnswer(null);
+    setShowResult(false);
+    setCurrentIndex((p) => p + 1);
   };
 
-  const resetQuiz = () => {
-    setCurrentIndex(0);
-    setSelectedAnswer(null);
-    setShowExplanation(false);
-    setScore({ correct: 0, total: 0 });
-    setCompleted(false);
+  const renderText = (text: string) => {
+    if (renderSources) return renderSources(text);
+    return text;
   };
 
   if (loading) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <ClipboardCheck className="h-8 w-8 text-gray-300 animate-pulse" />
-          <p className="text-sm text-gray-400">Generating quiz...</p>
+      <div className="flex flex-1 flex-col items-center justify-center gap-3 py-16">
+        <div className="relative">
+          <Loader2 className="h-8 w-8 animate-spin text-gray-300" />
+          <Sparkles className="absolute -right-1 -top-1 h-4 w-4 text-yl-gold animate-pulse" />
+        </div>
+        <div className="text-center">
+          <p className="text-sm font-medium text-gray-600">Creating quiz...</p>
+          <p className="mt-0.5 text-xs text-gray-400">Generating questions from your content</p>
         </div>
       </div>
     );
   }
 
-  if (completed) {
-    const percentage = Math.round((score.correct / score.total) * 100);
+  if (questions.length === 0) {
     return (
-      <div className="flex h-full flex-col items-center justify-center px-6 text-center">
+      <div className="flex flex-1 flex-col items-center justify-center py-16 text-center px-6">
+        <p className="text-sm text-gray-500">No quiz questions generated</p>
+        <button onClick={fetchQuiz} className="mt-3 text-xs font-medium text-gray-600 hover:text-gray-900">Try again</button>
+      </div>
+    );
+  }
+
+  // Score screen
+  if (isComplete) {
+    const pct = Math.round((score / questions.length) * 100);
+    const isGreat = pct >= 80;
+    const isOk = pct >= 50;
+
+    return (
+      <div className="flex flex-col items-center px-6 py-8 animate-fade-in">
         <div className={cn(
-          "flex h-16 w-16 items-center justify-center rounded-full",
-          percentage >= 80 ? "bg-yl-green-bg" : percentage >= 50 ? "bg-yl-gold-bg" : "bg-yl-pink-bg"
+          "flex h-20 w-20 items-center justify-center rounded-full",
+          isGreat ? "bg-yl-green-bg" : isOk ? "bg-yl-gold-bg" : "bg-yl-pink-bg"
         )}>
           <Trophy className={cn(
-            "h-7 w-7",
-            percentage >= 80 ? "text-yl-green" : percentage >= 50 ? "text-yl-gold" : "text-yl-pink"
+            "h-10 w-10",
+            isGreat ? "text-yl-green" : isOk ? "text-yl-gold" : "text-yl-pink"
           )} />
         </div>
-        <h3 className="mt-4 text-xl font-bold text-gray-900">Quiz Complete!</h3>
+        <h3 className="mt-4 text-2xl font-bold text-gray-900">{pct}%</h3>
         <p className="mt-1 text-sm text-gray-500">
-          You scored {score.correct} out of {score.total} ({percentage}%)
+          {score} out of {questions.length} correct
         </p>
+        <p className="mt-2 text-xs text-gray-400">
+          {isGreat ? "Excellent work! You've mastered this material." : isOk ? "Good effort! Review the topics you missed." : "Keep studying — you'll get there!"}
+        </p>
+
         <div className="mt-6 flex gap-3">
-          <button onClick={resetQuiz} className="btn-pill-secondary text-xs gap-1.5">
+          <button
+            onClick={fetchQuiz}
+            className="flex items-center gap-1.5 rounded-xl border border-gray-200 px-4 py-2.5 text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+          >
             <RotateCcw className="h-3 w-3" />
-            Try Again
+            New Quiz
           </button>
         </div>
       </div>
     );
   }
 
-  if (!currentQuestion) return null;
+  const q = questions[currentIndex];
 
   return (
-    <div className="flex h-full flex-col px-4 py-4">
+    <div className="flex flex-col px-4 py-4">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h3 className="text-sm font-semibold text-gray-900">Quiz</h3>
-          <p className="text-xs text-gray-400">
-            Question {currentIndex + 1} of {questions.length} • Score: {score.correct}/{score.total}
-          </p>
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-[10px] font-bold text-gray-600">
+            {currentIndex + 1}
+          </span>
+          <span className="text-xs text-gray-400">of {questions.length}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          {aiGenerated ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-yl-gold-bg px-2 py-0.5 text-[10px] font-medium text-yl-gold">
+              <Sparkles className="h-2.5 w-2.5" /> AI
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-400">Sample</span>
+          )}
+          <div className="flex items-center gap-1">
+            <Target className="h-3 w-3 text-gray-400" />
+            <span className="text-[10px] text-gray-400">{score}/{answeredCount}</span>
+          </div>
         </div>
       </div>
 
-      {/* Progress */}
-      <div className="mb-6 h-1 w-full rounded-full bg-gray-100 overflow-hidden">
+      {/* Progress bar */}
+      <div className="mb-4 h-1 w-full rounded-full bg-gray-100 overflow-hidden">
         <div
-          className="h-full rounded-full bg-yl-pink transition-all duration-300"
+          className="h-full rounded-full bg-gray-900 transition-all duration-300"
           style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
         />
       </div>
 
       {/* Question */}
-      <div className="mb-6">
-        <p className="text-base font-medium text-gray-900 leading-relaxed">
-          {currentQuestion.question}
-        </p>
-      </div>
+      <h3 className="mb-4 text-sm font-medium text-gray-900 leading-relaxed">{q.question}</h3>
 
       {/* Options */}
-      <div className="space-y-2 flex-1">
-        {currentQuestion.options.map((option, idx) => {
-          const isSelected = selectedAnswer === idx;
-          const isCorrect = idx === currentQuestion.correctIndex;
-          const showResult = selectedAnswer !== null;
+      <div className="space-y-2">
+        {q.options.map((opt, i) => {
+          const isSelected = selectedAnswer === i;
+          const isCorrect = i === q.correctIndex;
+          const showCorrect = showResult && isCorrect;
+          const showWrong = showResult && isSelected && !isCorrect;
 
           return (
             <button
-              key={idx}
-              onClick={() => selectAnswer(idx)}
-              disabled={selectedAnswer !== null}
+              key={i}
+              onClick={() => handleAnswer(i)}
+              disabled={showResult}
               className={cn(
-                "flex w-full items-center gap-3 rounded-xl border p-4 text-left text-sm transition-all",
-                showResult
-                  ? isCorrect
-                    ? "border-green-200 bg-yl-green-bg"
-                    : isSelected
-                    ? "border-red-200 bg-yl-pink-bg"
-                    : "border-gray-100 bg-white opacity-50"
-                  : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
+                "flex w-full items-center gap-3 rounded-xl border p-3 text-left text-xs transition-all",
+                showCorrect
+                  ? "border-yl-green/50 bg-yl-green-bg/50"
+                  : showWrong
+                  ? "border-yl-pink/50 bg-yl-pink-bg/50"
+                  : isSelected
+                  ? "border-gray-900 bg-gray-50"
+                  : "border-gray-100 hover:border-gray-200 hover:bg-gray-50"
               )}
             >
-              <div
-                className={cn(
-                  "flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-medium",
-                  showResult
-                    ? isCorrect
-                      ? "border-green-300 bg-yl-green text-white"
-                      : isSelected
-                      ? "border-red-300 bg-yl-pink text-white"
-                      : "border-gray-200 text-gray-400"
-                    : "border-gray-200 text-gray-500"
-                )}
-              >
-                {showResult ? (
-                  isCorrect ? (
-                    <Check className="h-3.5 w-3.5" />
-                  ) : isSelected ? (
-                    <XIcon className="h-3.5 w-3.5" />
-                  ) : (
-                    String.fromCharCode(65 + idx)
-                  )
-                ) : (
-                  String.fromCharCode(65 + idx)
-                )}
-              </div>
+              <span className={cn(
+                "flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[10px] font-bold",
+                showCorrect
+                  ? "border-yl-green bg-yl-green text-white"
+                  : showWrong
+                  ? "border-yl-pink bg-yl-pink text-white"
+                  : "border-gray-200 text-gray-500"
+              )}>
+                {showCorrect ? <CheckCircle2 className="h-3.5 w-3.5" /> : showWrong ? <XCircle className="h-3.5 w-3.5" /> : String.fromCharCode(65 + i)}
+              </span>
               <span className={cn(
                 "flex-1",
-                showResult && isCorrect ? "font-medium text-green-800" : ""
+                showCorrect ? "text-yl-green font-medium" : showWrong ? "text-yl-pink" : "text-gray-700"
               )}>
-                {option}
+                {opt}
               </span>
             </button>
           );
@@ -210,25 +247,26 @@ export function QuizViewer({ documentId, onClose }: QuizViewerProps) {
       </div>
 
       {/* Explanation */}
-      {showExplanation && (
-        <div className="mt-4 rounded-xl border border-gray-100 bg-gray-50 p-4 animate-fade-in">
-          <p className="text-xs font-medium uppercase tracking-wider text-gray-400 mb-1">
-            Explanation
-          </p>
-          <p className="text-sm text-gray-700 leading-relaxed">
-            {currentQuestion.explanation}
+      {showResult && q.explanation && (
+        <div className="mt-4 rounded-xl border border-gray-100 bg-gray-50 p-3.5 animate-fade-in">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <BookMarked className="h-3 w-3 text-gray-500" />
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">Explanation</span>
+          </div>
+          <p className="text-xs leading-relaxed text-gray-600">
+            {renderText(q.explanation)}
           </p>
         </div>
       )}
 
       {/* Next button */}
-      {selectedAnswer !== null && (
+      {showResult && (
         <button
           onClick={nextQuestion}
-          className="mt-4 w-full btn-pill-primary py-3 text-sm gap-1.5 animate-fade-in"
+          className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-xl bg-black py-3 text-xs font-medium text-white hover:bg-gray-800 transition-colors animate-fade-in"
         >
-          {currentIndex < questions.length - 1 ? "Next Question" : "See Results"}
-          <ChevronRight className="h-3.5 w-3.5" />
+          {currentIndex === questions.length - 1 ? "See Results" : "Next Question"}
+          <ChevronRight className="h-3 w-3" />
         </button>
       )}
     </div>
