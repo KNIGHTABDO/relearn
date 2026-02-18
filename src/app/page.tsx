@@ -18,6 +18,7 @@ import {
   GraduationCap,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 interface SpaceCard {
@@ -32,9 +33,9 @@ interface SpaceCard {
 }
 
 const inputCards = [
-  { title: "Upload", description: "File, audio, video", icon: Upload, href: "/upload" },
-  { title: "Paste", description: "YouTube, website, text", icon: Link2, href: "/paste" },
-  { title: "Record", description: "Record class, video call", icon: Mic, href: "/record" },
+  { title: "Upload", description: "File, audio, video", icon: Upload, href: "/upload", image: "/images/icon-upload.jpg" },
+  { title: "Paste", description: "YouTube, website, text", icon: Link2, href: "/paste", image: "/images/icon-paste.jpg" },
+  { title: "Record", description: "Record class, video call", icon: Mic, href: "/record", image: "/images/icon-record.jpg" },
 ];
 
 const universities = [
@@ -102,6 +103,9 @@ export default function HomePage() {
         <div className="mx-auto max-w-4xl px-6 py-8">
           {/* Hero */}
           <div className="text-center">
+            <div className="mb-6">
+              <Image src="/images/hero.jpg" alt="AI-powered learning" width={480} height={270} className="mx-auto rounded-2xl" priority />
+            </div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-dark-text sm:text-3xl">
               What do you want to learn?
             </h1>
@@ -114,8 +118,13 @@ export default function HomePage() {
                   href={card.href}
                   className="group flex flex-col items-center gap-2 rounded-2xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg px-4 py-5 transition-all hover:border-gray-300 dark:border-dark-border hover:shadow-sm dark:shadow-none"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 dark:bg-dark-surface dark:bg-dark-surface">
-                    <card.icon className="h-5 w-5 text-gray-600 dark:text-dark-text-secondary" />
+                  {(card as any).image && (
+                    <div className="w-16 h-16 rounded-xl overflow-hidden mb-1">
+                      <Image src={(card as any).image} alt={card.title} width={64} height={64} className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50 dark:bg-dark-surface">
+                    <card.icon className="h-4 w-4 text-gray-600 dark:text-dark-text-secondary" />
                   </div>
                   <span className="text-sm font-medium text-gray-900 dark:text-dark-text">{card.title}</span>
                   <span className="text-[11px] text-gray-400 dark:text-dark-text-muted">{card.description}</span>
@@ -251,7 +260,7 @@ export default function HomePage() {
 
               {spaces.length === 0 && (
                 <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 dark:border-dark-border py-12">
-                  <FolderOpen className="h-8 w-8 text-gray-300 dark:text-dark-text-muted" />
+                  <Image src="/images/empty-spaces.jpg" alt="No spaces" width={160} height={160} className="rounded-xl opacity-80" />
                   <p className="mt-2 text-sm text-gray-400 dark:text-dark-text-muted">No spaces yet</p>
                   <button
                     onClick={() => setShowCreateSpace(true)}
