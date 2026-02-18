@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback , Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { SidebarDrawer } from "@/components/layout/sidebar-drawer";
@@ -34,7 +34,7 @@ interface ExamData {
   documentsCovered: string[];
 }
 
-export default function ExamPage() {
+function ExamPageInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const spaceId = searchParams.get("spaceId");
@@ -322,5 +322,13 @@ export default function ExamPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function ExamPage() {
+  return (
+    <Suspense fallback={<div className="flex h-screen items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-purple-500" /></div>}>
+      <ExamPageInner />
+    </Suspense>
   );
 }
