@@ -255,7 +255,7 @@ export default function HomePage() {
               {spaces.map((space) => (
                 <Link
                   key={space.id}
-                  href={`/space/${space.id}`}
+                  href={`/space?id=${space.id}`}
                   className="group flex flex-col rounded-2xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg p-4 transition-all hover:border-gray-300 dark:border-dark-border hover:shadow-sm dark:shadow-none"
                 >
                   <div className="flex items-center gap-3">
