@@ -25,6 +25,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { fetchSpaces, createSpaceAction, uploadTextAction, SpaceInfo } from "@/lib/data-layer";
+import { useDatabaseContext } from "@/components/providers/database-provider";
 
 interface SpaceCard {
   id: string;
@@ -58,6 +59,7 @@ export default function HomePage() {
   const [showCreateSpace, setShowCreateSpace] = useState(false);
   const [newSpaceName, setNewSpaceName] = useState("");
   const { t } = useI18n();
+  const { ready: dbReady } = useDatabaseContext();
 
   const inputCards = [
     {
@@ -84,8 +86,9 @@ export default function HomePage() {
   ];
 
   useEffect(() => {
+    if (!dbReady) return;
     fetchSpaces().then((s) => setSpaces(s)).catch(() => {});
-  }, []);
+  }, [dbReady]);
 
   const handleLearn = async () => {
     if (!learnInput.trim()) return;
