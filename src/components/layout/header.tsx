@@ -53,9 +53,9 @@ export function Header({ title, onMenuClick }: HeaderProps) {
   }, []);
 
   const themeOptions = [
-    { value: "light" as const, label: "Light", icon: Sun },
-    { value: "dark" as const, label: "Dark", icon: Moon },
-    { value: "system" as const, label: "System", icon: Monitor },
+    { value: "light" as const, label: t("settings.theme_light"), icon: Sun },
+    { value: "dark" as const, label: t("settings.theme_dark"), icon: Moon },
+    { value: "system" as const, label: t("settings.theme_system"), icon: Monitor },
   ];
 
   return (
