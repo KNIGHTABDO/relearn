@@ -136,7 +136,7 @@ export function SidebarDrawer({ open, onClose, spaces = [] }: SidebarDrawerProps
                       {searchResults.spaces.map((s: any) => (
                         <Link
                           key={s.id}
-                          href={`/space/${s.id}`}
+                          href={`/space?id=${s.id}`}
                           onClick={onClose}
                           className="flex items-center gap-2 rounded-md px-2 py-1.5 text-xs text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface"
                         >
@@ -207,7 +207,7 @@ export function SidebarDrawer({ open, onClose, spaces = [] }: SidebarDrawerProps
           {spaces.map((space) => (
             <Link
               key={space.id}
-              href={`/space/${space.id}`}
+              href={`/space?id=${space.id}`}
               onClick={onClose}
               className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface"
             >
