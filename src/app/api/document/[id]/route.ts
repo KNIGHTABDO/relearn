@@ -18,6 +18,7 @@ export async function GET(
     pageCount: doc.pageCount,
     chunkCount: doc.chunks.length,
     spaceId: doc.spaceId,
+    url: doc.url,
     createdAt: doc.createdAt,
   });
 }
