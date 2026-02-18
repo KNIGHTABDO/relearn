@@ -1,5 +1,6 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
@@ -30,6 +31,7 @@ interface SidebarDrawerProps {
 
 export function SidebarDrawer({ open, onClose, spaces = [] }: SidebarDrawerProps) {
   const [showSearch, setShowSearch] = useState(false);
+  const { t } = useI18n();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any>(null);
   const [searching, setSearching] = useState(false);
@@ -102,7 +104,7 @@ export function SidebarDrawer({ open, onClose, spaces = [] }: SidebarDrawerProps
         <div className="px-3 py-1">
           <Link href="/" onClick={onClose} className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface">
             <Home className="h-4 w-4" />
-            <span>Home</span>
+            <span>{t("nav.home")}</span>
           </Link>
 
           {/* Search */}
@@ -111,7 +113,7 @@ export function SidebarDrawer({ open, onClose, spaces = [] }: SidebarDrawerProps
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface"
           >
             <Search className="h-4 w-4" />
-            <span>Search</span>
+            <span>{t("nav.search")}</span>
           </button>
 
           {showSearch && (
@@ -123,7 +125,7 @@ export function SidebarDrawer({ open, onClose, spaces = [] }: SidebarDrawerProps
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search spaces & docs..."
+                  placeholder={t("common.search")}
                   className="w-full rounded-lg border border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-surface py-2 pl-9 pr-3 text-xs text-gray-700 dark:text-dark-text-secondary outline-none focus:border-gray-300 dark:focus:border-dark-border"
                 />
                 {searching && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-3 w-3 animate-spin text-gray-400 dark:text-dark-text-muted" />}
@@ -132,7 +134,7 @@ export function SidebarDrawer({ open, onClose, spaces = [] }: SidebarDrawerProps
                 <div className="mt-1.5 max-h-48 overflow-y-auto rounded-lg border border-gray-100 dark:border-dark-border bg-white dark:bg-dark-bg">
                   {searchResults.spaces?.length > 0 && (
                     <div className="p-2">
-                      <p className="px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-gray-400 dark:text-dark-text-muted">Spaces</p>
+                      <p className="px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-gray-400 dark:text-dark-text-muted">{t("nav.spaces")}</p>
                       {searchResults.spaces.map((s: any) => (
                         <Link
                           key={s.id}
@@ -176,7 +178,7 @@ export function SidebarDrawer({ open, onClose, spaces = [] }: SidebarDrawerProps
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface"
           >
             <Clock className="h-4 w-4" />
-            <span>History</span>
+            <span>{t("nav.history")}</span>
           </button>
 
           {showHistory && (
@@ -225,11 +227,11 @@ export function SidebarDrawer({ open, onClose, spaces = [] }: SidebarDrawerProps
         <div className="border-t border-gray-100 dark:border-dark-border p-3">
           <Link href="/settings" onClick={onClose} className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface">
             <Settings className="h-4 w-4" />
-            <span>Settings</span>
+            <span>{t("nav.settings")}</span>
           </Link>
           <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface">
             <HelpCircle className="h-4 w-4" />
-            <span>Help & Support</span>
+            <span>{t("nav.help")}</span>
           </button>
         </div>
       </div>
