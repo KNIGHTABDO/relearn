@@ -105,40 +105,17 @@ const sendMessage = async () => {
     setIsStreaming(true);
 
     try {
-      // Get copilot token if authenticated
-      // Try Google first (student-friendly), then GitHub
-      const googleToken = usingAI ? await ensureGoogleToken() : null;
-      const copilotToken = usingAI && !googleToken ? await ensureCopilotToken() : null;
-      const model = googleToken ? getSelectedGeminiModel() : getSelectedModel();
-
-      const headers: Record<string, string> = { "Content-Type": "application/json" };
-      if (googleToken) {
-        headers["x-google-token"] = googleToken;
-        headers["x-gemini-model"] = model;
-      } else if (copilotToken) {
-        headers["x-copilot-token"] = copilotToken;
-      }
-
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          messages: [...messages, userMsg].map((m) => ({ role: m.role, content: m.content })),
-          documentId,
-          spaceId,
-          model,
-        }),
-      });
-
-      const reader = res.body?.getReader();
-      const decoder = new TextDecoder();
-      if (reader) {
-        let text = "";
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          text += decoder.decode(value, { stream: true });
+      // Try direct AI call first (Tauri desktop mode)
+      try {
+        const allMsgs = [...messages, userMsg].map((m) => ({ role: m.role, content: m.content }));
+        await chatStream(allMsgs, documentId, spaceId, (text) => {
           setMessages((p) => p.map((m) => m.id === aiMsg.id ? { ...m, content: text } : m));
+        });
+      } catch (aiErr: any) {
+        if (aiErr?.message === "NO_AI_PROVIDER") {
+          setMessages((p) => p.map((m) => m.id === aiMsg.id ? { ...m, content: "Please connect an AI provider (Google or GitHub) in Settings to use chat." } : m));
+        } else if (aiErr?.message !== "NOT_TAURI") {
+          throw aiErr;
         }
       }
     } catch {

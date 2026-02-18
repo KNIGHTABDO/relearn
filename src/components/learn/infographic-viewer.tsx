@@ -1,3 +1,4 @@
+import { generateContent } from "@/lib/ai-service";
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
@@ -68,14 +69,9 @@ export default function InfographicViewer() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'infographic' }),
-      });
-      if (!res.ok) throw new Error('Network error');
-      const json = (await res.json()) as InfographicData;
-      setData(json);
+    try {
+      const data = await generateContent("summary", documentId, spaceId);
+      if (data) { setMindMapData(data); setIsAiGenerated(true); }
     } catch {
       // use mock data on any error (including missing token)
       setData(MOCK_DATA);

@@ -1,3 +1,4 @@
+import { generateStudyPlan } from "@/lib/ai-service";
 "use client";
 
 import { useEffect, useState } from "react";
@@ -203,19 +204,12 @@ export default function StudyPlanner({ spaceId }: StudyPlannerProps) {
     async function fetchPlan() {
       setLoading(true);
       try {
-        if (spaceId) {
-          const res = await fetch("/api/study-plan", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ spaceId }),
-          });
-          if (!res.ok) throw new Error("Failed to fetch plan");
-          const data: StudyPlanResponse = await res.json();
-          setPlan(data);
-        } else {
-          // demo mode
-          setPlan(mockPlan);
-        }
+      try {
+        const data = await generateStudyPlan(documentText || topics.join(", "));
+        if (data?.weeklyPlan) setWeeklyPlan(data.weeklyPlan);
+        if (data?.focusAreas) setFocusAreas(data.focusAreas);
+        if (data?.stats) setStats(data.stats);
+        setIsAiGenerated(true);
       } catch (e) {
         console.error(e);
         setPlan(mockPlan);
@@ -229,18 +223,12 @@ export default function StudyPlanner({ spaceId }: StudyPlannerProps) {
   const handleGenerate = async () => {
     setGenerating(true);
     try {
-      const res = await fetch("/api/study-plan", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          // In a real app you would send actual performance data
-          demo: true,
-          spaceId,
-        }),
-      });
-      if (!res.ok) throw new Error("Generate failed");
-      const data: StudyPlanResponse = await res.json();
-      setPlan(data);
+      try {
+        const data = await generateStudyPlan(topics.join(", "));
+        if (data?.weeklyPlan) setWeeklyPlan(data.weeklyPlan);
+        if (data?.focusAreas) setFocusAreas(data.focusAreas);
+        if (data?.stats) setStats(data.stats);
+        setIsAiGenerated(true);
     } catch (e) {
       console.error(e);
     } finally {

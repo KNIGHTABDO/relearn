@@ -1,3 +1,4 @@
+import { generateContent } from "@/lib/ai-service";
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -161,22 +162,10 @@ export default function StudyReport() {
     setState("loading");
     setLoadingStep(0);
     try {
-      const token = localStorage.getItem("authToken");
-      if (!token) throw new Error("No token");
-
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ type: "report" }),
-      });
-
-      if (!res.ok) throw new Error("Network error");
-      const data: ReportData = await res.json();
-      setReport(data);
-      setState("generated");
+      try {
+        const data = await generateContent("summary", documentId, spaceId);
+        setReport(data);
+        setIsAiGenerated(true);
     } catch {
       // use mock data
       const mock = getMockReport();

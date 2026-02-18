@@ -1,3 +1,4 @@
+import { generateContent } from "@/lib/ai-service";
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -56,21 +57,12 @@ export function QuizViewer({ documentId, spaceId, renderSources }: QuizViewerPro
     setIsComplete(false);
 
     try {
-      const copilotToken = isAuthenticated() ? await ensureCopilotToken() : null;
-      const model = getSelectedModel();
-
-      const headers: Record<string, string> = { "Content-Type": "application/json" };
-      if (copilotToken) headers["x-copilot-token"] = copilotToken;
-
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ documentId, spaceId, type: "quiz", model }),
-      });
-      const data = await res.json();
-      if (data.questions) {
-        setQuestions(data.questions);
-        setAiGenerated(!!data.aiGenerated);
+    try {
+      const data = await generateContent("quiz", documentId, spaceId);
+      const questions = Array.isArray(data) ? data : (data.questions || data.quiz || []);
+      if (questions.length > 0) {
+        setQuestions(questions);
+        setAiGenerated(true);
       }
     } catch (err) {
       console.error("Quiz fetch error:", err);

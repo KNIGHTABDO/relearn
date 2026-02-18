@@ -1,3 +1,4 @@
+import { generatePodcast } from "@/lib/ai-service";
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -44,15 +45,12 @@ const PodcastPlayer: React.FC<PodcastPlayerProps> = ({ documentId, spaceId }) =>
   const fetchPodcast = useCallback(async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('github_copilot_token') || '';
-      const model = localStorage.getItem('selected_model') || 'gpt-4o';
-      const headers = {
-        'x-copilot-token': token,
-        'x-model': model,
-      };
-      const res = await fetch('/api/podcast', { headers });
-      const data: PodcastData = await res.json();
-      setPodcastData(data);
+    try {
+      const data = await generatePodcast(documentId, spaceId);
+      if (data?.segments) {
+        setSegments(data.segments);
+        setTitle(data.title || "AI Podcast");
+      }
     } catch (e) {
       console.error(e);
     } finally {

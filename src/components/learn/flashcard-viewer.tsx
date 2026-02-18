@@ -1,3 +1,4 @@
+import { generateContent } from "@/lib/ai-service";
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -34,19 +35,12 @@ export function FlashcardViewer({ documentId, spaceId, renderSources }: Flashcar
   const fetchFlashcards = async () => {
     setLoading(true);
     try {
-      const copilotToken = isAuthenticated() ? await ensureCopilotToken() : null;
-      const model = getSelectedModel();
-
-      const headers: Record<string, string> = { "Content-Type": "application/json" };
-      if (copilotToken) headers["x-copilot-token"] = copilotToken;
-
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ documentId, spaceId, type: "flashcards", model }),
-      });
-      const data = await res.json();
-      if (data.flashcards) {
+    try {
+      const data = await generateContent("flashcards", documentId, spaceId);
+      if (Array.isArray(data)) {
+        setCards(data);
+        setAiGenerated(true);
+      } else if (data.flashcards) {
         setCards(data.flashcards);
         setAiGenerated(!!data.aiGenerated);
       }

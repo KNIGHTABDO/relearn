@@ -1,3 +1,4 @@
+import { snapProblem } from "@/lib/ai-service";
 'use client';
 
 import React, {
@@ -163,14 +164,9 @@ export default function SnapProblem() {
     if (!imageData) return;
     setMode('analyzing');
     try {
-      const res = await fetch('/api/snap', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: imageData }),
-      });
-      if (!res.ok) throw new Error('API error');
-      const data: AnalysisResult = await res.json();
-      setAnalysis(data);
+      try {
+        const data = await snapProblem(capturedImage || selectedText || "");
+        setSolution(data);
     } catch (e) {
       console.error(e);
       // fallback to mock data

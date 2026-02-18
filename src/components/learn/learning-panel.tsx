@@ -49,6 +49,7 @@ import { SpacedRepetition } from "./spaced-repetition";
 import { SnapProblem } from "./snap-problem";
 import { CollabPanel } from "./collab-panel";
 import { useI18n } from "@/components/providers/i18n-provider";
+import { generateContent } from "@/lib/ai-service";
 
 type ActiveView = "generate" | "chat" | "flashcards" | "quiz" | "summary" | "notes" | "chapters" | "podcast" | "voice-tutor" | "study-planner" | "analytics" | "infographic" | "study-report" | "spaced-repetition" | "snap-problem" | "collab";
 
@@ -140,29 +141,12 @@ const fullWidthCards: GenerateCard[] = [
   const fetchData = async (type: string) => {
     setLoading(true);
     try {
-      const googleToken = isAI ? await ensureGoogleToken() : null;
-      const copilotToken = isAI && !googleToken ? await ensureCopilotToken() : null;
-      const model = googleToken ? getSelectedGeminiModel() : getSelectedModel();
-
-      const headers: Record<string, string> = { "Content-Type": "application/json" };
-      if (googleToken) {
-        headers["x-google-token"] = googleToken;
-        headers["x-gemini-model"] = model;
-      } else if (copilotToken) {
-        headers["x-copilot-token"] = copilotToken;
-      }
-
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ documentId, spaceId, type, model }),
-      });
-      const data = await res.json();
-
+    try {
+      // Try direct AI in Tauri mode
+      const data = await generateContent(type as any, documentId, spaceId);
       if (type === "summary") setSummaryData(data);
       if (type === "notes") setNotesData(data);
       if (type === "chapters") setChaptersData(data);
-
       return data;
     } catch (err) {
       console.error("Generate error:", err);
