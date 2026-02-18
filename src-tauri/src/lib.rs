@@ -88,43 +88,45 @@ async fn start_oauth_server(app: tauri::AppHandle) -> Result<u16, String> {
     let app_handle = app.clone();
 
     std::thread::spawn(move || {
-        listener.set_nonblocking(false).ok();
-        if let Ok((mut stream, _)) = listener.accept() {
-            use std::io::{Read, Write};
-            let mut buf = [0u8; 4096];
-            if let Ok(n) = stream.read(&mut buf) {
-                let request = String::from_utf8_lossy(&buf[..n]);
-                if let Some(path_line) = request.lines().next() {
-                    if let Some(query_start) = path_line.find('?') {
-                        if let Some(query_end) = path_line.rfind(" HTTP") {
-                            let query = &path_line[query_start + 1..query_end];
-                            let _ = app_handle.emit("oauth-callback", query.to_string());
+        use std::io::{Read, Write};
+        use std::time::{Duration, Instant};
+        let deadline = Instant::now() + Duration::from_secs(300);
+        let mut got_code = false;
+
+        while !got_code && Instant::now() < deadline {
+            let _ = listener.set_nonblocking(true);
+            std::thread::sleep(Duration::from_millis(100));
+
+            if let Ok((mut stream, _)) = listener.accept() {
+                let mut buf = [0u8; 4096];
+                let _ = stream.set_read_timeout(Some(Duration::from_secs(5)));
+                if let Ok(n) = stream.read(&mut buf) {
+                    let request = String::from_utf8_lossy(&buf[..n]);
+                    if let Some(path_line) = request.lines().next() {
+                        if path_line.contains("code=") {
+                            if let Some(query_start) = path_line.find('?') {
+                                if let Some(query_end) = path_line.rfind(" HTTP") {
+                                    let query = &path_line[query_start + 1..query_end];
+                                    let _ = app_handle.emit("oauth-callback", query.to_string());
+                                    got_code = true;
+                                }
+                            }
+                            let html = r#"<!DOCTYPE html><html><head><style>body{font-family:Inter,system-ui,sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;background:#0a0a0a;color:#fafafa}.card{text-align:center;padding:2rem}.icon{font-size:3rem;margin-bottom:1rem}h1{font-size:1.25rem;font-weight:600;margin:0 0 0.5rem}p{font-size:0.875rem;color:#a3a3a3;margin:0}</style></head><body><div class="card"><div class="icon">✓</div><h1>Connected to Google</h1><p>You can close this tab and return to ReLearn.</p></div></body></html>"#;
+                            let response = format!("HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}", html.len(), html);
+                            let _ = stream.write_all(response.as_bytes());
+                        } else {
+                            let _ = stream.write_all(b"HTTP/1.1 204 No Content\r\nConnection: close\r\n\r\n");
                         }
                     }
+                    let _ = stream.flush();
                 }
-                let html = r#"<!DOCTYPE html><html><head><style>
-                    body{font-family:Inter,system-ui,sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;background:#0a0a0a;color:#fafafa}
-                    .card{text-align:center;padding:2rem}
-                    .icon{font-size:3rem;margin-bottom:1rem}
-                    h1{font-size:1.25rem;font-weight:600;margin:0 0 0.5rem}
-                    p{font-size:0.875rem;color:#a3a3a3;margin:0}
-                </style></head><body><div class="card">
-                    <div class="icon">✓</div>
-                    <h1>Connected to Google</h1>
-                    <p>You can close this tab and return to ReLearn.</p>
-                </div></body></html>"#;
-                let response = format!(
-                    "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
-                    html.len(), html
-                );
-                let _ = stream.write_all(response.as_bytes());
-                let _ = stream.flush();
             }
         }
     });
 
     Ok(port)
 }
+
 
 #[tauri::command]
 async fn github_device_code() -> Result<DeviceCodeResult, String> {
@@ -300,6 +302,22 @@ async fn google_refresh_token(
 // ==================== App Entry ====================
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
+
+#[tauri::command]
+async fn github_fetch_models(token: String) -> Result<String, String> {
+    let client = reqwest::Client::new();
+    let resp = client
+        .get("https://api.githubcopilot.com/models")
+        .header("Authorization", format!("Bearer {}", token))
+        .header("Accept", "application/json")
+        .header("Copilot-Integration-Id", "vscode-chat")
+        .send()
+        .await
+        .map_err(|e| format!("Request failed: {}", e))?;
+    let body = resp.text().await.map_err(|e| format!("Read failed: {}", e))?;
+    Ok(body)
+}
+
 pub fn run() {
     std::panic::set_hook(Box::new(|info| {
         let msg = format!("PANIC: {}", info);
@@ -312,7 +330,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             start_oauth_server,
             github_device_code,
-            github_poll_token,
+            github_poll_token, github_fetch_models,
             google_exchange_token,
             google_refresh_token,
         ])
