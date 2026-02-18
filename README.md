@@ -1,68 +1,83 @@
-# ReLearn 🎓
+# ReLearn — AI-Powered Educational Platform
 
-> AI-powered educational platform — a faithful YouLearn clone.
-> Organize courses into Spaces, upload materials, chat with AI, generate study tools.
+> The first AI study platform that doesn't just chat — it **ACTS**. It generates podcasts from your notes, creates study plans from your quiz scores, and adapts to how you learn.
 
-![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?style=flat-square&logo=typescript)
-![Tailwind](https://img.shields.io/badge/Tailwind-3.4-38bdf8?style=flat-square&logo=tailwindcss)
+![ReLearn](public/images/hero.jpg)
 
-## Features
+## ✨ Features
 
-### 📂 Spaces System
-- Create Spaces to organize content by course, subject, or project
-- Add multiple files (PDFs, text, YouTube links) to each space
-- Chat with ALL documents in a space at once (cross-document RAG)
-- Generate practice exams covering the entire space
-- Tag and search across spaces
+### 🎙️ AI Podcast Generation
+Upload any document → get a two-host podcast discussing your material. Alex (the explainer) and Sam (the curious learner) break down concepts in a natural, engaging conversation. Uses Web Speech Synthesis for TTS with different voices per host.
 
-### 📄 Multi-Format Upload
-- Drag-and-drop file upload with progress tracking
-- Paste YouTube URLs, website text, or raw content
-- Upload directly into a specific space
-- Supports PDF, DOC, DOCX, TXT (up to 50MB)
+### 🗣️ Voice Tutor Mode
+Talk to your AI tutor like a real conversation. Press the mic button, ask your question, hear the AI explain back. Continuous conversation mode keeps the dialogue flowing — like having a private tutor.
 
-### ✨ AI Study Tools (Right Panel)
-- **📝 Summary** — AI-generated structured notes with key points and sections
-- **🎧 Podcast** — Audio podcast generation UI with player
-- **🎬 Video** — AI video generation (Beta badge)
-- **❓ Quiz** — Multiple-choice questions with explanations and scoring
-- **🧰 Flashcards** — Flip cards with progress tracking, shuffle, got-it/still-learning
-- **📝 Notes** — Organized concept outlines with highlights
-- **📖 Chapters** — Document broken into navigable chapters
+### 🤖 AI Study Planner
+An AI agent that analyzes your performance, identifies weak topics, and generates a personalized weekly study plan. Includes focus areas, daily goals, and estimated time to mastery.
 
-### 🧠 AI Tutor Chat
-- Streaming word-by-word responses
-- Document-level chat (single file context)
-- Space-level chat (all files in space as context)
-- Voice button UI
-- Copy responses
+### 📊 Learning Analytics Dashboard
+Track your progress with beautiful SVG charts:
+- Quiz scores over time (bar chart)
+- Topic strength radar chart
+- GitHub-style activity heatmap
+- Study streak & stats cards with animated counters
 
-### 📋 Practice Exams
-- Full exam simulation with timer
-- Questions pulled from ALL documents in a space
-- Pre-exam screen showing documents covered
-- Answer explanations with source attribution
-- Score tracking and retake option
+### 🖼️ AI Mind Map / Infographic
+Turn your notes into interactive visual mind maps. Central topic with radiating branches — CSS-animated nodes and SVG connection paths. Click any node to expand details.
 
-### 🏠 Library Dashboard
-- Home page with Upload/Paste/Record cards
-- "Learn anything..." search input
-- Spaces grid with document counts, tags, and timestamps
-- Create new spaces inline
-- Sidebar with Home, Search, History, and all Spaces listed
+### 📝 AI Study Reports
+Generate comprehensive study guides from your materials. Includes key concepts, important formulas, study tips, practice questions, and summaries with source citations.
 
-## Design
+### 🔄 Spaced Repetition System (SM-2)
+Flashcards that adapt to your memory. Uses the SM-2 algorithm:
+- Cards you get wrong come back sooner
+- Cards you know well space out over days/weeks
+- 4 response levels: Again / Hard / Good / Easy
+- LocalStorage persistence for review scheduling
+- Celebration animation when all caught up!
 
-Exact YouLearn-style interface:
-- **White-first design** with colorful pastel accent cards
-- **Two-panel split**: Document viewer (left ~60%) + Learning tools (right ~40%)
-- **Hamburger menu** sidebar drawer with Spaces list
-- **Floating action bar** on text selection
-- **Pill-shaped buttons** throughout
-- **Inter font**, minimal borders, no dark mode
+### 🌐 Multi-Language AI Tutoring
+All AI-generated content (flashcards, quizzes, summaries, podcasts) can be generated in 10+ languages. Language selector in header.
 
-## Getting Started
+### 🧠 Snap a Problem
+Take a photo or upload an image of any problem → AI analyzes it and provides:
+- Problem detection & text extraction
+- Step-by-step solution with explanations
+- Similar practice problems
+
+### 👥 Collaborative Spaces
+Share spaces with classmates:
+- Invite by email or share link
+- Role-based access (Owner/Editor/Viewer)
+- Activity feed showing collaborator actions
+- Comment threads on documents
+
+### Plus: Everything from the Core Platform
+- 📚 **Spaces System** — Organize courses with multi-document support
+- 💬 **AI Chat** — RAG-powered Q&A grounded in your documents
+- 🃏 **Flashcards** — AI-generated with flip animations
+- ❓ **Quizzes** — Multiple-choice with explanations
+- 📖 **Summaries, Notes, Chapters** — AI-generated study materials
+- 📄 **Real PDF Rendering** — Full page rendering with react-pdf
+- 🎥 **YouTube Integration** — Embedded player + transcript extraction
+- 🎤 **Record** — Record lectures with waveform visualization
+- 🔍 **Search** — Semantic search across all spaces and docs
+- 🌙 **Dark Mode** — Full light/dark/system theme support
+- 🎨 **AI-Generated Illustrations** — 19 custom images via Nano Banana Pro
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript 5.7
+- **Styling**: Tailwind CSS 3.4 + Radix UI
+- **AI**: GitHub Copilot API (GPT-4o + model selection)
+- **PDF**: react-pdf + pdf-parse
+- **Images**: AI-generated via Gemini 3 Pro Image (Nano Banana Pro)
+- **TTS**: Web Speech Synthesis API
+- **STT**: Web Speech Recognition API
+- **SRS**: SM-2 algorithm with localStorage persistence
+
+## 🚀 Getting Started
 
 ```bash
 git clone https://github.com/KNIGHTABDO/relearn.git
@@ -73,78 +88,60 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000)
 
-## Routes
+### AI Setup (Optional)
+To enable AI features, connect your GitHub Copilot in Settings:
+1. Go to Settings → Connect GitHub
+2. Follow the device code authentication
+3. Select your preferred AI model
 
-| Route | Description |
-|-------|-------------|
-| `/` | Home/Library — Spaces grid + Upload/Paste/Record cards |
-| `/space/[id]` | Space detail — documents list + space actions |
-| `/learn?id=...` | Document learning view (two-panel) |
-| `/learn?spaceId=...` | Space-level chat (all docs as context) |
-| `/exam?spaceId=...` | Practice exam from entire space |
-| `/upload` | File upload (optional `?spaceId=...`) |
-| `/paste` | YouTube/URL/text paste |
-| `/record` | Record lecture |
+Without Copilot, the app uses demo data so you can still explore all features.
 
-## API Routes
-
-| Route | Method | Description |
-|-------|--------|-------------|
-| `/api/spaces` | GET/POST | List all spaces / Create new space |
-| `/api/spaces/[id]` | GET/PATCH/DELETE | Space CRUD with documents |
-| `/api/upload` | POST | Upload file with optional `space_id` |
-| `/api/document/[id]` | GET/DELETE | Document operations |
-| `/api/chat` | POST | Streaming AI chat (doc-level or space-level) |
-| `/api/generate` | POST | Generate summary/flashcards/quiz/notes/chapters |
-| `/api/exam` | POST | Generate practice exam from entire space |
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 src/
 ├── app/
-│   ├── page.tsx                # Home/Library dashboard
-│   ├── space/[id]/page.tsx      # Space detail with docs
-│   ├── learn/page.tsx           # Two-panel learning view
-│   ├── exam/page.tsx            # Practice exam with timer
-│   ├── upload/page.tsx          # File upload (space-aware)
-│   ├── paste/page.tsx           # URL/text paste
-│   ├── record/page.tsx          # Record lecture
-│   └── api/
-│       ├── spaces/             # Spaces CRUD
-│       ├── upload/             # File processing
-│       ├── document/[id]/      # Document ops
-│       ├── chat/               # Streaming AI chat
-│       ├── generate/           # Study tools generation
-│       └── exam/               # Practice exam generation
+│   ├── page.tsx                    # Home dashboard
+│   ├── progress/page.tsx           # Analytics dashboard
+│   ├── space/[id]/page.tsx         # Space detail
+│   ├── learn/page.tsx              # Document learning view
+│   ├── api/
+│   │   ├── chat/route.ts           # AI chat (RAG)
+│   │   ├── generate/route.ts       # Flashcards, quiz, summary, notes
+│   │   ├── podcast/route.ts        # AI podcast generation
+│   │   ├── study-plan/route.ts     # AI study planner
+│   │   ├── snap/route.ts           # Image problem solving
+│   │   ├── translate/route.ts      # Multi-language translation
+│   │   └── ...
 ├── components/
-│   ├── layout/
-│   │   ├── header.tsx
-│   │   └── sidebar-drawer.tsx  # With Spaces list
-│   └── learn/
-│       ├── document-viewer.tsx
-│       ├── learning-panel.tsx  # All study tool views
-│       ├── chat-panel.tsx      # Space-aware chat
-│       ├── flashcard-viewer.tsx
-│       ├── quiz-viewer.tsx
-│       └── floating-action-bar.tsx
-└── lib/
-    ├── types.ts               # Shared TypeScript types
-    ├── store.ts               # In-memory data store
-    └── utils.ts
+│   ├── learn/
+│   │   ├── learning-panel.tsx      # Main tool panel (12 features)
+│   │   ├── podcast-player.tsx      # Podcast player + TTS
+│   │   ├── voice-tutor.tsx         # Voice conversation mode
+│   │   ├── study-planner.tsx       # AI study plan generator
+│   │   ├── analytics-dashboard.tsx # Progress charts & stats
+│   │   ├── infographic-viewer.tsx  # Mind map generator
+│   │   ├── study-report.tsx        # Comprehensive study guide
+│   │   ├── spaced-repetition.tsx   # SM-2 flashcard system
+│   │   ├── snap-problem.tsx        # Camera/image problem solver
+│   │   ├── collab-panel.tsx        # Collaboration features
+│   │   ├── flashcard-viewer.tsx    # Standard flashcard viewer
+│   │   ├── quiz-viewer.tsx         # Quiz with scoring
+│   │   └── chat-panel.tsx          # AI chat interface
+│   └── ...
+├── lib/
+│   ├── store.ts                    # In-memory data store
+│   ├── types.ts                    # TypeScript interfaces
+│   ├── github-auth.ts              # Copilot auth manager
+│   └── utils.ts                    # Utilities
+└── public/
+    └── images/                     # 19 AI-generated illustrations
 ```
 
-## Production Notes
+## 📄 License
 
-To make this production-ready:
-- **OpenAI/Anthropic** + Vercel AI SDK for real AI responses
-- **pdf-parse** / **pdfjs-dist** for proper PDF extraction
-- **Supabase** for persistent storage (already structured)
-- **YouTube Transcript API** for video content
-- **Vector embeddings** + **pgvector** for real RAG
-- **Web Speech API** for voice mode
-- **TTS API** for podcast/read-aloud generation
+MIT
 
 ---
 
-Built with ❤️ inspired by [YouLearn.ai](https://youlearn.ai)
+Built with ❤️ and a lot of AI
