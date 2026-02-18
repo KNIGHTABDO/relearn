@@ -13,12 +13,6 @@
     "shell:allow-open",
     "dialog:default",
     "fs:default",
-    "opener:default",
-    "oauth:default",
-    "oauth:allow-start-oauth-server",
-    "oauth:allow-github-device-code",
-    "oauth:allow-github-poll-token",
-    "oauth:allow-google-exchange-token",
-    "oauth:allow-google-refresh-token"
+    "opener:default"
   ]
 }
