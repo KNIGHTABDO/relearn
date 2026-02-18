@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect , Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { SidebarDrawer } from "@/components/layout/sidebar-drawer";
@@ -10,7 +10,7 @@ import { FloatingActionBar } from "@/components/learn/floating-action-bar";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export default function LearnPage() {
+function LearnPageInner() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const searchParams = useSearchParams();
   const documentId = searchParams.get("id") || undefined;
@@ -133,5 +133,13 @@ export default function LearnPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function LearnPage() {
+  return (
+    <Suspense fallback={<div className="flex h-screen items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-purple-500" /></div>}>
+      <LearnPageInner />
+    </Suspense>
   );
 }
