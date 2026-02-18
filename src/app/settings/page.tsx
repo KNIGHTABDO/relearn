@@ -181,7 +181,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="flex h-screen flex-col bg-white">
+    <div className="flex h-screen flex-col bg-white dark:bg-dark-bg dark:bg-dark-bg">
       <Header title="Settings" onMenuClick={() => setSidebarOpen(true)} />
       <SidebarDrawer open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
@@ -191,15 +191,15 @@ export default function SettingsPage() {
           {/* ================================ */}
           {/* AI Provider — GitHub Copilot     */}
           {/* ================================ */}
-          <div className="rounded-2xl border border-gray-200 overflow-hidden">
-            <div className="bg-gray-50 px-5 py-4 border-b border-gray-100">
+          <div className="rounded-2xl border border-gray-200 dark:border-dark-border overflow-hidden">
+            <div className="bg-gray-50 dark:bg-dark-surface px-5 py-4 border-b border-gray-100 dark:border-dark-border">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-900">
                   <Github className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-base font-semibold text-gray-900">AI Provider</h2>
-                  <p className="text-xs text-gray-500">GitHub Copilot — link your GitHub to use AI features</p>
+                  <h2 className="text-base font-semibold text-gray-900 dark:text-dark-text">AI Provider</h2>
+                  <p className="text-xs text-gray-500 dark:text-dark-text-muted">GitHub Copilot — link your GitHub to use AI features</p>
                 </div>
               </div>
             </div>
@@ -208,20 +208,20 @@ export default function SettingsPage() {
               {/* Connected state */}
               {connState === "connected" && (
                 <div className="animate-fade-in">
-                  <div className="flex items-center gap-3 rounded-xl bg-yl-green-bg/50 p-3">
+                  <div className="flex items-center gap-3 rounded-xl bg-yl-green-bg dark:bg-yl-green-bg-dark/50 p-3">
                     <CheckCircle2 className="h-5 w-5 text-yl-green shrink-0" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         {userAvatar && (
                           <img src={userAvatar} alt="" className="h-6 w-6 rounded-full" />
                         )}
-                        <span className="text-sm font-medium text-gray-900">{userLogin || "Connected"}</span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-dark-text">{userLogin || "Connected"}</span>
                       </div>
-                      {userEmail && <p className="text-xs text-gray-500 mt-0.5">{userEmail}</p>}
+                      {userEmail && <p className="text-xs text-gray-500 dark:text-dark-text-muted mt-0.5">{userEmail}</p>}
                     </div>
                     <button
                       onClick={handleDisconnect}
-                      className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-gray-500 hover:bg-white hover:text-gray-700 transition-colors"
+                      className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-gray-500 dark:text-dark-text-muted hover:bg-white dark:bg-dark-bg hover:text-gray-700 dark:hover:text-dark-text dark:text-dark-text-secondary transition-colors"
                     >
                       <LogOut className="h-3 w-3" />
                       Disconnect
@@ -232,13 +232,13 @@ export default function SettingsPage() {
                   <div className="mt-4">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
-                        <Cpu className="h-4 w-4 text-gray-500" />
-                        <span className="text-sm font-medium text-gray-900">Model</span>
+                        <Cpu className="h-4 w-4 text-gray-500 dark:text-dark-text-muted" />
+                        <span className="text-sm font-medium text-gray-900 dark:text-dark-text">Model</span>
                       </div>
                       <button
                         onClick={fetchModels}
                         disabled={loadingModels}
-                        className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
+                        className="flex items-center gap-1 text-xs text-gray-400 dark:text-dark-text-muted hover:text-gray-600 dark:hover:text-dark-text-secondary dark:text-dark-text-secondary transition-colors disabled:opacity-50"
                       >
                         <RefreshCw className={cn("h-3 w-3", loadingModels && "animate-spin")} />
                         Refresh
@@ -247,8 +247,8 @@ export default function SettingsPage() {
 
                     {loadingModels && models.length === 0 && (
                       <div className="flex items-center justify-center py-6">
-                        <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
-                        <span className="ml-2 text-sm text-gray-400">Fetching models...</span>
+                        <Loader2 className="h-5 w-5 animate-spin text-gray-400 dark:text-dark-text-muted" />
+                        <span className="ml-2 text-sm text-gray-400 dark:text-dark-text-muted">Fetching models...</span>
                       </div>
                     )}
 
@@ -268,31 +268,31 @@ export default function SettingsPage() {
                             className={cn(
                               "flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-all",
                               selectedModel === model.id
-                                ? "border-gray-900 bg-gray-50 shadow-sm"
-                                : "border-gray-100 hover:border-gray-200 hover:bg-gray-50"
+                                ? "border-gray-900 bg-gray-50 dark:bg-dark-surface shadow-sm dark:shadow-none"
+                                : "border-gray-100 dark:border-dark-border hover:border-gray-200 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface dark:bg-dark-surface"
                             )}
                           >
                             <div className={cn(
                               "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs",
                               selectedModel === model.id
                                 ? "bg-gray-900 text-white"
-                                : "bg-gray-100 text-gray-500"
+                                : "bg-gray-100 dark:bg-dark-card text-gray-500 dark:text-dark-text-muted"
                             )}>
                               <Sparkles className="h-3.5 w-3.5" />
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className={cn(
                                 "text-sm font-medium truncate",
-                                selectedModel === model.id ? "text-gray-900" : "text-gray-700"
+                                selectedModel === model.id ? "text-gray-900 dark:text-dark-text" : "text-gray-700 dark:text-dark-text-secondary"
                               )}>
                                 {model.name}
                               </p>
                               {model.version && (
-                                <p className="text-[10px] text-gray-400">v{model.version}</p>
+                                <p className="text-[10px] text-gray-400 dark:text-dark-text-muted">v{model.version}</p>
                               )}
                             </div>
                             {selectedModel === model.id && (
-                              <Check className="h-4 w-4 text-gray-900 shrink-0" />
+                              <Check className="h-4 w-4 text-gray-900 dark:text-dark-text shrink-0" />
                             )}
                           </button>
                         ))}
@@ -301,10 +301,10 @@ export default function SettingsPage() {
 
                     {/* Current model indicator */}
                     {models.length > 0 && (
-                      <div className="mt-3 flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2">
+                      <div className="mt-3 flex items-center gap-2 rounded-lg bg-gray-50 dark:bg-dark-surface px-3 py-2">
                         <Zap className="h-3 w-3 text-yl-gold" />
-                        <span className="text-xs text-gray-500">Active model:</span>
-                        <span className="text-xs font-medium text-gray-900">{selectedModel}</span>
+                        <span className="text-xs text-gray-500 dark:text-dark-text-muted">Active model:</span>
+                        <span className="text-xs font-medium text-gray-900 dark:text-dark-text">{selectedModel}</span>
                       </div>
                     )}
                   </div>
@@ -314,7 +314,7 @@ export default function SettingsPage() {
               {/* Disconnected state */}
               {connState === "disconnected" && (
                 <div className="text-center py-2 animate-fade-in">
-                  <p className="text-sm text-gray-500 mb-4">
+                  <p className="text-sm text-gray-500 dark:text-dark-text-muted mb-4">
                     Connect your GitHub account to unlock AI-powered study tools with models like GPT-4o, Claude, and more.
                   </p>
                   <button
@@ -330,33 +330,33 @@ export default function SettingsPage() {
               {/* Connecting state */}
               {connState === "connecting" && (
                 <div className="flex items-center justify-center py-6 animate-fade-in">
-                  <Loader2 className="h-5 w-5 animate-spin text-gray-500" />
-                  <span className="ml-2 text-sm text-gray-500">Starting login...</span>
+                  <Loader2 className="h-5 w-5 animate-spin text-gray-500 dark:text-dark-text-muted" />
+                  <span className="ml-2 text-sm text-gray-500 dark:text-dark-text-muted">Starting login...</span>
                 </div>
               )}
 
               {/* Awaiting auth state */}
               {connState === "awaiting_auth" && userCode && (
                 <div className="text-center py-2 animate-fade-in">
-                  <p className="text-sm text-gray-600 mb-3">
+                  <p className="text-sm text-gray-600 dark:text-dark-text-secondary mb-3">
                     Enter this code on GitHub:
                   </p>
-                  <div className="inline-flex items-center gap-2 rounded-xl bg-gray-100 px-6 py-4">
-                    <span className="font-mono text-2xl font-bold tracking-[0.3em] text-gray-900">{userCode}</span>
-                    <button onClick={copyCode} className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-gray-200 transition-colors">
-                      {codeCopied ? <Check className="h-4 w-4 text-yl-green" /> : <Copy className="h-4 w-4 text-gray-400" />}
+                  <div className="inline-flex items-center gap-2 rounded-xl bg-gray-100 dark:bg-dark-card px-6 py-4">
+                    <span className="font-mono text-2xl font-bold tracking-[0.3em] text-gray-900 dark:text-dark-text">{userCode}</span>
+                    <button onClick={copyCode} className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-gray-200 dark:hover:bg-dark-hover dark:bg-dark-border transition-colors">
+                      {codeCopied ? <Check className="h-4 w-4 text-yl-green" /> : <Copy className="h-4 w-4 text-gray-400 dark:text-dark-text-muted" />}
                     </button>
                   </div>
                   <div className="mt-4 flex items-center justify-center gap-2">
-                    <Loader2 className="h-3 w-3 animate-spin text-gray-400" />
-                    <span className="text-xs text-gray-400">Waiting for authorization...</span>
+                    <Loader2 className="h-3 w-3 animate-spin text-gray-400 dark:text-dark-text-muted" />
+                    <span className="text-xs text-gray-400 dark:text-dark-text-muted">Waiting for authorization...</span>
                   </div>
                   {verificationUri && (
                     <a
                       href={verificationUri}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-3 inline-flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700 underline transition-colors"
+                      className="mt-3 inline-flex items-center gap-1 text-xs text-gray-500 dark:text-dark-text-muted hover:text-gray-700 dark:hover:text-dark-text dark:text-dark-text-secondary underline transition-colors"
                     >
                       Open GitHub <ExternalLink className="h-3 w-3" />
                     </a>
@@ -371,7 +371,7 @@ export default function SettingsPage() {
                     <XCircle className="h-5 w-5" />
                     <span className="text-sm font-medium">Connection failed</span>
                   </div>
-                  {errorMsg && <p className="text-xs text-gray-500 mb-4">{errorMsg}</p>}
+                  {errorMsg && <p className="text-xs text-gray-500 dark:text-dark-text-muted mb-4">{errorMsg}</p>}
                   <button
                     onClick={handleConnect}
                     className="inline-flex items-center gap-2 rounded-xl bg-gray-900 px-6 py-3 text-sm font-medium text-white hover:bg-gray-700 transition-colors"
@@ -386,7 +386,7 @@ export default function SettingsPage() {
 
           {/* Other settings */}
           <div className="mt-6 space-y-1">
-            <h3 className="mb-2 px-1 text-xs font-medium uppercase tracking-wider text-gray-400">
+            <h3 className="mb-2 px-1 text-xs font-medium uppercase tracking-wider text-gray-400 dark:text-dark-text-muted">
               General
             </h3>
             {[
@@ -394,36 +394,36 @@ export default function SettingsPage() {
               { icon: Bell, label: "Notifications", desc: "Email and push notifications" },
               { icon: Palette, label: "Appearance", desc: "Light mode" },
             ].map((item) => (
-              <button key={item.label} className="flex w-full items-center gap-3 rounded-xl p-3 text-left transition-colors hover:bg-gray-50">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-50">
-                  <item.icon className="h-4 w-4 text-gray-500" />
+              <button key={item.label} className="flex w-full items-center gap-3 rounded-xl p-3 text-left transition-colors hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface dark:bg-dark-surface">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-50 dark:bg-dark-surface dark:bg-dark-surface">
+                  <item.icon className="h-4 w-4 text-gray-500 dark:text-dark-text-muted" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900">{item.label}</p>
-                  <p className="text-xs text-gray-400">{item.desc}</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-dark-text">{item.label}</p>
+                  <p className="text-xs text-gray-400 dark:text-dark-text-muted">{item.desc}</p>
                 </div>
-                <ChevronRight className="h-4 w-4 text-gray-300" />
+                <ChevronRight className="h-4 w-4 text-gray-300 dark:text-dark-text-muted" />
               </button>
             ))}
           </div>
 
           <div className="mt-6 space-y-1">
-            <h3 className="mb-2 px-1 text-xs font-medium uppercase tracking-wider text-gray-400">
+            <h3 className="mb-2 px-1 text-xs font-medium uppercase tracking-wider text-gray-400 dark:text-dark-text-muted">
               Support
             </h3>
             {[
               { icon: HelpCircle, label: "Help Center", desc: "FAQs and guides" },
               { icon: Shield, label: "Privacy & Terms", desc: "Privacy policy, terms of service" },
             ].map((item) => (
-              <button key={item.label} className="flex w-full items-center gap-3 rounded-xl p-3 text-left transition-colors hover:bg-gray-50">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-50">
-                  <item.icon className="h-4 w-4 text-gray-500" />
+              <button key={item.label} className="flex w-full items-center gap-3 rounded-xl p-3 text-left transition-colors hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface dark:bg-dark-surface">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-50 dark:bg-dark-surface dark:bg-dark-surface">
+                  <item.icon className="h-4 w-4 text-gray-500 dark:text-dark-text-muted" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900">{item.label}</p>
-                  <p className="text-xs text-gray-400">{item.desc}</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-dark-text">{item.label}</p>
+                  <p className="text-xs text-gray-400 dark:text-dark-text-muted">{item.desc}</p>
                 </div>
-                <ChevronRight className="h-4 w-4 text-gray-300" />
+                <ChevronRight className="h-4 w-4 text-gray-300 dark:text-dark-text-muted" />
               </button>
             ))}
           </div>
