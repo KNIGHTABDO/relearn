@@ -6,22 +6,22 @@
 
 @layer base {
   * {
-    @apply border-gray-200;
+    @apply border-gray-200 dark:border-dark-border;
   }
   body {
-    @apply bg-white text-gray-900 antialiased;
+    @apply bg-white text-gray-900 antialiased dark:bg-dark-bg dark:text-dark-text;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    /* iOS safe area support */
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
-    /* Prevent iOS rubber-band overscroll on body */
     overscroll-behavior: none;
   }
 }
 
-/* Minimal scrollbar - YouLearn style */
+/* =============================================
+   SCROLLBAR
+   ============================================= */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -36,24 +36,45 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
 }
+.dark ::-webkit-scrollbar-thumb {
+  background: #404040;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #525252;
+}
 
-/* Selection highlight - YouLearn purple */
+/* =============================================
+   SELECTION
+   ============================================= */
 ::selection {
   background: rgba(168, 85, 247, 0.15);
 }
+.dark ::selection {
+  background: rgba(168, 85, 247, 0.3);
+}
 
-/* Pill button base */
+/* =============================================
+   PILL BUTTONS
+   ============================================= */
 .btn-pill {
   @apply inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-medium transition-all;
 }
 .btn-pill-primary {
   @apply btn-pill bg-black text-white hover:bg-gray-800;
 }
+.dark .btn-pill-primary {
+  @apply bg-white text-black hover:bg-gray-200;
+}
 .btn-pill-secondary {
   @apply btn-pill bg-white text-gray-900 border border-gray-200 hover:bg-gray-50;
 }
+.dark .btn-pill-secondary {
+  @apply bg-dark-card text-dark-text border-dark-border hover:bg-dark-hover;
+}
 
-/* 3D Flashcard transforms */
+/* =============================================
+   3D FLASHCARD TRANSFORMS
+   ============================================= */
 .perspective-1000 {
   perspective: 1000px;
 }
@@ -67,28 +88,69 @@
   transform: rotateY(180deg);
 }
 
-/* Touch-friendly targets for iPad */
+/* =============================================
+   TOUCH TARGETS (iPad)
+   ============================================= */
 @media (pointer: coarse) {
   button, a, [role="button"] {
     min-height: 44px;
     min-width: 44px;
   }
-  /* Except tiny inline elements */
   .inline-touch-ok {
     min-height: auto;
     min-width: auto;
   }
 }
 
-/* react-pdf canvas responsive */
+/* =============================================
+   REACT-PDF
+   ============================================= */
 .react-pdf__Page canvas {
   max-width: 100% !important;
   height: auto !important;
 }
-
-/* PDF text layer — make selectable */
 .react-pdf__Page__textContent {
   user-select: text !important;
+}
+
+/* =============================================
+   DARK MODE — PASTEL CARD BACKGROUNDS
+   Override the pastel bg utilities in dark mode.
+   These keep the brand colors but make them dark-friendly.
+   ============================================= */
+.dark .dark\:yl-purple-bg { background-color: #2e1065; }
+.dark .dark\:yl-blue-bg { background-color: #172554; }
+.dark .dark\:yl-sky-bg { background-color: #0c4a6e; }
+.dark .dark\:yl-pink-bg { background-color: #4c0519; }
+.dark .dark\:yl-orange-bg { background-color: #431407; }
+.dark .dark\:yl-gold-bg { background-color: #422006; }
+.dark .dark\:yl-green-bg { background-color: #064e3b; }
+.dark .dark\:yl-teal-bg { background-color: #134e4a; }
+
+/* =============================================
+   DARK MODE — INPUT OVERRIDES
+   ============================================= */
+.dark input, .dark textarea, .dark select {
+  color-scheme: dark;
+}
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #737373;
+}
+
+/* =============================================
+   DARK MODE — MISC
+   ============================================= */
+.dark .shadow-sm {
+  --tw-shadow-color: rgba(0, 0, 0, 0.3);
+}
+.dark .shadow-lg {
+  --tw-shadow-color: rgba(0, 0, 0, 0.5);
+}
+
+/* iOS momentum scroll */
+.scroll-ios {
+  -webkit-overflow-scrolling: touch;
 }
 
 /* iPad landscape learning panel */
@@ -96,9 +158,4 @@
   .learning-panel-tablet {
     width: 340px;
   }
-}
-
-/* Smooth iOS momentum scrolling */
-.scroll-ios {
-  -webkit-overflow-scrolling: touch;
 }
