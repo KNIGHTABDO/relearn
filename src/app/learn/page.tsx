@@ -15,8 +15,9 @@ export default function LearnPage() {
   const spaceId = searchParams.get("spaceId") || undefined;
   const [docTitle, setDocTitle] = useState("Document");
   const [pageCount, setPageCount] = useState(19);
-  const [contentType, setContentType] = useState<"pdf" | "youtube" | "text" | "recording">("pdf");
+  const [contentType, setContentType] = useState<"pdf" | "youtube" | "text" | "recording" | "image">("pdf");
   const [youtubeUrl, setYoutubeUrl] = useState<string | undefined>();
+  const [documentText, setDocumentText] = useState<string>("");
 
   useEffect(() => {
     if (documentId) {
@@ -26,10 +27,16 @@ export default function LearnPage() {
           if (data.title) setDocTitle(data.title);
           if (data.pageCount) setPageCount(data.pageCount);
           if (data.type) setContentType(data.type);
-          // Extract YouTube URL from text if it's a YouTube doc
-          if (data.type === "youtube" && data.text) {
-            const urlMatch = data.text.match(/URL:\s*(https?:\/\/[^\s\n]+)/);
-            if (urlMatch) setYoutubeUrl(urlMatch[1]);
+          if (data.text) setDocumentText(data.text);
+
+          // Use stored URL or extract from text for YouTube
+          if (data.type === "youtube") {
+            if (data.url) {
+              setYoutubeUrl(data.url);
+            } else if (data.text) {
+              const urlMatch = data.text.match(/URL:\s*(https?:\/\/[^\s\n]+)/);
+              if (urlMatch) setYoutubeUrl(urlMatch[1]);
+            }
           }
         })
         .catch(() => {});
@@ -56,6 +63,7 @@ export default function LearnPage() {
             totalPages={pageCount}
             contentType={contentType}
             youtubeUrl={youtubeUrl}
+            documentText={documentText}
           />
           {contentType !== "youtube" && (
             <div className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2">
