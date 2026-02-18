@@ -159,3 +159,49 @@
     width: 340px;
   }
 }
+
+
+/* RTL (Right-to-Left) Support for Arabic */
+[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+}
+
+[dir="rtl"] .flex {
+  flex-direction: row-reverse;
+}
+
+/* Preserve LTR for specific elements that should stay LTR even in RTL mode */
+[dir="rtl"] .ltr-preserve {
+  direction: ltr;
+  text-align: left;
+}
+
+[dir="rtl"] .sidebar-drawer {
+  right: auto;
+  left: 0;
+  transform: translateX(-100%);
+}
+
+[dir="rtl"] .sidebar-drawer.open {
+  transform: translateX(0);
+}
+
+/* Flip margins/paddings for RTL */
+[dir="rtl"] .ml-auto {
+  margin-left: unset;
+  margin-right: auto;
+}
+
+[dir="rtl"] .mr-auto {
+  margin-right: unset;
+  margin-left: auto;
+}
+
+/* Code blocks and technical content stay LTR */
+[dir="rtl"] pre,
+[dir="rtl"] code,
+[dir="rtl"] .font-mono {
+  direction: ltr;
+  text-align: left;
+}
