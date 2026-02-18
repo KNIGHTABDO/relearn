@@ -2,7 +2,7 @@
 // In Tauri, there are no API routes — we call the AI APIs directly from the browser
 
 import { isTauri } from "./tauri-auth";
-import { ensureGoogleToken, getSelectedGeminiModel } from "./google-auth";
+import { ensureGoogleToken, getSelectedGeminiModel, getGeminiApiKey } from "./google-auth";
 import { ensureCopilotToken, getSelectedModel } from "./github-auth";
 
 interface Message {
@@ -36,10 +36,14 @@ export async function callAIDirect(
 ): Promise<string | null> {
   if (!isTauri()) return null;
 
-  // Try Google first
+  // Try Google first — prefer API key, fall back to OAuth token
+  const apiKey = getGeminiApiKey();
+  if (apiKey) {
+    return callGeminiDirect(apiKey, getSelectedGeminiModel(), messages, options, true);
+  }
   const googleToken = await ensureGoogleToken();
   if (googleToken) {
-    return callGeminiDirect(googleToken, getSelectedGeminiModel(), messages, options);
+    return callGeminiDirect(googleToken, getSelectedGeminiModel(), messages, options, false);
   }
 
   // Then Copilot
@@ -62,9 +66,13 @@ export async function streamAIDirect(
 ): Promise<ReadableStream<string> | null> {
   if (!isTauri()) return null;
 
+  const apiKey = getGeminiApiKey();
+  if (apiKey) {
+    return streamGeminiDirect(apiKey, getSelectedGeminiModel(), messages, options, true);
+  }
   const googleToken = await ensureGoogleToken();
   if (googleToken) {
-    return streamGeminiDirect(googleToken, getSelectedGeminiModel(), messages, options);
+    return streamGeminiDirect(googleToken, getSelectedGeminiModel(), messages, options, false);
   }
 
   const copilotToken = await ensureCopilotToken();
@@ -82,7 +90,8 @@ export async function streamAIDirect(
 
 async function callGeminiDirect(
   token: string, model: string, messages: Message[],
-  options: { temperature?: number; maxTokens?: number }
+  options: { temperature?: number; maxTokens?: number },
+  isApiKey: boolean = false
 ): Promise<string> {
   const system = messages.filter(m => m.role === "system");
   const nonSystem = messages.filter(m => m.role !== "system");
@@ -104,11 +113,15 @@ async function callGeminiDirect(
     body.contents.push({ role: "user", parts: [{ text: "Hello" }] });
   }
 
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-    {
+  const url = isApiKey
+    ? `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${token}`
+    : `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (!isApiKey) headers["Authorization"] = `Bearer ${token}`;
+
+  const res = await fetch(url, {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(body),
     }
   );
@@ -120,7 +133,8 @@ async function callGeminiDirect(
 
 async function streamGeminiDirect(
   token: string, model: string, messages: Message[],
-  options: { temperature?: number; maxTokens?: number }
+  options: { temperature?: number; maxTokens?: number },
+  isApiKey: boolean = false
 ): Promise<ReadableStream<string>> {
   const system = messages.filter(m => m.role === "system");
   const nonSystem = messages.filter(m => m.role !== "system");
@@ -142,11 +156,14 @@ async function streamGeminiDirect(
     body.contents.push({ role: "user", parts: [{ text: "Hello" }] });
   }
 
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse`,
-    {
+  const baseUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse`;
+  const url = isApiKey ? `${baseUrl}&key=${token}` : baseUrl;
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (!isApiKey) headers["Authorization"] = `Bearer ${token}`;
+
+  const res = await fetch(url, {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(body),
     }
   );

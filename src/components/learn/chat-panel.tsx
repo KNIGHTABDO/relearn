@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Send, AudioLines, Sparkles, Copy, Check, Plus, FileText, X, Zap, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ensureCopilotToken, isAuthenticated, getSelectedModel } from "@/lib/github-auth";
-import { ensureGoogleToken, isGoogleAuthenticated, getSelectedGeminiModel } from "@/lib/google-auth";
+import { ensureGoogleToken, isGoogleAuthenticated, getSelectedGeminiModel, hasGeminiApiKey } from "@/lib/google-auth";
 import { useI18n } from "@/components/providers/i18n-provider";
 
 interface Message {
@@ -139,7 +139,7 @@ const sendMessage = async () => {
         <div className="flex items-center gap-1.5 border-b border-gray-50 px-4 py-1.5 bg-gray-50/50">
           <Zap className="h-3 w-3 text-yl-gold" />
           <span className="text-[10px] text-gray-500 dark:text-dark-text-muted">
-            {t("common.ai_label")} <span className="font-medium text-gray-700 dark:text-dark-text-secondary">{getSelectedModel()}</span>
+            {t("common.ai_label")} <span className="font-medium text-gray-700 dark:text-dark-text-secondary">{isGoogleAuthenticated() || hasGeminiApiKey() ? getSelectedGeminiModel() : getSelectedModel()}</span>
           </span>
         </div>
       )}

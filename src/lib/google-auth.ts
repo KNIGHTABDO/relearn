@@ -13,6 +13,29 @@ const SCOPES = [
   "openid",
 ].join(" ");
 
+// ==================== Gemini API Key ====================
+const GEMINI_API_KEY_STORAGE = "relearn_gemini_api_key";
+
+export function getGeminiApiKey(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(GEMINI_API_KEY_STORAGE);
+}
+
+export function setGeminiApiKey(key: string): void {
+  localStorage.setItem(GEMINI_API_KEY_STORAGE, key);
+  window.dispatchEvent(new Event("google-auth-changed"));
+}
+
+export function clearGeminiApiKey(): void {
+  localStorage.removeItem(GEMINI_API_KEY_STORAGE);
+  window.dispatchEvent(new Event("google-auth-changed"));
+}
+
+export function hasGeminiApiKey(): boolean {
+  return !!getGeminiApiKey();
+}
+
+
 interface GoogleAuth {
   accessToken: string;
   refreshToken: string;

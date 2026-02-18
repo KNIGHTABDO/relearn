@@ -41,6 +41,10 @@ import {
   isGoogleAuthenticated,
   getSelectedGeminiModel,
   setSelectedGeminiModel,
+  getGeminiApiKey,
+  setGeminiApiKey,
+  clearGeminiApiKey,
+  hasGeminiApiKey,
 } from "@/lib/google-auth";
 import { useI18n } from "@/components/providers/i18n-provider";
 
@@ -302,6 +306,57 @@ export default function SettingsPage() {
             </div>
 
             <div className="p-5 space-y-4">
+              {/* Gemini API Key — primary method */}
+              <div className="rounded-xl border border-blue-100 dark:border-dark-border bg-blue-50/50 dark:bg-dark-hover/50 p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Key className="h-4 w-4 text-blue-600" />
+                  <span className="text-sm font-semibold text-gray-900 dark:text-dark-text">Gemini API Key</span>
+                  {apiKeySaved && <span className="text-xs bg-yl-green-bg dark:bg-yl-green-bg-dark/50 text-yl-green px-2 py-0.5 rounded-full font-medium">Active</span>}
+                </div>
+                <p className="text-xs text-gray-500 dark:text-dark-text-muted mb-3">
+                  Get your free API key from{" "}
+                  <button
+                    onClick={() => {
+                      if (typeof window !== "undefined" && (window as any).__TAURI_INTERNALS__) {
+                        import("@tauri-apps/plugin-shell").then(s => s.open("https://aistudio.google.com/apikey"));
+                      } else {
+                        window.open("https://aistudio.google.com/apikey", "_blank");
+                      }
+                    }}
+                    className="text-blue-600 underline hover:text-blue-700"
+                  >
+                    Google AI Studio
+                  </button>
+                  {" "}— works with Google AI Pro student benefits.
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    type="password"
+                    value={geminiApiKeyInput}
+                    onChange={(e) => { setGeminiApiKeyInput(e.target.value); setApiKeySaved(false); }}
+                    placeholder="AIzaSy..."
+                    className="flex-1 rounded-lg border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg px-3 py-2 text-sm text-gray-900 dark:text-dark-text placeholder-gray-400 dark:placeholder-dark-text-muted focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                  />
+                  {geminiApiKeyInput && !apiKeySaved && (
+                    <button
+                      onClick={() => { setGeminiApiKey(geminiApiKeyInput); setApiKeySaved(true); }}
+                      className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+                    >
+                      Save
+                    </button>
+                  )}
+                  {apiKeySaved && (
+                    <button
+                      onClick={() => { clearGeminiApiKey(); setGeminiApiKeyInput(""); setApiKeySaved(false); }}
+                      className="rounded-lg border border-gray-200 dark:border-dark-border px-3 py-2 text-sm text-gray-500 dark:text-dark-text-muted hover:bg-gray-50 dark:hover:bg-dark-hover transition-colors"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Google Account (optional — for identity) */}
               {/* Connected */}
               {googleConnState === "connected" && (
                 <div className="animate-fade-in">
@@ -420,6 +475,57 @@ export default function SettingsPage() {
             </div>
 
             <div className="p-5 space-y-4">
+              {/* Gemini API Key — primary method */}
+              <div className="rounded-xl border border-blue-100 dark:border-dark-border bg-blue-50/50 dark:bg-dark-hover/50 p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Key className="h-4 w-4 text-blue-600" />
+                  <span className="text-sm font-semibold text-gray-900 dark:text-dark-text">Gemini API Key</span>
+                  {apiKeySaved && <span className="text-xs bg-yl-green-bg dark:bg-yl-green-bg-dark/50 text-yl-green px-2 py-0.5 rounded-full font-medium">Active</span>}
+                </div>
+                <p className="text-xs text-gray-500 dark:text-dark-text-muted mb-3">
+                  Get your free API key from{" "}
+                  <button
+                    onClick={() => {
+                      if (typeof window !== "undefined" && (window as any).__TAURI_INTERNALS__) {
+                        import("@tauri-apps/plugin-shell").then(s => s.open("https://aistudio.google.com/apikey"));
+                      } else {
+                        window.open("https://aistudio.google.com/apikey", "_blank");
+                      }
+                    }}
+                    className="text-blue-600 underline hover:text-blue-700"
+                  >
+                    Google AI Studio
+                  </button>
+                  {" "}— works with Google AI Pro student benefits.
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    type="password"
+                    value={geminiApiKeyInput}
+                    onChange={(e) => { setGeminiApiKeyInput(e.target.value); setApiKeySaved(false); }}
+                    placeholder="AIzaSy..."
+                    className="flex-1 rounded-lg border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg px-3 py-2 text-sm text-gray-900 dark:text-dark-text placeholder-gray-400 dark:placeholder-dark-text-muted focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                  />
+                  {geminiApiKeyInput && !apiKeySaved && (
+                    <button
+                      onClick={() => { setGeminiApiKey(geminiApiKeyInput); setApiKeySaved(true); }}
+                      className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+                    >
+                      Save
+                    </button>
+                  )}
+                  {apiKeySaved && (
+                    <button
+                      onClick={() => { clearGeminiApiKey(); setGeminiApiKeyInput(""); setApiKeySaved(false); }}
+                      className="rounded-lg border border-gray-200 dark:border-dark-border px-3 py-2 text-sm text-gray-500 dark:text-dark-text-muted hover:bg-gray-50 dark:hover:bg-dark-hover transition-colors"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Google Account (optional — for identity) */}
               {/* Connected */}
               {connState === "connected" && (
                 <div className="animate-fade-in">
