@@ -180,3 +180,172 @@ export async function deleteDocumentAction(id: string): Promise<boolean> {
     return false;
   }
 }
+
+export interface FullDocument {
+  id: string;
+  title: string;
+  type: string;
+  text: string;
+  chunks: string[];
+  fileSize: number;
+  pageCount: number;
+  url?: string;
+  fileData?: string;
+  createdAt: string;
+  spaceId?: string;
+}
+
+export async function getDocumentById(id: string): Promise<FullDocument | null> {
+  if (db.isDesktopMode()) {
+    const doc = await db.getDocument(id);
+    if (!doc) return null;
+    return {
+      id: doc.id,
+      title: doc.title,
+      type: doc.type,
+      text: doc.text,
+      chunks: doc.chunks || [],
+      fileSize: doc.fileSize || 0,
+      pageCount: doc.pageCount || 0,
+      url: doc.url,
+      fileData: doc.fileData,
+      createdAt: doc.createdAt?.toISOString?.() || new Date().toISOString(),
+      spaceId: doc.spaceId,
+    };
+  }
+  try {
+    const res = await fetch(\`/api/document/\${id}\`);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+export async function getDocumentPdfData(id: string): Promise<string | null> {
+  if (db.isDesktopMode()) {
+    const doc = await db.getDocument(id);
+    return doc?.fileData || null;
+  }
+  try {
+    const res = await fetch(\`/api/document/\${id}/pdf\`);
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        resolve(result.split(',')[1] || null);
+      };
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
+}
+
+export async function uploadFileAction(
+  file: File,
+  spaceId?: string
+): Promise<{ id: string; title: string; type: string } | null> {
+  if (db.isDesktopMode()) {
+    const id = crypto.randomUUID();
+    const now = new Date();
+    const title = file.name.replace(/\.[^.]+$/, '');
+    const arrayBuffer = await file.arrayBuffer();
+    const uint8 = new Uint8Array(arrayBuffer);
+    let base64Data = '';
+    // Convert to base64 in chunks to avoid call stack issues
+    const chunkSize = 8192;
+    for (let i = 0; i < uint8.length; i += chunkSize) {
+      const slice = uint8.subarray(i, i + chunkSize);
+      base64Data += String.fromCharCode(...slice);
+    }
+    base64Data = btoa(base64Data);
+
+    let extractedText = '';
+    let pageCount = 1;
+    let docType: 'pdf' | 'text' = 'text';
+    let fileData: string | undefined;
+
+    if (file.name.toLowerCase().endsWith('.pdf')) {
+      docType = 'pdf';
+      fileData = base64Data;
+      try {
+        // Use pdfjs-dist for client-side PDF text extraction
+        const pdfjsLib = await import('pdfjs-dist');
+        pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        pageCount = pdf.numPages;
+        const pages: string[] = [];
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items
+            .map((item: any) => item.str)
+            .join(' ');
+          pages.push(pageText);
+        }
+        extractedText = pages.join('\n\n').replace(/\s{2,}/g, ' ').trim();
+        if (!extractedText || extractedText.length < 20) {
+          extractedText = `[PDF Document: ${title}]\n\nImage-based PDF — no extractable text.\nPages: ${pageCount}\nSize: ${(file.size / 1024).toFixed(1)} KB`;
+        }
+      } catch (pdfErr) {
+        console.error('[Upload] PDF parse error:', pdfErr);
+        pageCount = Math.max(1, Math.floor(file.size / 3000));
+        extractedText = `[PDF Document: ${title}]\n\nPDF parsing error.\nPages: ~${pageCount}\nSize: ${(file.size / 1024).toFixed(1)} KB`;
+      }
+    } else {
+      // Text file
+      extractedText = await file.text();
+    }
+
+    const chunks = chunkText(extractedText, 800, 100);
+
+    await db.saveDocument({
+      id,
+      title,
+      type: docType,
+      text: extractedText,
+      chunks,
+      fileSize: file.size,
+      pageCount,
+      url: undefined,
+      fileData,
+      createdAt: now,
+      spaceId: spaceId || undefined,
+    } as any);
+
+    return { id, title, type: docType };
+  }
+
+  // Web mode: use the API route
+  const formData = new FormData();
+  formData.append('file', file);
+  if (spaceId) formData.append('space_id', spaceId);
+  try {
+    const res = await fetch('/api/upload', { method: 'POST', body: formData });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+function chunkText(text: string, chunkSize: number, overlap: number): string[] {
+  if (!text || text.length <= chunkSize) return text ? [text] : [];
+  const chunks: string[] = [];
+  let start = 0;
+  while (start < text.length) {
+    let end = start + chunkSize;
+    if (end < text.length) {
+      const lastPeriod = text.lastIndexOf('.', end);
+      const lastNewline = text.lastIndexOf('\n', end);
+      const breakPoint = Math.max(lastPeriod, lastNewline);
+      if (breakPoint > start + chunkSize * 0.5) end = breakPoint + 1;
+    }
+    chunks.push(text.substring(start, end).trim());
+    start = end - overlap;
+  }
+  return chunks.filter((c) => c.length > 20);
+}
