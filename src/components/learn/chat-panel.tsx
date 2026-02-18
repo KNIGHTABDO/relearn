@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Send, AudioLines, Sparkles, Copy, Check, Plus, FileText, X, Zap, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ensureCopilotToken, isAuthenticated, getSelectedModel } from "@/lib/github-auth";
+import { ensureGoogleToken, isGoogleAuthenticated, getSelectedGeminiModel } from "@/lib/google-auth";
 
 interface Message {
   id: string;
@@ -40,8 +41,8 @@ export function ChatPanel({ documentId, spaceId, className }: ChatPanelProps) {
   }, [messages]);
 
   useEffect(() => {
-    setUsingAI(isAuthenticated());
-    const handler = () => setUsingAI(isAuthenticated());
+    setUsingAI((isGoogleAuthenticated() || isAuthenticated()));
+    const handler = () => setUsingAI((isGoogleAuthenticated() || isAuthenticated()));
     window.addEventListener("github-auth-changed", handler);
     return () => window.removeEventListener("github-auth-changed", handler);
   }, []);
@@ -56,11 +57,18 @@ export function ChatPanel({ documentId, spaceId, className }: ChatPanelProps) {
 
     try {
       // Get copilot token if authenticated
-      const copilotToken = usingAI ? await ensureCopilotToken() : null;
-      const model = getSelectedModel();
+      // Try Google first (student-friendly), then GitHub
+      const googleToken = usingAI ? await ensureGoogleToken() : null;
+      const copilotToken = usingAI && !googleToken ? await ensureCopilotToken() : null;
+      const model = googleToken ? getSelectedGeminiModel() : getSelectedModel();
 
       const headers: Record<string, string> = { "Content-Type": "application/json" };
-      if (copilotToken) headers["x-copilot-token"] = copilotToken;
+      if (googleToken) {
+        headers["x-google-token"] = googleToken;
+        headers["x-gemini-model"] = model;
+      } else if (copilotToken) {
+        headers["x-copilot-token"] = copilotToken;
+      }
 
       const res = await fetch("/api/chat", {
         method: "POST",
