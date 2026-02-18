@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/components/providers/i18n-provider";
+import { useDatabaseContext } from "@/components/providers/database-provider";
+import { uploadFileAction } from "@/lib/data-layer";
 
 type UploadStatus = "idle" | "uploading" | "done" | "error";
 
@@ -28,6 +30,7 @@ interface UploadedFile {
 function UploadPageInner() {
   const { t } = useI18n();
   const router = useRouter();
+  const { ready: dbReady, isDesktop } = useDatabaseContext();
   const searchParams = useSearchParams();
   const spaceId = searchParams.get("spaceId");
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -60,17 +63,23 @@ function UploadPageInner() {
         }, 200);
 
         try {
-          const res = await fetch("/api/upload", {
-            method: "POST",
-            body: formData,
-          });
+          let result: { id: string } | null = null;
+          if (isDesktop) {
+            result = await uploadFileAction(file, spaceId || undefined);
+          } else {
+            const res = await fetch("/api/upload", {
+              method: "POST",
+              body: formData,
+            });
+            if (!res.ok) throw new Error("Upload failed");
+            result = await res.json();
+          }
           clearInterval(interval);
-          if (!res.ok) throw new Error("Upload failed");
-          const data = await res.json();
+          if (!result) throw new Error("Upload failed");
           setUploadedFiles((prev) =>
             prev.map((f) =>
               f.file === file
-                ? { ...f, status: "done", progress: 100, id: data.id }
+                ? { ...f, status: "done", progress: 100, id: result!.id }
                 : f
             )
           );
