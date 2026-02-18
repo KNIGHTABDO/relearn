@@ -1,5 +1,6 @@
-import { generateExam } from "@/lib/ai-service";
 "use client";
+
+import { generateExam } from "@/lib/ai-service";
 
 import React, { useState, useEffect, useCallback , Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
