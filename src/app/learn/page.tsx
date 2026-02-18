@@ -13,6 +13,7 @@ import { useDatabaseContext } from "@/components/providers/database-provider";
 import { getDocumentById, getSpaceById } from "@/lib/data-layer";
 
 function LearnPageInner() {
+  const { ready: dbReady } = useDatabaseContext();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const searchParams = useSearchParams();
   const documentId = searchParams.get("id") || undefined;
