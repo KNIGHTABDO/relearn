@@ -1,8 +1,7 @@
 'use client'
 
-import Header from '@/components/header'
+import Header from '@/components/layout/header'
 import AnalyticsDashboard from '@/components/learn/analytics-dashboard'
-import { IoMdArrowBack } from 'react-icons/io'
 import Link from 'next/link'
 
 export default function Page() {
