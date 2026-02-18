@@ -27,13 +27,15 @@
     "react-dropzone": "^14.3.5",
     "react-pdf": "^9.2.1",
     "pdfjs-dist": "^4.8.69",
-    "pdf-parse": "^1.1.1"
+    "pdf-parse": "^1.1.1",
+    "xml2js": "^0.6.2"
   },
   "devDependencies": {
     "typescript": "^5.7.0",
     "@types/node": "^22.10.0",
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
+    "@types/xml2js": "^0.4.14",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.16",
