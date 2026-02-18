@@ -16,6 +16,9 @@ import {
   FileText,
   Clock,
   GraduationCap,
+  BarChart3,
+  Brain,
+  Users,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -168,8 +171,46 @@ export default function HomePage() {
             </div>
           </div>
 
+          {/* Quick Actions */}
+          <div className="mt-8 grid grid-cols-3 gap-3">
+            <Link
+              href="/progress"
+              className="group flex items-center gap-3 rounded-2xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg p-4 transition-all hover:border-purple-200 dark:hover:border-purple-900 hover:shadow-sm"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 dark:bg-purple-950">
+                <BarChart3 className="h-5 w-5 text-purple-500" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-900 dark:text-dark-text">Your Progress</p>
+                <p className="text-xs text-gray-400 dark:text-dark-text-muted">Analytics & stats</p>
+              </div>
+            </Link>
+            <div
+              className="group flex items-center gap-3 rounded-2xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg p-4 transition-all hover:border-blue-200 dark:hover:border-blue-900 hover:shadow-sm cursor-pointer"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950">
+                <Brain className="h-5 w-5 text-blue-500" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-900 dark:text-dark-text">Study Planner</p>
+                <p className="text-xs text-gray-400 dark:text-dark-text-muted">AI-powered schedule</p>
+              </div>
+            </div>
+            <div
+              className="group flex items-center gap-3 rounded-2xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg p-4 transition-all hover:border-orange-200 dark:hover:border-orange-900 hover:shadow-sm cursor-pointer"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 dark:bg-orange-950">
+                <Users className="h-5 w-5 text-orange-500" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-900 dark:text-dark-text">Collaborate</p>
+                <p className="text-xs text-gray-400 dark:text-dark-text-muted">Share & study together</p>
+              </div>
+            </div>
+          </div>
+
           {/* Spaces section */}
-          <div className="mt-12">
+          <div className="mt-8">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-dark-text">Your Spaces</h2>
               <button
