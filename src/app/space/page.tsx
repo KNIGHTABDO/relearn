@@ -21,6 +21,7 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/components/providers/i18n-provider";
 
 interface SpaceData {
   id: string;
@@ -40,6 +41,7 @@ interface SpaceData {
 }
 
 function SpacePageInner() {
+  const { t } = useI18n();
   const searchParams = useSearchParams();
   const router = useRouter();
   const spaceId = searchParams.get("id") || "";
@@ -99,7 +101,7 @@ function SpacePageInner() {
             className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-dark-text-muted hover:text-gray-700 dark:hover:text-dark-text dark:text-dark-text-secondary transition-colors mb-4"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            Back to Library
+            {t("common.back_to_library")}
           </button>
 
           {/* Space header */}
@@ -137,28 +139,28 @@ function SpacePageInner() {
               className="flex items-center gap-2 rounded-xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface transition-colors"
             >
               <MessageSquare className="h-4 w-4 text-yl-sky" />
-              Chat with Space
+              {t("space.chat")}
             </Link>
             <Link
               href={`/exam?spaceId=${spaceId}`}
               className="flex items-center gap-2 rounded-xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface transition-colors"
             >
               <ClipboardCheck className="h-4 w-4 text-yl-pink" />
-              Practice Exam
+              {t("space.exam")}
             </Link>
             <button
               onClick={handleUploadToSpace}
               className="flex items-center gap-2 rounded-xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface transition-colors"
             >
               <Upload className="h-4 w-4 text-gray-500 dark:text-dark-text-muted" />
-              Upload File
+              {t("space.upload_doc")}
             </button>
             <button
               onClick={handlePasteToSpace}
               className="flex items-center gap-2 rounded-xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface transition-colors"
             >
               <Link2 className="h-4 w-4 text-gray-500 dark:text-dark-text-muted" />
-              Paste Link
+              {t("space.paste_url")}
             </button>
           </div>
 
@@ -166,7 +168,7 @@ function SpacePageInner() {
           <div className="mt-8">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-sm font-semibold text-gray-900 dark:text-dark-text">
-                Documents ({space.documents.length})
+                {t("space.documents_count", { count: space.documents.length })}
               </h2>
             </div>
 
@@ -180,16 +182,17 @@ function SpacePageInner() {
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-50 dark:bg-dark-surface dark:bg-dark-surface">
                       <FileText className="h-5 w-5 text-gray-400 dark:text-dark-text-muted" />
                     </div>
-                    <Link
-                      href={`/learn?id=${doc.id}`}
-                      className="flex-1 min-w-0"
-                    >
+                    <Link href={`/learn?id=${doc.id}`} className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 dark:text-dark-text truncate hover:text-yl-blue transition-colors">
                         {doc.title}
                       </p>
                       <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-dark-text-muted">
                         <span>{doc.type.toUpperCase()}</span>
-                        {doc.pageCount > 0 && <span>{doc.pageCount} pages</span>}
+                        {doc.pageCount > 0 && (
+                          <span>
+                            {doc.pageCount} {t("doc.pages")}
+                          </span>
+                        )}
                         {doc.fileSize > 0 && (
                           <span>{(doc.fileSize / 1024 / 1024).toFixed(1)} MB</span>
                         )}
@@ -210,14 +213,22 @@ function SpacePageInner() {
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 dark:border-dark-border py-12">
-                <Image src="/images/empty-docs.png" alt="No documents" width={160} height={160} className="rounded-xl opacity-80" />
-                <p className="mt-2 text-sm text-gray-400 dark:text-dark-text-muted">No documents yet</p>
+                <Image
+                  src="/images/empty-docs.png"
+                  alt={t("space.no_docs")}
+                  width={160}
+                  height={160}
+                  className="rounded-xl opacity-80"
+                />
+                <p className="mt-2 text-sm text-gray-400 dark:text-dark-text-muted">
+                  {t("space.no_docs_desc")}
+                </p>
                 <button
                   onClick={handleUploadToSpace}
                   className="mt-3 flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-dark-text-secondary hover:text-gray-900 dark:hover:text-dark-text dark:text-dark-text"
                 >
                   <Plus className="h-3 w-3" />
-                  Add your first file
+                  {t("space.add_doc")}
                 </button>
               </div>
             )}
@@ -230,7 +241,13 @@ function SpacePageInner() {
 
 export default function SpacePage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-purple-500" /></div>}>
+    <Suspense
+      fallback={
+        <div className="flex h-screen items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-purple-500" />
+        </div>
+      }
+    >
       <SpacePageInner />
     </Suspense>
   );
