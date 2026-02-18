@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef , Suspense } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { SidebarDrawer } from "@/components/layout/sidebar-drawer";
@@ -18,10 +18,12 @@ import {
   Volume2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/components/providers/i18n-provider";
 
 type RecordState = "idle" | "recording" | "paused" | "done";
 
 function RecordPageInner() {
+  const { t } = useI18n();
   const router = useRouter();
   const searchParams = useSearchParams();
   const spaceId = searchParams.get("spaceId");
@@ -78,7 +80,12 @@ function RecordPageInner() {
   const processRecording = async () => {
     // In production: upload audio blob to /api/upload
     const formData = new FormData();
-    formData.append("text", `[Recorded Lecture - ${formatTime(elapsed)}]\n\nThis is a simulated recording transcript. In production, audio would be transcribed via Whisper API and processed into chapters and study materials.\n\nDuration: ${formatTime(elapsed)}\nRecorded at: ${new Date().toLocaleString()}`);
+    formData.append(
+      "text",
+      `[${t("record.title")} - ${formatTime(elapsed)}]\n\n${t(
+        "record.transcript_preview"
+      )}\n\n${t("record.duration")}: ${formatTime(elapsed)}\nRecorded at: ${new Date().toLocaleString()}`
+    );
     if (spaceId) formData.append("space_id", spaceId);
 
     try {
@@ -99,10 +106,14 @@ function RecordPageInner() {
   // Post-recording view with chapters + transcript
   if (state === "done") {
     const chapters = [
-      { time: "0:00", title: "Introduction", duration: "2:15" },
-      { time: "2:15", title: "Main Concepts", duration: "5:30" },
-      { time: "7:45", title: "Key Examples", duration: "4:10" },
-      { time: "11:55", title: "Summary & Review", duration: formatTime(Math.max(0, elapsed - 715)) },
+      { time: "0:00", title: t("record.chapter_1"), duration: "2:15" },
+      { time: "2:15", title: t("record.chapter_2"), duration: "5:30" },
+      { time: "7:45", title: t("record.chapter_3"), duration: "4:10" },
+      {
+        time: "11:55",
+        title: t("record.chapter_4"),
+        duration: formatTime(Math.max(0, elapsed - 715)),
+      },
     ];
 
     return (
@@ -115,8 +126,12 @@ function RecordPageInner() {
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-yl-green-bg dark:bg-yl-green-bg-dark">
                 <Mic className="h-6 w-6 text-yl-green" />
               </div>
-              <h1 className="mt-3 text-xl font-bold text-gray-900 dark:text-dark-text">Recording Complete</h1>
-              <p className="mt-1 text-sm text-gray-500 dark:text-dark-text-muted">Duration: {formatTime(elapsed)}</p>
+              <h1 className="mt-3 text-xl font-bold text-gray-900 dark:text-dark-text">
+                {t("record.recording_complete")}
+              </h1>
+              <p className="mt-1 text-sm text-gray-500 dark:text-dark-text-muted">
+                {t("record.duration")}: {formatTime(elapsed)}
+              </p>
             </div>
 
             {/* Audio playback bar */}
@@ -142,14 +157,25 @@ function RecordPageInner() {
             <div className="mt-6">
               <div className="flex items-center gap-2 mb-3">
                 <BookOpen className="h-4 w-4 text-yl-green" />
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-dark-text">Chapters</h3>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-dark-text">
+                  {t("record.chapters")}
+                </h3>
               </div>
               <div className="space-y-1.5">
                 {chapters.map((ch, i) => (
-                  <button key={i} className="flex w-full items-center gap-3 rounded-xl border border-gray-100 dark:border-dark-border p-3 text-left hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface transition-all">
-                    <span className="text-xs font-mono text-gray-400 dark:text-dark-text-muted w-10 shrink-0">{ch.time}</span>
-                    <span className="flex-1 text-sm text-gray-700 dark:text-dark-text-secondary">{ch.title}</span>
-                    <span className="text-[10px] text-gray-300 dark:text-dark-text-muted">{ch.duration}</span>
+                  <button
+                    key={i}
+                    className="flex w-full items-center gap-3 rounded-xl border border-gray-100 dark:border-dark-border p-3 text-left hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface transition-all"
+                  >
+                    <span className="text-xs font-mono text-gray-400 dark:text-dark-text-muted w-10 shrink-0">
+                      {ch.time}
+                    </span>
+                    <span className="flex-1 text-sm text-gray-700 dark:text-dark-text-secondary">
+                      {ch.title}
+                    </span>
+                    <span className="text-[10px] text-gray-300 dark:text-dark-text-muted">
+                      {ch.duration}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -159,23 +185,27 @@ function RecordPageInner() {
             <div className="mt-6">
               <div className="flex items-center gap-2 mb-3">
                 <FileText className="h-4 w-4 text-yl-sky" />
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-dark-text">Transcript</h3>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-dark-text">
+                  {t("record.transcript")}
+                </h3>
               </div>
               <div className="rounded-xl border border-gray-100 dark:border-dark-border bg-gray-50 dark:bg-dark-surface p-4">
                 <p className="text-sm text-gray-600 dark:text-dark-text-secondary leading-relaxed">
-                  Welcome to today's lecture. We'll be covering the fundamental concepts and building towards a comprehensive understanding of the material...
+                  {t("record.transcript_preview")}
                 </p>
-                <p className="mt-2 text-xs text-gray-400 dark:text-dark-text-muted">Full transcript available after processing</p>
+                <p className="mt-2 text-xs text-gray-400 dark:text-dark-text-muted">
+                  {t("record.full_transcript_available")}
+                </p>
               </div>
             </div>
 
             {/* Actions */}
             <div className="mt-6 flex gap-3">
               <button onClick={resetRecording} className="btn-pill-secondary flex-1 text-sm gap-1.5">
-                <RotateCcw className="h-3.5 w-3.5" /> Record Again
+                <RotateCcw className="h-3.5 w-3.5" /> {t("record.record_again")}
               </button>
               <button onClick={processRecording} className="btn-pill-primary flex-1 text-sm gap-1.5">
-                Start Learning <ArrowRight className="h-3.5 w-3.5" />
+                {t("record.start_learning")} <ArrowRight className="h-3.5 w-3.5" />
               </button>
             </div>
           </div>
@@ -192,21 +222,26 @@ function RecordPageInner() {
       <main className="flex flex-1 flex-col items-center justify-center px-6">
         <div className="w-full max-w-md text-center">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-dark-text">
-            {state === "idle" ? "Record your class" : "Recording..."}
+            {state === "idle" ? t("record.record_your_class") : t("record.recording")}
           </h1>
           <p className="mt-2 text-sm text-gray-500 dark:text-dark-text-muted">
             {state === "idle"
-              ? "Record lectures, study sessions, or video calls"
-              : "Tap the mic to pause, or stop to finish"
-            }
+              ? t("record.record_lectures")
+              : t("record.recording_in_progress")}
           </p>
 
           {/* Timer */}
           <div className="mt-8">
-            <span className={cn(
-              "font-mono text-4xl font-bold tabular-nums",
-              state === "recording" ? "text-gray-900 dark:text-dark-text" : state === "paused" ? "text-gray-400 dark:text-dark-text-muted" : "text-gray-300 dark:text-dark-text-muted"
-            )}>
+            <span
+              className={cn(
+                "font-mono text-4xl font-bold tabular-nums",
+                state === "recording"
+                  ? "text-gray-900 dark:text-dark-text"
+                  : state === "paused"
+                  ? "text-gray-400 dark:text-dark-text-muted"
+                  : "text-gray-300 dark:text-dark-text-muted"
+              )}
+            >
               {formatTime(elapsed)}
             </span>
           </div>
@@ -255,7 +290,9 @@ function RecordPageInner() {
           {state !== "idle" && (
             <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-gray-400 dark:text-dark-text-muted animate-fade-in">
               <Clock className="h-3 w-3" />
-              {state === "recording" ? "Recording in progress..." : "Paused"}
+              {state === "recording"
+                ? t("record.recording_in_progress")
+                : t("record.paused")}
             </p>
           )}
         </div>
@@ -266,7 +303,13 @@ function RecordPageInner() {
 
 export default function RecordPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-purple-500" /></div>}>
+    <Suspense
+      fallback={
+        <div className="flex h-screen items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-purple-500" />
+        </div>
+      }
+    >
       <RecordPageInner />
     </Suspense>
   );
