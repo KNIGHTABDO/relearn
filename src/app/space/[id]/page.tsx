@@ -18,6 +18,7 @@ import {
   Clock,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 interface SpaceData {
@@ -208,7 +209,7 @@ export default function SpacePage() {
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 dark:border-dark-border py-12">
-                <Layers className="h-8 w-8 text-gray-300 dark:text-dark-text-muted" />
+                <Image src="/images/empty-docs.png" alt="No documents" width={160} height={160} className="rounded-xl opacity-80" />
                 <p className="mt-2 text-sm text-gray-400 dark:text-dark-text-muted">No documents yet</p>
                 <button
                   onClick={handleUploadToSpace}
