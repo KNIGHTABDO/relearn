@@ -138,14 +138,14 @@ export function PDFViewer({ file, title }: PDFViewerProps) {
   return (
     <div ref={containerRef} className="flex h-full flex-col">
       {/* Toolbar */}
-      <div className="flex h-11 shrink-0 items-center justify-between border-b border-gray-100 px-3 md:px-4 gap-2">
+      <div className="flex h-11 shrink-0 items-center justify-between border-b border-gray-100 dark:border-dark-border px-3 md:px-4 gap-2">
         <div className="flex items-center gap-2 md:gap-3 min-w-0">
           {/* Listen */}
           <button
             onClick={toggleListen}
             className={cn(
               "flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-medium transition-all shrink-0",
-              isListening ? "bg-black text-white" : "text-gray-600 hover:bg-gray-50"
+              isListening ? "bg-black text-white" : "text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface dark:bg-dark-surface"
             )}
           >
             {isListening ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
@@ -154,21 +154,21 @@ export function PDFViewer({ file, title }: PDFViewerProps) {
 
           {isListening && (
             <div className="flex items-center gap-2 animate-fade-in">
-              <div className="h-1 w-16 md:w-24 rounded-full bg-gray-200 overflow-hidden">
+              <div className="h-1 w-16 md:w-24 rounded-full bg-gray-200 dark:bg-dark-border overflow-hidden">
                 <div className="h-full rounded-full bg-black transition-all" style={{ width: `${listenProgress}%` }} />
               </div>
-              <Volume2 className="h-3 w-3 text-gray-400 hidden sm:block" />
+              <Volume2 className="h-3 w-3 text-gray-400 dark:text-dark-text-muted hidden sm:block" />
             </div>
           )}
         </div>
 
         <div className="flex items-center gap-1.5 md:gap-3 shrink-0">
           {/* Page navigation */}
-          <div className="flex items-center gap-1 text-xs text-gray-500">
+          <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-dark-text-muted">
             <button
               onClick={() => { const p = Math.max(1, currentPage - 1); setCurrentPage(p); scrollToPage(p); }}
               disabled={currentPage <= 1}
-              className="flex h-6 w-6 items-center justify-center rounded hover:bg-gray-100 disabled:opacity-30"
+              className="flex h-6 w-6 items-center justify-center rounded hover:bg-gray-100 dark:hover:bg-dark-hover dark:bg-dark-card disabled:opacity-30"
             >
               <ChevronUp className="h-3 w-3" />
             </button>
@@ -178,24 +178,24 @@ export function PDFViewer({ file, title }: PDFViewerProps) {
             <button
               onClick={() => { const p = Math.min(numPages, currentPage + 1); setCurrentPage(p); scrollToPage(p); }}
               disabled={currentPage >= numPages}
-              className="flex h-6 w-6 items-center justify-center rounded hover:bg-gray-100 disabled:opacity-30"
+              className="flex h-6 w-6 items-center justify-center rounded hover:bg-gray-100 dark:hover:bg-dark-hover dark:bg-dark-card disabled:opacity-30"
             >
               <ChevronDown className="h-3 w-3" />
             </button>
           </div>
 
           {/* Zoom controls */}
-          <div className="flex items-center gap-0.5 border-l border-gray-200 pl-1.5 md:pl-3">
+          <div className="flex items-center gap-0.5 border-l border-gray-200 dark:border-dark-border pl-1.5 md:pl-3">
             <button
               onClick={() => setScale((s) => Math.max(0.25, s - 0.25))}
-              className="flex h-7 w-7 items-center justify-center rounded hover:bg-gray-100"
+              className="flex h-7 w-7 items-center justify-center rounded hover:bg-gray-100 dark:hover:bg-dark-hover dark:bg-dark-card"
             >
-              <Minus className="h-3 w-3 text-gray-500" />
+              <Minus className="h-3 w-3 text-gray-500 dark:text-dark-text-muted" />
             </button>
             <div className="relative">
               <button
                 onClick={() => { setShowZoomDropdown(!showZoomDropdown); setShowMoreMenu(false); }}
-                className="flex items-center gap-0.5 rounded px-1.5 py-1 text-xs text-gray-600 hover:bg-gray-50 tabular-nums min-w-[4ch]"
+                className="flex items-center gap-0.5 rounded px-1.5 py-1 text-xs text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface tabular-nums min-w-[4ch]"
               >
                 {zoomLabel}
                 <ChevronDown className="h-2.5 w-2.5" />
@@ -203,14 +203,14 @@ export function PDFViewer({ file, title }: PDFViewerProps) {
               {showZoomDropdown && (
                 <>
                   <div className="fixed inset-0 z-30" onClick={() => setShowZoomDropdown(false)} />
-                  <div className="absolute right-0 top-full z-40 mt-1 w-24 rounded-xl border border-gray-200 bg-white py-1 shadow-lg animate-fade-in">
+                  <div className="absolute right-0 top-full z-40 mt-1 w-24 rounded-xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg py-1 shadow-lg animate-fade-in">
                     {ZOOM_LEVELS.map((z) => (
                       <button
                         key={z.value}
                         onClick={() => { setScale(z.value); setShowZoomDropdown(false); }}
                         className={cn(
                           "flex w-full items-center justify-between px-3 py-1.5 text-xs transition-colors",
-                          scale === z.value ? "bg-gray-50 font-medium" : "text-gray-600 hover:bg-gray-50"
+                          scale === z.value ? "bg-gray-50 dark:bg-dark-surface font-medium" : "text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface dark:bg-dark-surface"
                         )}
                       >
                         <span>{z.label}</span>
@@ -223,28 +223,28 @@ export function PDFViewer({ file, title }: PDFViewerProps) {
             </div>
             <button
               onClick={() => setScale((s) => Math.min(3, s + 0.25))}
-              className="flex h-7 w-7 items-center justify-center rounded hover:bg-gray-100"
+              className="flex h-7 w-7 items-center justify-center rounded hover:bg-gray-100 dark:hover:bg-dark-hover dark:bg-dark-card"
             >
-              <Plus className="h-3 w-3 text-gray-500" />
+              <Plus className="h-3 w-3 text-gray-500 dark:text-dark-text-muted" />
             </button>
           </div>
 
           {/* More menu */}
-          <div className="relative border-l border-gray-200 pl-1.5">
+          <div className="relative border-l border-gray-200 dark:border-dark-border pl-1.5">
             <button
               onClick={() => { setShowMoreMenu(!showMoreMenu); setShowZoomDropdown(false); }}
-              className="flex h-7 w-7 items-center justify-center rounded-lg hover:bg-gray-50"
+              className="flex h-7 w-7 items-center justify-center rounded-lg hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface dark:bg-dark-surface"
             >
-              <MoreVertical className="h-3.5 w-3.5 text-gray-500" />
+              <MoreVertical className="h-3.5 w-3.5 text-gray-500 dark:text-dark-text-muted" />
             </button>
             {showMoreMenu && (
               <>
                 <div className="fixed inset-0 z-30" onClick={() => setShowMoreMenu(false)} />
-                <div className="absolute right-0 top-full z-40 mt-1 w-40 rounded-xl border border-gray-200 bg-white py-1 shadow-lg animate-fade-in">
-                  <button className="flex w-full items-center gap-2 px-3 py-2 text-xs text-gray-600 hover:bg-gray-50">
+                <div className="absolute right-0 top-full z-40 mt-1 w-40 rounded-xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg py-1 shadow-lg animate-fade-in">
+                  <button className="flex w-full items-center gap-2 px-3 py-2 text-xs text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface dark:bg-dark-surface">
                     <Download className="h-3.5 w-3.5" /> Download
                   </button>
-                  <button className="flex w-full items-center gap-2 px-3 py-2 text-xs text-gray-600 hover:bg-gray-50">
+                  <button className="flex w-full items-center gap-2 px-3 py-2 text-xs text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface dark:bg-dark-surface">
                     <Printer className="h-3.5 w-3.5" /> Print
                   </button>
                 </div>
@@ -255,10 +255,10 @@ export function PDFViewer({ file, title }: PDFViewerProps) {
       </div>
 
       {/* PDF Pages Scroll Area */}
-      <div ref={scrollRef} className="flex-1 overflow-auto bg-gray-100">
+      <div ref={scrollRef} className="flex-1 overflow-auto bg-gray-100 dark:bg-dark-border">
         {!file ? (
           <div className="flex h-full items-center justify-center">
-            <p className="text-sm text-gray-400">No PDF file loaded</p>
+            <p className="text-sm text-gray-400 dark:text-dark-text-muted">No PDF file loaded</p>
           </div>
         ) : (
           <Document
@@ -267,13 +267,13 @@ export function PDFViewer({ file, title }: PDFViewerProps) {
             onLoadError={onDocumentLoadError}
             loading={
               <div className="flex h-full items-center justify-center py-20">
-                <Loader2 className="h-8 w-8 animate-spin text-gray-300" />
+                <Loader2 className="h-8 w-8 animate-spin text-gray-300 dark:text-dark-text-muted" />
               </div>
             }
             error={
               <div className="flex h-full flex-col items-center justify-center py-20">
-                <AlertCircle className="h-8 w-8 text-gray-300" />
-                <p className="mt-2 text-sm text-gray-500">Failed to load PDF</p>
+                <AlertCircle className="h-8 w-8 text-gray-300 dark:text-dark-text-muted" />
+                <p className="mt-2 text-sm text-gray-500 dark:text-dark-text-muted">Failed to load PDF</p>
               </div>
             }
           >
@@ -282,7 +282,7 @@ export function PDFViewer({ file, title }: PDFViewerProps) {
                 <div
                   key={i + 1}
                   id={`pdf-page-${i + 1}`}
-                  className="shadow-md bg-white rounded-sm"
+                  className="shadow-md bg-white dark:bg-dark-bg rounded-sm"
                 >
                   <Page
                     pageNumber={i + 1}
@@ -291,7 +291,7 @@ export function PDFViewer({ file, title }: PDFViewerProps) {
                     renderAnnotationLayer={true}
                     loading={
                       <div
-                        className="flex items-center justify-center bg-white"
+                        className="flex items-center justify-center bg-white dark:bg-dark-bg dark:bg-dark-bg"
                         style={{ width: pageWidth, height: pageWidth * 1.414 }}
                       >
                         <Loader2 className="h-6 w-6 animate-spin text-gray-200" />
