@@ -106,35 +106,35 @@ export default function RecordPage() {
     ];
 
     return (
-      <div className="flex h-screen flex-col bg-white">
+      <div className="flex h-screen flex-col bg-white dark:bg-dark-bg dark:bg-dark-bg">
         <Header onMenuClick={() => setSidebarOpen(true)} />
         <SidebarDrawer open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         <main className="flex flex-1 flex-col items-center overflow-y-auto px-6 py-8">
           <div className="w-full max-w-lg">
             <div className="text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-yl-green-bg">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-yl-green-bg dark:bg-yl-green-bg-dark">
                 <Mic className="h-6 w-6 text-yl-green" />
               </div>
-              <h1 className="mt-3 text-xl font-bold text-gray-900">Recording Complete</h1>
-              <p className="mt-1 text-sm text-gray-500">Duration: {formatTime(elapsed)}</p>
+              <h1 className="mt-3 text-xl font-bold text-gray-900 dark:text-dark-text">Recording Complete</h1>
+              <p className="mt-1 text-sm text-gray-500 dark:text-dark-text-muted">Duration: {formatTime(elapsed)}</p>
             </div>
 
             {/* Audio playback bar */}
-            <div className="mt-6 rounded-xl border border-gray-200 p-4">
+            <div className="mt-6 rounded-xl border border-gray-200 dark:border-dark-border p-4">
               <div className="flex items-center gap-3">
                 <button className="flex h-10 w-10 items-center justify-center rounded-full bg-black text-white hover:bg-gray-800">
                   <Play className="h-4 w-4 ml-0.5" />
                 </button>
                 <div className="flex-1">
-                  <div className="h-1.5 w-full rounded-full bg-gray-200">
+                  <div className="h-1.5 w-full rounded-full bg-gray-200 dark:bg-dark-border">
                     <div className="h-full w-0 rounded-full bg-black" />
                   </div>
-                  <div className="mt-1 flex justify-between text-[10px] text-gray-400">
+                  <div className="mt-1 flex justify-between text-[10px] text-gray-400 dark:text-dark-text-muted">
                     <span>0:00</span>
                     <span>{formatTime(elapsed)}</span>
                   </div>
                 </div>
-                <Volume2 className="h-4 w-4 text-gray-400" />
+                <Volume2 className="h-4 w-4 text-gray-400 dark:text-dark-text-muted" />
               </div>
             </div>
 
@@ -142,14 +142,14 @@ export default function RecordPage() {
             <div className="mt-6">
               <div className="flex items-center gap-2 mb-3">
                 <BookOpen className="h-4 w-4 text-yl-green" />
-                <h3 className="text-sm font-semibold text-gray-900">Chapters</h3>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-dark-text">Chapters</h3>
               </div>
               <div className="space-y-1.5">
                 {chapters.map((ch, i) => (
-                  <button key={i} className="flex w-full items-center gap-3 rounded-xl border border-gray-100 p-3 text-left hover:bg-gray-50 transition-all">
-                    <span className="text-xs font-mono text-gray-400 w-10 shrink-0">{ch.time}</span>
-                    <span className="flex-1 text-sm text-gray-700">{ch.title}</span>
-                    <span className="text-[10px] text-gray-300">{ch.duration}</span>
+                  <button key={i} className="flex w-full items-center gap-3 rounded-xl border border-gray-100 dark:border-dark-border p-3 text-left hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface transition-all">
+                    <span className="text-xs font-mono text-gray-400 dark:text-dark-text-muted w-10 shrink-0">{ch.time}</span>
+                    <span className="flex-1 text-sm text-gray-700 dark:text-dark-text-secondary">{ch.title}</span>
+                    <span className="text-[10px] text-gray-300 dark:text-dark-text-muted">{ch.duration}</span>
                   </button>
                 ))}
               </div>
@@ -159,13 +159,13 @@ export default function RecordPage() {
             <div className="mt-6">
               <div className="flex items-center gap-2 mb-3">
                 <FileText className="h-4 w-4 text-yl-sky" />
-                <h3 className="text-sm font-semibold text-gray-900">Transcript</h3>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-dark-text">Transcript</h3>
               </div>
-              <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
-                <p className="text-sm text-gray-600 leading-relaxed">
+              <div className="rounded-xl border border-gray-100 dark:border-dark-border bg-gray-50 dark:bg-dark-surface p-4">
+                <p className="text-sm text-gray-600 dark:text-dark-text-secondary leading-relaxed">
                   Welcome to today's lecture. We'll be covering the fundamental concepts and building towards a comprehensive understanding of the material...
                 </p>
-                <p className="mt-2 text-xs text-gray-400">Full transcript available after processing</p>
+                <p className="mt-2 text-xs text-gray-400 dark:text-dark-text-muted">Full transcript available after processing</p>
               </div>
             </div>
 
@@ -186,15 +186,15 @@ export default function RecordPage() {
 
   // Recording / Idle view
   return (
-    <div className="flex h-screen flex-col bg-white">
+    <div className="flex h-screen flex-col bg-white dark:bg-dark-bg dark:bg-dark-bg">
       <Header onMenuClick={() => setSidebarOpen(true)} />
       <SidebarDrawer open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <main className="flex flex-1 flex-col items-center justify-center px-6">
         <div className="w-full max-w-md text-center">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-dark-text">
             {state === "idle" ? "Record your class" : "Recording..."}
           </h1>
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-gray-500 dark:text-dark-text-muted">
             {state === "idle"
               ? "Record lectures, study sessions, or video calls"
               : "Tap the mic to pause, or stop to finish"
@@ -205,7 +205,7 @@ export default function RecordPage() {
           <div className="mt-8">
             <span className={cn(
               "font-mono text-4xl font-bold tabular-nums",
-              state === "recording" ? "text-gray-900" : state === "paused" ? "text-gray-400" : "text-gray-300"
+              state === "recording" ? "text-gray-900 dark:text-dark-text" : state === "paused" ? "text-gray-400 dark:text-dark-text-muted" : "text-gray-300 dark:text-dark-text-muted"
             )}>
               {formatTime(elapsed)}
             </span>
@@ -218,7 +218,7 @@ export default function RecordPage() {
                 key={i}
                 className={cn(
                   "w-1.5 rounded-full transition-all duration-100",
-                  state === "recording" ? "bg-black" : "bg-gray-200"
+                  state === "recording" ? "bg-black" : "bg-gray-200 dark:bg-dark-border"
                 )}
                 style={{ height: `${h}px` }}
               />
@@ -238,7 +238,7 @@ export default function RecordPage() {
               <>
                 <button
                   onClick={state === "recording" ? pauseRecording : resumeRecording}
-                  className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition-all"
+                  className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface transition-all"
                 >
                   {state === "recording" ? <Pause className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
                 </button>
@@ -253,7 +253,7 @@ export default function RecordPage() {
           </div>
 
           {state !== "idle" && (
-            <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-gray-400 animate-fade-in">
+            <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-gray-400 dark:text-dark-text-muted animate-fade-in">
               <Clock className="h-3 w-3" />
               {state === "recording" ? "Recording in progress..." : "Paused"}
             </p>
