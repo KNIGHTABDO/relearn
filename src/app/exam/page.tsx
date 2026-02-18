@@ -92,10 +92,10 @@ export default function ExamPage() {
 
   if (loading || !exam) {
     return (
-      <div className="flex h-screen flex-col bg-white">
+      <div className="flex h-screen flex-col bg-white dark:bg-dark-bg dark:bg-dark-bg">
         <Header onMenuClick={() => setSidebarOpen(true)} />
         <div className="flex flex-1 items-center justify-center">
-          <ClipboardCheck className="h-8 w-8 text-gray-300 animate-pulse" />
+          <ClipboardCheck className="h-8 w-8 text-gray-300 dark:text-dark-text-muted animate-pulse" />
         </div>
       </div>
     );
@@ -128,25 +128,25 @@ export default function ExamPage() {
   // Pre-exam screen
   if (!started) {
     return (
-      <div className="flex h-screen flex-col bg-white">
+      <div className="flex h-screen flex-col bg-white dark:bg-dark-bg dark:bg-dark-bg">
         <Header onMenuClick={() => setSidebarOpen(true)} />
         <SidebarDrawer open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         <main className="flex flex-1 flex-col items-center justify-center px-6">
           <div className="w-full max-w-md text-center">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-yl-pink-bg">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-yl-pink-bg dark:bg-yl-pink-bg-dark">
               <ClipboardCheck className="h-7 w-7 text-yl-pink" />
             </div>
-            <h1 className="mt-4 text-2xl font-bold text-gray-900">{exam.title}</h1>
-            <p className="mt-2 text-sm text-gray-500">
+            <h1 className="mt-4 text-2xl font-bold text-gray-900 dark:text-dark-text">{exam.title}</h1>
+            <p className="mt-2 text-sm text-gray-500 dark:text-dark-text-muted">
               {exam.questions.length} questions • {exam.timeLimit} minutes
             </p>
-            <div className="mt-4 rounded-xl bg-gray-50 p-4">
-              <p className="text-xs font-medium uppercase tracking-wider text-gray-400 mb-2">
+            <div className="mt-4 rounded-xl bg-gray-50 dark:bg-dark-surface p-4">
+              <p className="text-xs font-medium uppercase tracking-wider text-gray-400 dark:text-dark-text-muted mb-2">
                 Documents Covered
               </p>
               <div className="space-y-1">
                 {exam.documentsCovered.map((doc, i) => (
-                  <p key={i} className="text-sm text-gray-600">{doc}</p>
+                  <p key={i} className="text-sm text-gray-600 dark:text-dark-text-secondary">{doc}</p>
                 ))}
               </div>
             </div>
@@ -158,7 +158,7 @@ export default function ExamPage() {
             </button>
             <button
               onClick={() => router.back()}
-              className="mt-3 flex items-center justify-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 mx-auto"
+              className="mt-3 flex items-center justify-center gap-1.5 text-xs text-gray-400 dark:text-dark-text-muted hover:text-gray-600 dark:hover:text-dark-text-secondary dark:text-dark-text-secondary mx-auto"
             >
               <ArrowLeft className="h-3 w-3" />
               Back to space
@@ -174,21 +174,21 @@ export default function ExamPage() {
     const total = exam.questions.length;
     const pct = Math.round((score / total) * 100);
     return (
-      <div className="flex h-screen flex-col bg-white">
+      <div className="flex h-screen flex-col bg-white dark:bg-dark-bg dark:bg-dark-bg">
         <Header onMenuClick={() => setSidebarOpen(true)} />
         <main className="flex flex-1 flex-col items-center justify-center px-6">
           <div className="w-full max-w-md text-center">
             <div className={cn(
               "mx-auto flex h-16 w-16 items-center justify-center rounded-full",
-              pct >= 80 ? "bg-yl-green-bg" : pct >= 50 ? "bg-yl-gold-bg" : "bg-yl-pink-bg"
+              pct >= 80 ? "bg-yl-green-bg dark:bg-yl-green-bg-dark" : pct >= 50 ? "bg-yl-gold-bg dark:bg-yl-gold-bg-dark" : "bg-yl-pink-bg dark:bg-yl-pink-bg-dark"
             )}>
               <Trophy className={cn(
                 "h-7 w-7",
                 pct >= 80 ? "text-yl-green" : pct >= 50 ? "text-yl-gold" : "text-yl-pink"
               )} />
             </div>
-            <h2 className="mt-4 text-2xl font-bold text-gray-900">Exam Complete!</h2>
-            <p className="mt-1 text-sm text-gray-500">
+            <h2 className="mt-4 text-2xl font-bold text-gray-900 dark:text-dark-text">Exam Complete!</h2>
+            <p className="mt-1 text-sm text-gray-500 dark:text-dark-text-muted">
               You scored {score} out of {total} ({pct}%)
             </p>
             <div className="mt-6 flex justify-center gap-3">
@@ -221,18 +221,18 @@ export default function ExamPage() {
 
   // Exam in progress
   return (
-    <div className="flex h-screen flex-col bg-white">
+    <div className="flex h-screen flex-col bg-white dark:bg-dark-bg dark:bg-dark-bg">
       <Header title={exam.title} onMenuClick={() => setSidebarOpen(true)} />
       <main className="flex flex-1 flex-col items-center px-6 py-6">
         <div className="w-full max-w-lg">
           {/* Timer + Progress */}
           <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-medium text-gray-600">
+            <span className="text-sm font-medium text-gray-600 dark:text-dark-text-secondary">
               Question {currentIndex + 1} of {exam.questions.length}
             </span>
             <span className={cn(
               "flex items-center gap-1 text-sm font-medium",
-              timeLeft < 120 ? "text-yl-pink" : "text-gray-600"
+              timeLeft < 120 ? "text-yl-pink" : "text-gray-600 dark:text-dark-text-secondary"
             )}>
               <Clock className="h-3.5 w-3.5" />
               {formatTime(timeLeft)}
@@ -240,7 +240,7 @@ export default function ExamPage() {
           </div>
 
           {/* Progress bar */}
-          <div className="mb-6 h-1.5 w-full rounded-full bg-gray-100 overflow-hidden">
+          <div className="mb-6 h-1.5 w-full rounded-full bg-gray-100 dark:bg-dark-card overflow-hidden">
             <div
               className="h-full rounded-full bg-yl-pink transition-all duration-300"
               style={{ width: \`\${((currentIndex + 1) / exam.questions.length) * 100}%\` }}
@@ -248,7 +248,7 @@ export default function ExamPage() {
           </div>
 
           {/* Question */}
-          <p className="text-base font-medium text-gray-900 leading-relaxed mb-6">
+          <p className="text-base font-medium text-gray-900 dark:text-dark-text leading-relaxed mb-6">
             {currentQ.question}
           </p>
 
@@ -269,11 +269,11 @@ export default function ExamPage() {
                     "flex w-full items-center gap-3 rounded-xl border p-4 text-left text-sm transition-all",
                     hasAnswered
                       ? isCorrect
-                        ? "border-green-200 bg-yl-green-bg"
+                        ? "border-green-200 bg-yl-green-bg dark:bg-yl-green-bg-dark"
                         : isSelected
-                        ? "border-red-200 bg-yl-pink-bg"
-                        : "border-gray-100 bg-white opacity-50"
-                      : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
+                        ? "border-red-200 bg-yl-pink-bg dark:bg-yl-pink-bg-dark"
+                        : "border-gray-100 dark:border-dark-border bg-white dark:bg-dark-bg opacity-50"
+                      : "border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg hover:border-gray-300 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface dark:bg-dark-surface"
                   )}
                 >
                   <div className={cn(
@@ -281,8 +281,8 @@ export default function ExamPage() {
                     hasAnswered
                       ? isCorrect ? "border-green-300 bg-yl-green text-white"
                       : isSelected ? "border-red-300 bg-yl-pink text-white"
-                      : "border-gray-200 text-gray-400"
-                    : "border-gray-200 text-gray-500"
+                      : "border-gray-200 dark:border-dark-border text-gray-400 dark:text-dark-text-muted"
+                    : "border-gray-200 dark:border-dark-border text-gray-500 dark:text-dark-text-muted"
                   )}>
                     {hasAnswered ? (
                       isCorrect ? <Check className="h-3.5 w-3.5" /> :
@@ -300,11 +300,11 @@ export default function ExamPage() {
 
           {/* Explanation */}
           {showResult && (
-            <div className="mt-4 rounded-xl border border-gray-100 bg-gray-50 p-4 animate-fade-in">
-              <p className="text-xs font-medium uppercase tracking-wider text-gray-400 mb-1">Explanation</p>
-              <p className="text-sm text-gray-700 leading-relaxed">{currentQ.explanation}</p>
+            <div className="mt-4 rounded-xl border border-gray-100 dark:border-dark-border bg-gray-50 dark:bg-dark-surface p-4 animate-fade-in">
+              <p className="text-xs font-medium uppercase tracking-wider text-gray-400 dark:text-dark-text-muted mb-1">Explanation</p>
+              <p className="text-sm text-gray-700 dark:text-dark-text-secondary leading-relaxed">{currentQ.explanation}</p>
               {currentQ.source && (
-                <p className="mt-2 text-xs text-gray-400">Source: {currentQ.source}</p>
+                <p className="mt-2 text-xs text-gray-400 dark:text-dark-text-muted">Source: {currentQ.source}</p>
               )}
             </div>
           )}
