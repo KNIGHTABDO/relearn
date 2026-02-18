@@ -62,24 +62,6 @@ interface GenerateCard {
   badge?: string;
 }
 
-const generateCards: GenerateCard[] = [
-  { title: t("learn.podcast"), icon: Headphones, color: "bg-yl-purple-bg dark:bg-yl-purple-bg-dark text-yl-purple", hasSettings: true, view: "podcast" },
-  { title: t("learn.voice_tutor"), icon: Mic, color: "bg-yl-pink-bg dark:bg-yl-pink-bg-dark text-yl-pink", view: "voice-tutor", badge: t("common.new") },
-  { title: t("learn.summary"), icon: FileText, color: "bg-yl-sky-bg dark:bg-yl-sky-bg-dark text-yl-sky", hasSettings: true, view: "summary" },
-  { title: t("learn.quiz"), icon: ClipboardCheck, color: "bg-yl-pink-bg dark:bg-yl-pink-bg-dark text-yl-pink", hasSettings: true, view: "quiz" },
-  { title: t("learn.flashcards"), icon: Layers, color: "bg-yl-orange-bg dark:bg-yl-orange-bg-dark text-yl-orange", hasSettings: true, view: "flashcards" },
-  { title: t("learn.spaced"), icon: RefreshCw, color: "bg-yl-green-bg dark:bg-yl-green-bg-dark text-yl-green", view: "spaced-repetition", badge: "New" },
-  { title: t("learn.mindmap"), icon: Image, color: "bg-yl-teal-bg dark:bg-yl-teal-bg-dark text-yl-teal", view: "infographic", badge: "New" },
-  { title: t("learn.report"), icon: FileBarChart, color: "bg-yl-blue-bg dark:bg-yl-blue-bg-dark text-yl-blue", view: "study-report" },
-  { title: t("learn.notes"), icon: StickyNote, color: "bg-yl-gold-bg dark:bg-yl-gold-bg-dark text-yl-gold", hasArrow: true, view: "notes" },
-  { title: t("learn.snap_problem"), icon: Camera, color: "bg-yl-orange-bg dark:bg-yl-orange-bg-dark text-yl-orange", view: "snap-problem", badge: "New" },
-  { title: t("learn.study_planner"), icon: Brain, color: "bg-yl-purple-bg dark:bg-yl-purple-bg-dark text-yl-purple", view: "study-planner", badge: "AI" },
-  { title: t("learn.collaborate"), icon: Users, color: "bg-yl-sky-bg dark:bg-yl-sky-bg-dark text-yl-sky", view: "collab", badge: "New" },
-];
-
-const fullWidthCards: GenerateCard[] = [
-  { title: t("learn.chapters"), icon: BookOpen, color: "bg-yl-green-bg dark:bg-yl-green-bg-dark text-yl-green", hasArrow: true, view: "chapters" },
-];
 
 interface LearningPanelProps {
   documentId?: string;
@@ -111,6 +93,24 @@ function renderWithSources(text: string): React.ReactNode[] {
 
 export function LearningPanel({ documentId, spaceId, className }: LearningPanelProps) {
   const { t } = useI18n();
+const generateCards: GenerateCard[] = [
+  { title: t("learn.podcast"), icon: Headphones, color: "bg-yl-purple-bg dark:bg-yl-purple-bg-dark text-yl-purple", hasSettings: true, view: "podcast" },
+  { title: t("learn.voice_tutor"), icon: Mic, color: "bg-yl-pink-bg dark:bg-yl-pink-bg-dark text-yl-pink", view: "voice-tutor", badge: t("common.new") },
+  { title: t("learn.summary"), icon: FileText, color: "bg-yl-sky-bg dark:bg-yl-sky-bg-dark text-yl-sky", hasSettings: true, view: "summary" },
+  { title: t("learn.quiz"), icon: ClipboardCheck, color: "bg-yl-pink-bg dark:bg-yl-pink-bg-dark text-yl-pink", hasSettings: true, view: "quiz" },
+  { title: t("learn.flashcards"), icon: Layers, color: "bg-yl-orange-bg dark:bg-yl-orange-bg-dark text-yl-orange", hasSettings: true, view: "flashcards" },
+  { title: t("learn.spaced"), icon: RefreshCw, color: "bg-yl-green-bg dark:bg-yl-green-bg-dark text-yl-green", view: "spaced-repetition", badge: "New" },
+  { title: t("learn.mindmap"), icon: Image, color: "bg-yl-teal-bg dark:bg-yl-teal-bg-dark text-yl-teal", view: "infographic", badge: "New" },
+  { title: t("learn.report"), icon: FileBarChart, color: "bg-yl-blue-bg dark:bg-yl-blue-bg-dark text-yl-blue", view: "study-report" },
+  { title: t("learn.notes"), icon: StickyNote, color: "bg-yl-gold-bg dark:bg-yl-gold-bg-dark text-yl-gold", hasArrow: true, view: "notes" },
+  { title: t("learn.snap_problem"), icon: Camera, color: "bg-yl-orange-bg dark:bg-yl-orange-bg-dark text-yl-orange", view: "snap-problem", badge: "New" },
+  { title: t("learn.study_planner"), icon: Brain, color: "bg-yl-purple-bg dark:bg-yl-purple-bg-dark text-yl-purple", view: "study-planner", badge: "AI" },
+  { title: t("learn.collaborate"), icon: Users, color: "bg-yl-sky-bg dark:bg-yl-sky-bg-dark text-yl-sky", view: "collab", badge: "New" },
+];
+
+const fullWidthCards: GenerateCard[] = [
+  { title: t("learn.chapters"), icon: BookOpen, color: "bg-yl-green-bg dark:bg-yl-green-bg-dark text-yl-green", hasArrow: true, view: "chapters" },
+];
   const [activeView, setActiveView] = useState<ActiveView>("generate");
   const [chatInput, setChatInput] = useState("");
   const [summaryData, setSummaryData] = useState<any>(null);
