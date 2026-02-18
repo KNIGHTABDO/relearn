@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   X,
@@ -12,6 +12,7 @@ import {
   Settings,
   HelpCircle,
   Home,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +29,38 @@ interface SidebarDrawerProps {
 }
 
 export function SidebarDrawer({ open, onClose, spaces = [] }: SidebarDrawerProps) {
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any>(null);
+  const [searching, setSearching] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (showSearch && searchRef.current) searchRef.current.focus();
+  }, [showSearch]);
+
+  useEffect(() => {
+    if (!searchQuery.trim()) { setSearchResults(null); return; }
+    const timeout = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}`);
+        const data = await res.json();
+        setSearchResults(data);
+      } catch { setSearchResults(null); }
+      setSearching(false);
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [searchQuery]);
+
+  // Mock recent history
+  const recentItems = [
+    { id: "doc-genetics", title: "The Genetic Code & Translation", type: "pdf" },
+    { id: "doc-algo", title: "Algorithms & Data Structures", type: "pdf" },
+    { id: "doc-cell", title: "Cell Division & Mitosis", type: "pdf" },
+  ];
+
   return (
     <>
       {open && (
@@ -41,7 +74,7 @@ export function SidebarDrawer({ open, onClose, spaces = [] }: SidebarDrawerProps
       >
         {/* Header */}
         <div className="flex h-14 items-center justify-between px-4">
-          <Link href="/" className="flex items-center gap-1.5">
+          <Link href="/" className="flex items-center gap-1.5" onClick={onClose}>
             <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
               <path d="M7 6C7 6 9 6 10 10C11 14 9 20 9 20" stroke="black" strokeWidth="2.5" strokeLinecap="round" />
               <path d="M14 6C14 6 16 6 17 10C18 14 16 20 16 20" stroke="black" strokeWidth="2.5" strokeLinecap="round" />
@@ -57,6 +90,7 @@ export function SidebarDrawer({ open, onClose, spaces = [] }: SidebarDrawerProps
         <div className="px-3 py-2">
           <Link
             href="/upload"
+            onClick={onClose}
             className="flex w-full items-center gap-2 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-50"
           >
             <Plus className="h-4 w-4" />
@@ -66,18 +100,103 @@ export function SidebarDrawer({ open, onClose, spaces = [] }: SidebarDrawerProps
 
         {/* Nav */}
         <div className="px-3 py-1">
-          <Link href="/" className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-gray-600 hover:bg-gray-50">
+          <Link href="/" onClick={onClose} className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-gray-600 hover:bg-gray-50">
             <Home className="h-4 w-4" />
             <span>Home</span>
           </Link>
-          <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-gray-600 hover:bg-gray-50">
+
+          {/* Search */}
+          <button
+            onClick={() => { setShowSearch(!showSearch); setShowHistory(false); }}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-gray-600 hover:bg-gray-50"
+          >
             <Search className="h-4 w-4" />
             <span>Search</span>
           </button>
-          <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-gray-600 hover:bg-gray-50">
+
+          {showSearch && (
+            <div className="px-1 py-1 animate-fade-in">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+                <input
+                  ref={searchRef}
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search spaces & docs..."
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-xs text-gray-700 outline-none focus:border-gray-300"
+                />
+                {searching && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-3 w-3 animate-spin text-gray-400" />}
+              </div>
+              {searchResults && (
+                <div className="mt-1.5 max-h-48 overflow-y-auto rounded-lg border border-gray-100 bg-white">
+                  {searchResults.spaces?.length > 0 && (
+                    <div className="p-2">
+                      <p className="px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-gray-400">Spaces</p>
+                      {searchResults.spaces.map((s: any) => (
+                        <Link
+                          key={s.id}
+                          href={`/space/${s.id}`}
+                          onClick={onClose}
+                          className="flex items-center gap-2 rounded-md px-2 py-1.5 text-xs text-gray-600 hover:bg-gray-50"
+                        >
+                          <span>{s.icon}</span>
+                          <span className="truncate">{s.name}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                  {searchResults.documents?.length > 0 && (
+                    <div className="border-t border-gray-50 p-2">
+                      <p className="px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-gray-400">Documents</p>
+                      {searchResults.documents.map((d: any) => (
+                        <Link
+                          key={d.id}
+                          href={`/learn?id=${d.id}`}
+                          onClick={onClose}
+                          className="flex items-center gap-2 rounded-md px-2 py-1.5 text-xs text-gray-600 hover:bg-gray-50"
+                        >
+                          <FileText className="h-3 w-3 text-gray-400" />
+                          <span className="truncate">{d.title}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                  {searchResults.spaces?.length === 0 && searchResults.documents?.length === 0 && searchQuery && (
+                    <p className="p-3 text-center text-xs text-gray-400">No results found</p>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* History */}
+          <button
+            onClick={() => { setShowHistory(!showHistory); setShowSearch(false); }}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-gray-600 hover:bg-gray-50"
+          >
             <Clock className="h-4 w-4" />
             <span>History</span>
           </button>
+
+          {showHistory && (
+            <div className="px-1 py-1 animate-fade-in">
+              <div className="rounded-lg border border-gray-100 bg-white">
+                {recentItems.map((item) => (
+                  <Link
+                    key={item.id}
+                    href={`/learn?id=${item.id}`}
+                    onClick={onClose}
+                    className="flex items-center gap-2 px-3 py-2 text-xs text-gray-600 hover:bg-gray-50 border-b border-gray-50 last:border-b-0"
+                  >
+                    <FileText className="h-3 w-3 text-gray-400 shrink-0" />
+                    <span className="truncate">{item.title}</span>
+                    <span className="ml-auto text-[10px] text-gray-300 uppercase shrink-0">{item.type}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Spaces */}
@@ -88,7 +207,7 @@ export function SidebarDrawer({ open, onClose, spaces = [] }: SidebarDrawerProps
           {spaces.map((space) => (
             <Link
               key={space.id}
-              href={\`/space/\${space.id}\`}
+              href={`/space/${space.id}`}
               onClick={onClose}
               className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
             >
@@ -104,10 +223,10 @@ export function SidebarDrawer({ open, onClose, spaces = [] }: SidebarDrawerProps
 
         {/* Bottom */}
         <div className="border-t border-gray-100 p-3">
-          <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-600 hover:bg-gray-50">
+          <Link href="/settings" onClick={onClose} className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-600 hover:bg-gray-50">
             <Settings className="h-4 w-4" />
             <span>Settings</span>
-          </button>
+          </Link>
           <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-600 hover:bg-gray-50">
             <HelpCircle className="h-4 w-4" />
             <span>Help & Support</span>
