@@ -12,38 +12,49 @@ export default function LearnPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const searchParams = useSearchParams();
   const documentId = searchParams.get("id") || undefined;
-  const [docTitle, setDocTitle] = useState("The Genetic Code and Translation");
+  const spaceId = searchParams.get("spaceId") || undefined;
+  const [docTitle, setDocTitle] = useState("Document");
+  const [pageCount, setPageCount] = useState(19);
 
   useEffect(() => {
     if (documentId) {
-      fetch(`/api/document/${documentId}`)
+      fetch(\`/api/document/\${documentId}\`)
         .then((res) => res.json())
         .then((data) => {
           if (data.title) setDocTitle(data.title);
+          if (data.pageCount) setPageCount(data.pageCount);
+        })
+        .catch(() => {});
+    } else if (spaceId) {
+      fetch(\`/api/spaces/\${spaceId}\`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.name) setDocTitle(data.name + " (Space)");
         })
         .catch(() => {});
     }
-  }, [documentId]);
+  }, [documentId, spaceId]);
 
   return (
     <div className="flex h-screen flex-col bg-white">
       <Header title={docTitle} onMenuClick={() => setSidebarOpen(true)} />
       <SidebarDrawer open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      {/* Two-panel split */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Left: Document Viewer (~60%) */}
+        {/* Left: Document Viewer */}
         <div className="relative flex-[3] overflow-hidden">
-          <DocumentViewer title={docTitle} totalPages={19} />
-
-          {/* Floating action bar */}
+          <DocumentViewer title={docTitle} totalPages={pageCount} />
           <div className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2">
             <FloatingActionBar />
           </div>
         </div>
 
-        {/* Right: Learning Panel (~40%) */}
-        <LearningPanel documentId={documentId} className="w-[380px] shrink-0" />
+        {/* Right: Learning Panel */}
+        <LearningPanel
+          documentId={documentId}
+          spaceId={spaceId}
+          className="w-[380px] shrink-0"
+        />
       </div>
     </div>
   );
