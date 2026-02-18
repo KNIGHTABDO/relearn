@@ -6,7 +6,7 @@ const GOOGLE_STORAGE_KEY = "relearn_google_auth";
 const GOOGLE_CLIENT_ID = "416083111669-3n936matebl72sc8dbhjfjgb8q58l7pq.apps.googleusercontent.com";
 
 const SCOPES = [
-  "https://www.googleapis.com/auth/cloud-platform",
+  "https://www.googleapis.com/auth/generative-language.retriever",
   "https://www.googleapis.com/auth/userinfo.email",
   "https://www.googleapis.com/auth/userinfo.profile",
   "openid",
