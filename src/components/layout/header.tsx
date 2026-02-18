@@ -64,6 +64,7 @@ export function Header({ title, onMenuClick }: HeaderProps) {
         <button
           onClick={onMenuClick}
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg hover:bg-gray-50 dark:hover:bg-dark-hover transition-colors"
+          aria-label={t("nav.menu")}
         >
           <Menu className="h-5 w-5 text-gray-700 dark:text-dark-text-secondary" />
         </button>
@@ -98,6 +99,7 @@ export function Header({ title, onMenuClick }: HeaderProps) {
           <button
             onClick={() => { setShowThemeDropdown(!showThemeDropdown); setShowLangDropdown(false); }}
             className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-gray-50 dark:hover:bg-dark-hover transition-colors"
+            aria-label={t("settings.theme")}
           >
             {resolvedTheme === "dark" ? (
               <Moon className="h-4 w-4 text-gray-600 dark:text-dark-text-secondary" />
@@ -135,6 +137,7 @@ export function Header({ title, onMenuClick }: HeaderProps) {
           <button
             onClick={() => { setShowLangDropdown(!showLangDropdown); setShowThemeDropdown(false); }}
             className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover transition-colors"
+            aria-label={t("settings.language")}
           >
             <span className="text-base leading-none">{selectedLang.flag}</span>
             <ChevronDown className="h-3 w-3" />
@@ -146,7 +149,12 @@ export function Header({ title, onMenuClick }: HeaderProps) {
                 {languages.map((langOpt) => (
                   <button
                     key={langOpt.code}
-                    onClick={() => { console.log("[ReLearn] Changing language to:", langOpt.code); setLang(langOpt.code as Language); setShowLangDropdown(false); setShowLangDropdown(false); }}
+                    onClick={() => {
+                      console.log("[ReLearn] Changing language to:", langOpt.code);
+                      setLang(langOpt.code as Language);
+                      setShowLangDropdown(false);
+                      setShowLangDropdown(false);
+                    }}
                     className={cn(
                       "flex w-full items-center gap-2.5 px-3 py-2 text-xs transition-colors",
                       selectedLang.code === langOpt.code
@@ -168,6 +176,7 @@ export function Header({ title, onMenuClick }: HeaderProps) {
         <Link
           href="/settings"
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-dark-card hover:bg-gray-200 dark:hover:bg-dark-hover transition-colors overflow-hidden"
+          aria-label={t("settings.title")}
         >
           {avatar ? (
             <img src={avatar} alt="" className="h-full w-full object-cover" />
