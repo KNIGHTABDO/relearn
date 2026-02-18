@@ -1,5 +1,3 @@
-tsx
-// src/components/learn/snap-problem.tsx
 'use client';
 
 import React, {
