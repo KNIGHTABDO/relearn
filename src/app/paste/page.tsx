@@ -1,13 +1,44 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { SidebarDrawer } from "@/components/layout/sidebar-drawer";
-import { Link2, ArrowRight } from "lucide-react";
+import { Link2, ArrowRight, Loader2 } from "lucide-react";
 
 export default function PastePage() {
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!input.trim() || loading) return;
+    setLoading(true);
+
+    try {
+      const formData = new FormData();
+      // Check if it's a YouTube URL
+      if (input.includes("youtube.com") || input.includes("youtu.be")) {
+        formData.append("youtube_url", input.trim());
+      } else {
+        formData.append("text", input.trim());
+      }
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.id) {
+        router.push(`/learn?id=${data.id}`);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="flex h-screen flex-col bg-white">
@@ -24,24 +55,37 @@ export default function PastePage() {
           </p>
 
           <div className="mt-8">
-            <div className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-white p-2 transition-all focus-within:border-gray-300 focus-within:shadow-sm">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-50">
+            <div className="flex items-start gap-3 rounded-2xl border border-gray-200 bg-white p-2 transition-all focus-within:border-gray-300 focus-within:shadow-sm">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-50 mt-0.5">
                 <Link2 className="h-5 w-5 text-gray-400" />
               </div>
-              <input
-                type="text"
+              <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Paste YouTube URL, website, or text..."
-                className="flex-1 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 outline-none"
+                rows={4}
+                className="flex-1 resize-none bg-transparent text-sm text-gray-900 placeholder:text-gray-400 outline-none mt-2"
               />
-              {input && (
-                <button className="flex items-center gap-1.5 rounded-full bg-black px-4 py-2 text-xs font-medium text-white hover:bg-gray-800">
-                  <span>Learn</span>
-                  <ArrowRight className="h-3 w-3" />
-                </button>
-              )}
             </div>
+            {input.trim() && (
+              <button
+                onClick={handleSubmit}
+                disabled={loading}
+                className="mt-4 w-full btn-pill-primary py-3 text-sm gap-1.5 disabled:opacity-50"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    Start Learning
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </>
+                )}
+              </button>
+            )}
           </div>
 
           <p className="mt-6 text-center text-[11px] text-gray-300">
