@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { I18nProvider } from "@/components/providers/i18n-provider";
 
 export const metadata: Metadata = {
   title: "ReLearn — AI-Powered Study Platform",
@@ -30,6 +31,10 @@ export default function RootLayout({
                   }
                   document.documentElement.classList.add(resolved);
                   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', resolved === 'dark' ? '#0a0a0a' : '#ffffff');
+                  // Also set language direction
+                  var lang = localStorage.getItem('relearn-language') || 'en';
+                  document.documentElement.lang = lang;
+                  if (lang === 'ar') document.documentElement.dir = 'rtl';
                 } catch(e) {}
               })();
             `,
@@ -37,7 +42,9 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <I18nProvider>{children}</I18nProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
