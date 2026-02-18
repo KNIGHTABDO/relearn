@@ -1,5 +1,6 @@
 "use client";
 
+import { useI18n } from "@/components/providers/i18n-provider";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Header } from "@/components/layout/header";
@@ -36,15 +37,17 @@ interface SpaceCard {
   tags: string[];
 }
 
-const inputCards = [
-  { title: "Upload", description: "File, audio, video", icon: Upload, href: "/upload", image: "/images/icon-upload.jpg" },
-  { title: "Paste", description: "YouTube, website, text", icon: Link2, href: "/paste", image: "/images/icon-paste.jpg" },
-  { title: "Record", description: "Record class, video call", icon: Mic, href: "/record", image: "/images/icon-record.jpg" },
-];
-
 const universities = [
-  "MIT", "Stanford", "Harvard", "Princeton", "UCLA",
-  "UMich", "UPenn", "UChicago", "Yale", "Columbia",
+  "MIT",
+  "Stanford",
+  "Harvard",
+  "Princeton",
+  "UCLA",
+  "UMich",
+  "UPenn",
+  "UChicago",
+  "Yale",
+  "Columbia",
 ];
 
 export default function HomePage() {
@@ -54,6 +57,31 @@ export default function HomePage() {
   const [learnInput, setLearnInput] = useState("");
   const [showCreateSpace, setShowCreateSpace] = useState(false);
   const [newSpaceName, setNewSpaceName] = useState("");
+  const { t } = useI18n();
+
+  const inputCards = [
+    {
+      title: t("home.upload"),
+      description: t("home.upload_desc"),
+      icon: Upload,
+      href: "/upload",
+      image: "/images/icon-upload.jpg",
+    },
+    {
+      title: t("home.paste"),
+      description: t("home.paste_desc"),
+      icon: Link2,
+      href: "/paste",
+      image: "/images/icon-paste.jpg",
+    },
+    {
+      title: t("home.record"),
+      description: t("home.record_desc"),
+      icon: Mic,
+      href: "/record",
+      image: "/images/icon-record.jpg",
+    },
+  ];
 
   useEffect(() => {
     fetchSpaces().then((s) => setSpaces(s)).catch(() => {});
@@ -82,21 +110,24 @@ export default function HomePage() {
   return (
     <div className="flex h-screen flex-col bg-white dark:bg-dark-bg dark:bg-dark-bg">
       <Header onMenuClick={() => setSidebarOpen(true)} />
-      <SidebarDrawer
-        open={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-        spaces={spaces}
-      />
+      <SidebarDrawer open={sidebarOpen} onClose={() => setSidebarOpen(false)} spaces={spaces} />
 
       <main className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-4xl px-6 py-8">
           {/* Hero */}
           <div className="text-center">
             <div className="mb-6">
-              <Image src="/images/hero.jpg" alt="AI-powered learning" width={480} height={270} className="mx-auto rounded-2xl" priority />
+              <Image
+                src="/images/hero.jpg"
+                alt="AI-powered learning"
+                width={480}
+                height={270}
+                className="mx-auto rounded-2xl"
+                priority
+              />
             </div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-dark-text sm:text-3xl">
-              What do you want to learn?
+              {t("home.title")}
             </h1>
 
             {/* Input cards */}
@@ -109,7 +140,13 @@ export default function HomePage() {
                 >
                   {(card as any).image && (
                     <div className="w-16 h-16 rounded-xl overflow-hidden mb-1">
-                      <Image src={(card as any).image} alt={card.title} width={64} height={64} className="w-full h-full object-cover" />
+                      <Image
+                        src={(card as any).image}
+                        alt={card.title}
+                        width={64}
+                        height={64}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                   )}
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50 dark:bg-dark-surface">
@@ -130,7 +167,7 @@ export default function HomePage() {
                   value={learnInput}
                   onChange={(e) => setLearnInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleLearn()}
-                  placeholder="Learn anything..."
+                  placeholder={t("home.learn_anything")}
                   className="flex-1 bg-transparent text-sm text-gray-900 dark:text-dark-text placeholder:text-gray-400 dark:placeholder:text-dark-text-muted dark:text-dark-text-muted outline-none"
                 />
                 <button
@@ -152,7 +189,9 @@ export default function HomePage() {
             </div>
             <div className="mt-3 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
               {universities.map((uni) => (
-                <span key={uni} className="text-xs font-medium text-gray-300 dark:text-dark-text-muted">{uni}</span>
+                <span key={uni} className="text-xs font-medium text-gray-300 dark:text-dark-text-muted">
+                  {uni}
+                </span>
               ))}
             </div>
           </div>
@@ -171,9 +210,7 @@ export default function HomePage() {
                 <p className="text-xs text-gray-400 dark:text-dark-text-muted">Analytics & stats</p>
               </div>
             </Link>
-            <div
-              className="group flex items-center gap-3 rounded-2xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg p-4 transition-all hover:border-blue-200 dark:hover:border-blue-900 hover:shadow-sm cursor-pointer"
-            >
+            <div className="group flex items-center gap-3 rounded-2xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg p-4 transition-all hover:border-blue-200 dark:hover:border-blue-900 hover:shadow-sm cursor-pointer">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950">
                 <Brain className="h-5 w-5 text-blue-500" />
               </div>
@@ -182,9 +219,7 @@ export default function HomePage() {
                 <p className="text-xs text-gray-400 dark:text-dark-text-muted">AI-powered schedule</p>
               </div>
             </div>
-            <div
-              className="group flex items-center gap-3 rounded-2xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg p-4 transition-all hover:border-orange-200 dark:hover:border-orange-900 hover:shadow-sm cursor-pointer"
-            >
+            <div className="group flex items-center gap-3 rounded-2xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg p-4 transition-all hover:border-orange-200 dark:hover:border-orange-900 hover:shadow-sm cursor-pointer">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 dark:bg-orange-950">
                 <Users className="h-5 w-5 text-orange-500" />
               </div>
@@ -198,13 +233,15 @@ export default function HomePage() {
           {/* Spaces section */}
           <div className="mt-8">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-dark-text">Your Spaces</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-dark-text">
+                {t("home.recent_spaces")}
+              </h2>
               <button
                 onClick={() => setShowCreateSpace(true)}
                 className="flex items-center gap-1.5 rounded-full border border-gray-200 dark:border-dark-border px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface transition-colors"
               >
                 <Plus className="h-3 w-3" />
-                New Space
+                {t("home.create_space")}
               </button>
             </div>
 
@@ -256,7 +293,9 @@ export default function HomePage() {
                         {space.name}
                       </h3>
                       {space.description && (
-                        <p className="text-xs text-gray-400 dark:text-dark-text-muted truncate">{space.description}</p>
+                        <p className="text-xs text-gray-400 dark:text-dark-text-muted truncate">
+                          {space.description}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -287,13 +326,21 @@ export default function HomePage() {
 
               {spaces.length === 0 && (
                 <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 dark:border-dark-border py-12">
-                  <Image src="/images/empty-spaces.jpg" alt="No spaces" width={160} height={160} className="rounded-xl opacity-80" />
-                  <p className="mt-2 text-sm text-gray-400 dark:text-dark-text-muted">No spaces yet</p>
+                  <Image
+                    src="/images/empty-spaces.jpg"
+                    alt="No spaces"
+                    width={160}
+                    height={160}
+                    className="rounded-xl opacity-80"
+                  />
+                  <p className="mt-2 text-sm text-gray-400 dark:text-dark-text-muted">
+                    {t("home.no_spaces")}
+                  </p>
                   <button
                     onClick={() => setShowCreateSpace(true)}
                     className="mt-3 text-xs font-medium text-gray-600 dark:text-dark-text-secondary hover:text-gray-900 dark:hover:text-dark-text dark:text-dark-text"
                   >
-                    Create your first space
+                    {t("home.no_spaces_desc")}
                   </button>
                 </div>
               )}
