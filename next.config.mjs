@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Static export for Tauri desktop app
+  output: "export",
   images: {
+    unoptimized: true,
     remotePatterns: [
       { protocol: 'https', hostname: '**' },
     ],
