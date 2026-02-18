@@ -96,7 +96,7 @@ export function SidebarDrawer({ open, onClose, spaces = [] }: SidebarDrawerProps
             className="flex w-full items-center gap-2 rounded-xl border border-gray-200 dark:border-dark-border px-4 py-2.5 text-sm font-medium text-gray-900 dark:text-dark-text hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface"
           >
             <Plus className="h-4 w-4" />
-            Add content
+            {t("home.upload")}
           </Link>
         </div>
 
@@ -150,7 +150,7 @@ export function SidebarDrawer({ open, onClose, spaces = [] }: SidebarDrawerProps
                   )}
                   {searchResults.documents?.length > 0 && (
                     <div className="border-t border-gray-50 p-2">
-                      <p className="px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-gray-400 dark:text-dark-text-muted">Documents</p>
+                      <p className="px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-gray-400 dark:text-dark-text-muted">{t("space.documents")}</p>
                       {searchResults.documents.map((d: any) => (
                         <Link
                           key={d.id}
@@ -165,7 +165,7 @@ export function SidebarDrawer({ open, onClose, spaces = [] }: SidebarDrawerProps
                     </div>
                   )}
                   {searchResults.spaces?.length === 0 && searchResults.documents?.length === 0 && searchQuery && (
-                    <p className="p-3 text-center text-xs text-gray-400 dark:text-dark-text-muted">No results found</p>
+                    <p className="p-3 text-center text-xs text-gray-400 dark:text-dark-text-muted">{t("common.no_results")}</p>
                   )}
                 </div>
               )}
@@ -204,7 +204,7 @@ export function SidebarDrawer({ open, onClose, spaces = [] }: SidebarDrawerProps
         {/* Spaces */}
         <div className="flex-1 overflow-y-auto px-3 py-2">
           <p className="px-3 py-2 text-xs font-medium uppercase tracking-wider text-gray-400 dark:text-dark-text-muted">
-            Spaces
+            {t("nav.spaces")}
           </p>
           {spaces.map((space) => (
             <Link
@@ -219,7 +219,7 @@ export function SidebarDrawer({ open, onClose, spaces = [] }: SidebarDrawerProps
             </Link>
           ))}
           {spaces.length === 0 && (
-            <p className="px-3 py-2 text-xs text-gray-300 dark:text-dark-text-muted">No spaces yet</p>
+            <p className="px-3 py-2 text-xs text-gray-300 dark:text-dark-text-muted">{t("home.no_spaces")}</p>
           )}
         </div>
 
