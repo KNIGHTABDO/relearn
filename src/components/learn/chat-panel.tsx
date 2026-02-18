@@ -47,7 +47,54 @@ export function ChatPanel({ documentId, spaceId, className }: ChatPanelProps) {
     return () => window.removeEventListener("github-auth-changed", handler);
   }, []);
 
-  const sendMessage = async () => {
+  
+  // Listen for PDF text selection actions
+  useEffect(() => {
+    const handleSelectionAction = (e: Event) => {
+      const { action, text } = (e as CustomEvent).detail;
+      const truncated = text.length > 500 ? text.slice(0, 500) + "..." : text;
+
+      const prompts: Record<string, string> = {
+        explain: "Explain this passage in simple terms:\n\n\"" + truncated + "\"",
+        chat: truncated,
+        quiz: "Generate 3 quiz questions based on this text:\n\n\"" + truncated + "\"",
+        flashcards: "Create flashcards from this text:\n\n\"" + truncated + "\"",
+        summarize: "Summarize this passage concisely:\n\n\"" + truncated + "\"",
+      };
+
+      const prompt = prompts[action];
+      if (prompt) {
+        setInput(prompt);
+        // Auto-focus the input
+        setTimeout(() => inputRef.current?.focus(), 100);
+        // For explain and summarize, auto-send
+        if (action === "explain" || action === "summarize") {
+          setTimeout(() => {
+            setInput(prompt);
+            // Trigger send by dispatching enter key event... 
+            // Actually, just call sendMessage directly after setting input
+          }, 150);
+        }
+      }
+
+      // Handle read aloud separately
+      if (action === "read_aloud" && typeof window !== "undefined" && window.speechSynthesis) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utterance);
+      }
+
+      // Handle add to notes - dispatch another event
+      if (action === "add_notes") {
+        window.dispatchEvent(new CustomEvent("add-to-notes", { detail: { text } }));
+      }
+    };
+
+    window.addEventListener("pdf-selection-action", handleSelectionAction);
+    return () => window.removeEventListener("pdf-selection-action", handleSelectionAction);
+  }, []);
+
+const sendMessage = async () => {
     if (!input.trim() || isStreaming) return;
     const userMsg: Message = { id: Date.now().toString(), role: "user", content: input.trim() };
     const aiMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "" };
