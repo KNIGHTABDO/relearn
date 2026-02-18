@@ -94,6 +94,7 @@ const allTranslations: Record<Language, Record<string, string>> = {
     "nav.history": "History",
     "nav.settings": "Settings",
     "nav.spaces": "Spaces",
+    "nav.help": "Help & Support",
 
     // Home page
     "home.title": "What do you want to learn?",
@@ -279,6 +280,7 @@ const allTranslations: Record<Language, Record<string, string>> = {
     "nav.history": "Historial",
     "nav.settings": "Configuración",
     "nav.spaces": "Espacios",
+    "nav.help": "Ayuda y Soporte",
     "home.title": "¿Qué quieres aprender?",
     "home.subtitle": "Sube tus materiales de estudio y deja que la IA te ayude a aprender",
     "home.upload": "Subir",
@@ -434,6 +436,7 @@ const allTranslations: Record<Language, Record<string, string>> = {
     "nav.history": "Historique",
     "nav.settings": "Paramètres",
     "nav.spaces": "Espaces",
+    "nav.help": "Aide et Support",
     "home.title": "Que voulez-vous apprendre ?",
     "home.subtitle": "Téléchargez vos supports d'étude et laissez l'IA vous aider",
     "home.upload": "Télécharger",
@@ -589,6 +592,7 @@ const allTranslations: Record<Language, Record<string, string>> = {
     "nav.history": "السجل",
     "nav.settings": "الإعدادات",
     "nav.spaces": "المساحات",
+    "nav.help": "المساعدة والدعم",
     "home.title": "ماذا تريد أن تتعلم؟",
     "home.subtitle": "ارفع موادك الدراسية ودع الذكاء الاصطناعي يساعدك في التعلم",
     "home.upload": "رفع",
