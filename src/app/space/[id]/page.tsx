@@ -77,7 +77,7 @@ export default function SpacePage() {
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-gray-900" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 dark:border-dark-border border-t-gray-900" />
       </div>
     );
   }
@@ -85,7 +85,7 @@ export default function SpacePage() {
   if (!space) return null;
 
   return (
-    <div className="flex h-screen flex-col bg-white">
+    <div className="flex h-screen flex-col bg-white dark:bg-dark-bg dark:bg-dark-bg">
       <Header title={space.name} onMenuClick={() => setSidebarOpen(true)} />
       <SidebarDrawer open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
@@ -94,7 +94,7 @@ export default function SpacePage() {
           {/* Back button */}
           <button
             onClick={() => router.push("/")}
-            className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors mb-4"
+            className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-dark-text-muted hover:text-gray-700 dark:hover:text-dark-text dark:text-dark-text-secondary transition-colors mb-4"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Back to Library
@@ -109,16 +109,16 @@ export default function SpacePage() {
               {space.icon}
             </div>
             <div className="flex-1">
-              <h1 className="text-xl font-bold text-gray-900">{space.name}</h1>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-dark-text">{space.name}</h1>
               {space.description && (
-                <p className="mt-0.5 text-sm text-gray-500">{space.description}</p>
+                <p className="mt-0.5 text-sm text-gray-500 dark:text-dark-text-muted">{space.description}</p>
               )}
               {space.tags.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1">
                   {space.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500"
+                      className="rounded-full bg-gray-100 dark:bg-dark-card px-2 py-0.5 text-xs text-gray-500 dark:text-dark-text-muted"
                     >
                       {tag}
                     </span>
@@ -132,30 +132,30 @@ export default function SpacePage() {
           <div className="mt-6 flex flex-wrap gap-2">
             <Link
               href={\`/learn?spaceId=\${spaceId}\`}
-              className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-2 rounded-xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface transition-colors"
             >
               <MessageSquare className="h-4 w-4 text-yl-sky" />
               Chat with Space
             </Link>
             <Link
               href={\`/exam?spaceId=\${spaceId}\`}
-              className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-2 rounded-xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface transition-colors"
             >
               <ClipboardCheck className="h-4 w-4 text-yl-pink" />
               Practice Exam
             </Link>
             <button
               onClick={handleUploadToSpace}
-              className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-2 rounded-xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface transition-colors"
             >
-              <Upload className="h-4 w-4 text-gray-500" />
+              <Upload className="h-4 w-4 text-gray-500 dark:text-dark-text-muted" />
               Upload File
             </button>
             <button
               onClick={handlePasteToSpace}
-              className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-2 rounded-xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface transition-colors"
             >
-              <Link2 className="h-4 w-4 text-gray-500" />
+              <Link2 className="h-4 w-4 text-gray-500 dark:text-dark-text-muted" />
               Paste Link
             </button>
           </div>
@@ -163,7 +163,7 @@ export default function SpacePage() {
           {/* Documents list */}
           <div className="mt-8">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-semibold text-gray-900">
+              <h2 className="text-sm font-semibold text-gray-900 dark:text-dark-text">
                 Documents ({space.documents.length})
               </h2>
             </div>
@@ -173,19 +173,19 @@ export default function SpacePage() {
                 {space.documents.map((doc) => (
                   <div
                     key={doc.id}
-                    className="group flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-3 transition-all hover:border-gray-300 hover:shadow-sm"
+                    className="group flex items-center gap-3 rounded-xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-bg p-3 transition-all hover:border-gray-300 dark:border-dark-border hover:shadow-sm dark:shadow-none"
                   >
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-50">
-                      <FileText className="h-5 w-5 text-gray-400" />
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-50 dark:bg-dark-surface dark:bg-dark-surface">
+                      <FileText className="h-5 w-5 text-gray-400 dark:text-dark-text-muted" />
                     </div>
                     <Link
                       href={\`/learn?id=\${doc.id}\`}
                       className="flex-1 min-w-0"
                     >
-                      <p className="text-sm font-medium text-gray-900 truncate hover:text-yl-blue transition-colors">
+                      <p className="text-sm font-medium text-gray-900 dark:text-dark-text truncate hover:text-yl-blue transition-colors">
                         {doc.title}
                       </p>
-                      <div className="flex items-center gap-3 text-xs text-gray-400">
+                      <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-dark-text-muted">
                         <span>{doc.type.toUpperCase()}</span>
                         {doc.pageCount > 0 && <span>{doc.pageCount} pages</span>}
                         {doc.fileSize > 0 && (
@@ -199,20 +199,20 @@ export default function SpacePage() {
                     </Link>
                     <button
                       onClick={() => deleteDocument(doc.id)}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg opacity-0 transition-opacity group-hover:opacity-100 hover:bg-gray-100"
+                      className="flex h-8 w-8 items-center justify-center rounded-lg opacity-0 transition-opacity group-hover:opacity-100 hover:bg-gray-100 dark:hover:bg-dark-hover dark:bg-dark-card"
                     >
-                      <Trash2 className="h-3.5 w-3.5 text-gray-400" />
+                      <Trash2 className="h-3.5 w-3.5 text-gray-400 dark:text-dark-text-muted" />
                     </button>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 py-12">
-                <Layers className="h-8 w-8 text-gray-300" />
-                <p className="mt-2 text-sm text-gray-400">No documents yet</p>
+              <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 dark:border-dark-border py-12">
+                <Layers className="h-8 w-8 text-gray-300 dark:text-dark-text-muted" />
+                <p className="mt-2 text-sm text-gray-400 dark:text-dark-text-muted">No documents yet</p>
                 <button
                   onClick={handleUploadToSpace}
-                  className="mt-3 flex items-center gap-1.5 text-xs font-medium text-gray-600 hover:text-gray-900"
+                  className="mt-3 flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-dark-text-secondary hover:text-gray-900 dark:hover:text-dark-text dark:text-dark-text"
                 >
                   <Plus className="h-3 w-3" />
                   Add your first file
