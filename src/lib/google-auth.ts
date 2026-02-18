@@ -1,6 +1,6 @@
 // Google Gemini Auth — Client-Side Token Manager
 // Web mode: standard OAuth redirect to /auth/google/callback
-// Tauri mode: loopback IP redirect via Rust oauth_plugin
+// Tauri mode: loopback server on 127.0.0.1 + Tauri event for code exchange
 
 const GOOGLE_STORAGE_KEY = "relearn_google_auth";
 const GOOGLE_CLIENT_ID = "416083111669-6p59skr1qobuoj1dgdujfr4h6d4u7m09.apps.googleusercontent.com";
@@ -79,7 +79,7 @@ export function isGoogleTokenValid(): boolean {
   return Date.now() < auth.tokenExpiry - 60_000;
 }
 
-// ==================== Token Management ====================
+// ==================== Token Refresh ====================
 
 export async function ensureGoogleToken(): Promise<string | null> {
   const auth = getStoredGoogleAuth();
@@ -132,13 +132,14 @@ export async function startGoogleLogin(): Promise<void> {
   const state = crypto.randomUUID();
   sessionStorage.setItem("google_oauth_state", state);
 
+  // PKCE for all modes
   const codeVerifier = generateRandomString(64);
   sessionStorage.setItem("google_code_verifier", codeVerifier);
   const codeChallenge = await generateCodeChallenge(codeVerifier);
 
   if (isTauri()) {
-    // Desktop mode: use loopback IP redirect via Rust plugin
-    await startTauriOAuth(state, codeVerifier, codeChallenge);
+    // Desktop mode: use loopback OAuth server
+    await startTauriOAuthFlow(state, codeVerifier, codeChallenge);
   } else {
     // Web mode: standard redirect
     const redirectUri = window.location.origin + "/auth/google/callback";
@@ -158,36 +159,50 @@ export async function startGoogleLogin(): Promise<void> {
   }
 }
 
-async function startTauriOAuth(state: string, codeVerifier: string, codeChallenge: string): Promise<void> {
+/**
+ * Desktop OAuth flow:
+ * 1. Call Rust backend to start a loopback HTTP server on 127.0.0.1
+ * 2. Open Google OAuth in system browser with redirect to http://127.0.0.1:{port}/callback
+ * 3. Rust catches the redirect, emits "oauth-callback" event with the query params
+ * 4. Frontend exchanges the code for tokens
+ */
+async function startTauriOAuthFlow(
+  state: string,
+  codeVerifier: string,
+  codeChallenge: string
+): Promise<void> {
   try {
-    // 1. Start the loopback HTTP server via Rust plugin — returns the port
+    // Step 1: Start the loopback OAuth server (Rust side)
     const { invoke } = await import("@tauri-apps/api/core");
-    const port: number = await invoke("start_oauth_server");
+    const port: number = await invoke("plugin:oauth|start_oauth_server");
+
     const redirectUri = "http://127.0.0.1:" + port + "/callback";
 
-    // Store redirect URI for token exchange later
-    sessionStorage.setItem("google_redirect_uri", redirectUri);
-
-    // 2. Listen for the oauth-callback event from Rust
+    // Step 2: Listen for the callback event from Rust
     const { listen } = await import("@tauri-apps/api/event");
     const unlisten = await listen<string>("oauth-callback", async (event) => {
-      unlisten();
-      // event.payload is the query string: "code=xxx&state=yyy&scope=zzz"
+      unlisten(); // Only handle once
+
+      // Parse query string: "code=xxx&state=yyy"
       const params = new URLSearchParams(event.payload);
       const code = params.get("code");
       const returnedState = params.get("state");
 
-      if (code && returnedState) {
-        const success = await handleGoogleCallback(code, returnedState);
-        if (success) {
-          // Navigate to settings to show connected state
-          window.location.href = "/settings";
-        }
+      if (!code) {
+        console.error("No authorization code in callback");
+        return;
+      }
+
+      // Exchange code for tokens
+      const success = await exchangeCodeForTokens(code, returnedState || "", redirectUri, codeVerifier);
+      if (success) {
+        // Dispatch event so Settings page can update
+        window.dispatchEvent(new Event("google-auth-changed"));
       }
     });
 
-    // 3. Open Google auth in system browser
-    const authParams = new URLSearchParams({
+    // Step 3: Open Google OAuth in system browser
+    const params = new URLSearchParams({
       client_id: GOOGLE_CLIENT_ID,
       redirect_uri: redirectUri,
       response_type: "code",
@@ -200,36 +215,32 @@ async function startTauriOAuth(state: string, codeVerifier: string, codeChalleng
       code_challenge_method: "S256",
     });
 
+    const authUrl = "https://accounts.google.com/o/oauth2/v2/auth?" + params.toString();
+
+    // Open in system browser
     const { open } = await import("@tauri-apps/plugin-shell");
-    await open("https://accounts.google.com/o/oauth2/v2/auth?" + authParams.toString());
+    await open(authUrl);
   } catch (err) {
-    console.error("Tauri OAuth error:", err);
-    // Fallback: try opening in webview (won't work well but better than nothing)
-    alert("Failed to start authentication. Please try again.");
+    console.error("Tauri OAuth flow error:", err);
   }
 }
 
-// ==================== Callback Handler ====================
+// ==================== Token Exchange ====================
 
-export async function handleGoogleCallback(code: string, state: string): Promise<boolean> {
+async function exchangeCodeForTokens(
+  code: string,
+  state: string,
+  redirectUri: string,
+  codeVerifier: string
+): Promise<boolean> {
+  // Verify state
   const savedState = sessionStorage.getItem("google_oauth_state");
   if (state !== savedState) {
     console.error("OAuth state mismatch");
     return false;
   }
   sessionStorage.removeItem("google_oauth_state");
-
-  const codeVerifier = sessionStorage.getItem("google_code_verifier");
   sessionStorage.removeItem("google_code_verifier");
-
-  // Determine the correct redirect_uri (must match what was sent to Google)
-  let redirectUri: string;
-  if (isTauri()) {
-    redirectUri = sessionStorage.getItem("google_redirect_uri") || "";
-    sessionStorage.removeItem("google_redirect_uri");
-  } else {
-    redirectUri = window.location.origin + "/auth/google/callback";
-  }
 
   try {
     const tokenParams: Record<string, string> = {
@@ -237,11 +248,8 @@ export async function handleGoogleCallback(code: string, state: string): Promise
       code,
       grant_type: "authorization_code",
       redirect_uri: redirectUri,
+      code_verifier: codeVerifier,
     };
-
-    if (codeVerifier) {
-      tokenParams.code_verifier = codeVerifier;
-    }
 
     const res = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
@@ -257,6 +265,7 @@ export async function handleGoogleCallback(code: string, state: string): Promise
 
     const data = await res.json();
 
+    // Fetch user info
     let userInfo: any = {};
     try {
       const userRes = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
@@ -277,10 +286,24 @@ export async function handleGoogleCallback(code: string, state: string): Promise
 
     return true;
   } catch (err) {
-    console.error("Google callback error:", err);
+    console.error("Google token exchange error:", err);
     return false;
   }
 }
+
+// ==================== Web Callback Handler ====================
+
+/**
+ * Handle the OAuth callback on web (called from the callback page component).
+ * NOT used in Tauri mode — desktop uses the event-based flow above.
+ */
+export async function handleGoogleCallback(code: string, state: string): Promise<boolean> {
+  const codeVerifier = sessionStorage.getItem("google_code_verifier") || "";
+  const redirectUri = window.location.origin + "/auth/google/callback";
+  return exchangeCodeForTokens(code, state, redirectUri, codeVerifier);
+}
+
+// ==================== Exports ====================
 
 export type { GoogleAuth };
 
