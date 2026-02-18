@@ -119,8 +119,8 @@ export default function SettingsPage() {
         setGooglePicture(null);
       }
     };
-    document.addEventListener("google-auth-changed", handler);
-    return () => document.removeEventListener("google-auth-changed", handler);
+    window.addEventListener("google-auth-changed", handler);
+    return () => window.removeEventListener("google-auth-changed", handler);
   }, []);
 
   // Fetch GitHub Copilot models
@@ -135,8 +135,12 @@ export default function SettingsPage() {
         return;
       }
 
-      const res = await fetch("/api/models", {
-        headers: { "x-copilot-token": token },
+      const res = await fetch("https://api.githubcopilot.com/models", {
+        headers: {
+          Authorization: "Bearer " + token,
+          Accept: "application/json",
+          "Copilot-Integration-Id": "vscode-chat",
+        },
       });
 
       if (!res.ok) {
@@ -189,7 +193,17 @@ export default function SettingsPage() {
     setVerificationUri(deviceData.verification_uri);
     setConnState("awaiting_auth");
 
-    window.open(deviceData.verification_uri, "_blank");
+    // Open verification URL — use system browser in Tauri, new tab in web
+    try {
+      if ((window as any).__TAURI_INTERNALS__) {
+        const { open } = await import("@tauri-apps/plugin-shell");
+        await open(deviceData.verification_uri);
+      } else {
+        window.open(deviceData.verification_uri, "_blank");
+      }
+    } catch {
+      window.open(deviceData.verification_uri, "_blank");
+    }
 
     const success = await pollForToken(deviceData.device_code, deviceData.interval || 5);
     if (success) {
