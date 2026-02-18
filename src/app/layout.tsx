@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { I18nProvider } from "@/components/providers/i18n-provider";
+import { DatabaseProvider } from "@/components/providers/database-provider";
 
 export const metadata: Metadata = {
   title: "ReLearn — AI-Powered Study Platform",
@@ -41,9 +42,11 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <ThemeProvider>
-          <I18nProvider>{children}</I18nProvider>
-        </ThemeProvider>
+        <DatabaseProvider>
+          <ThemeProvider>
+            <I18nProvider>{children}</I18nProvider>
+          </ThemeProvider>
+        </DatabaseProvider>
       </body>
     </html>
   );
