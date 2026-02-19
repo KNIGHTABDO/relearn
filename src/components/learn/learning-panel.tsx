@@ -141,14 +141,27 @@ const fullWidthCards: GenerateCard[] = [
   const fetchData = async (type: string) => {
     setLoading(true);
     try {
-      // Try direct AI in Tauri mode
-      const data = await generateContent(type as any, documentId, spaceId);
-      if (type === "summary") setSummaryData(data);
-      if (type === "notes") setNotesData(data);
-      if (type === "chapters") setChaptersData(data);
-      return data;
-    } catch (err) {
-      console.error("Generate error:", err);
+      const raw = await generateContent(type as any, documentId, spaceId);
+      if (type === "summary") {
+        // ai-service returns { keyPoints, sections } directly
+        setSummaryData({ summary: raw, aiGenerated: true });
+      } else if (type === "notes") {
+        // ai-service returns an array [{title, content, highlight}]
+        const notes = Array.isArray(raw) ? raw : (raw.notes || []);
+        setNotesData({ notes, aiGenerated: true });
+      } else if (type === "chapters") {
+        const chapters = Array.isArray(raw) ? raw : (raw.chapters || []);
+        setChaptersData({ chapters, aiGenerated: true });
+      }
+      return raw;
+    } catch (err: any) {
+      console.error("Generate error:", err?.message || err);
+      // Show meaningful error based on type
+      if (err?.message === "NO_AI_PROVIDER") {
+        if (type === "summary") setSummaryData({ summary: null, error: "no_provider", aiGenerated: false });
+        if (type === "notes") setNotesData({ notes: null, error: "no_provider", aiGenerated: false });
+        if (type === "chapters") setChaptersData({ chapters: null, error: "no_provider", aiGenerated: false });
+      }
       return null;
     } finally {
       setLoading(false);
@@ -353,10 +366,21 @@ const fullWidthCards: GenerateCard[] = [
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <AlertCircle className="h-8 w-8 text-gray-300 dark:text-dark-text-muted" />
-                <p className="mt-2 text-sm text-gray-500 dark:text-dark-text-muted">{t("learn.failed_summary")}</p>
-                <button onClick={() => fetchData("summary")} className="mt-3 text-xs font-medium text-gray-600 dark:text-dark-text-secondary hover:text-gray-900 dark:hover:text-dark-text dark:text-dark-text">
-                  Try again
-                </button>
+                <p className="mt-2 text-sm text-gray-500 dark:text-dark-text-muted">
+                  {summaryData?.error === "no_provider"
+                    ? t("learn.connect_ai_provider")
+                    : t("learn.failed_summary")}
+                </p>
+                {summaryData?.error !== "no_provider" && (
+                  <button onClick={() => fetchData("summary")} className="mt-3 text-xs font-medium text-gray-600 dark:text-dark-text-secondary hover:text-gray-900 dark:hover:text-dark-text dark:text-dark-text">
+                    {t("common.retry")}
+                  </button>
+                )}
+                {summaryData?.error === "no_provider" && (
+                  <a href="/settings" className="mt-3 text-xs font-medium text-purple-500 hover:text-purple-700">
+                    {t("learn.go_to_settings")}
+                  </a>
+                )}
               </div>
             )}
           </div>
@@ -404,10 +428,21 @@ const fullWidthCards: GenerateCard[] = [
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <AlertCircle className="h-8 w-8 text-gray-300 dark:text-dark-text-muted" />
-                <p className="mt-2 text-sm text-gray-500 dark:text-dark-text-muted">{t("learn.failed_notes")}</p>
-                <button onClick={() => fetchData("notes")} className="mt-3 text-xs font-medium text-gray-600 dark:text-dark-text-secondary hover:text-gray-900 dark:hover:text-dark-text dark:text-dark-text">
-                  Try again
-                </button>
+                <p className="mt-2 text-sm text-gray-500 dark:text-dark-text-muted">
+                  {notesData?.error === "no_provider"
+                    ? t("learn.connect_ai_provider")
+                    : t("learn.failed_notes")}
+                </p>
+                {notesData?.error !== "no_provider" && (
+                  <button onClick={() => fetchData("notes")} className="mt-3 text-xs font-medium text-gray-600 dark:text-dark-text-secondary hover:text-gray-900 dark:hover:text-dark-text dark:text-dark-text">
+                    {t("common.retry")}
+                  </button>
+                )}
+                {notesData?.error === "no_provider" && (
+                  <a href="/settings" className="mt-3 text-xs font-medium text-purple-500 hover:text-purple-700">
+                    {t("learn.go_to_settings")}
+                  </a>
+                )}
               </div>
             )}
           </div>
