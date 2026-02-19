@@ -181,6 +181,59 @@ export async function deleteFlashcardSet(id: string): Promise<void> {
   await db.execute("DELETE FROM flashcard_sets WHERE id = $1", [id]);
 }
 
+
+// ─── Full-text search across documents + spaces ──────
+export async function searchDocumentsAndSpaces(query: string): Promise<{
+  documents: Array<{ id: string; title: string; type: string; spaceId?: string }>;
+  spaces: Array<{ id: string; name: string; icon: string; color: string }>;
+}> {
+  const empty = { documents: [], spaces: [] };
+  if (!query || query.trim().length < 2) return empty;
+  const q = `%${query.trim()}%`;
+  try {
+    const docs: any[] = await db.select(
+      `SELECT id, title, type, space_id FROM documents
+       WHERE title LIKE $1 OR text LIKE $2
+       ORDER BY created_at DESC LIMIT 20`,
+      [q, q]
+    );
+    const sps: any[] = await db.select(
+      `SELECT id, name, icon, color FROM spaces
+       WHERE name LIKE $1 OR description LIKE $2
+       ORDER BY updated_at DESC LIMIT 10`,
+      [q, q]
+    );
+    return {
+      documents: docs.map(r => ({ id: r.id, title: r.title, type: r.type, spaceId: r.space_id || undefined })),
+      spaces: sps.map(r => ({ id: r.id, name: r.name, icon: r.icon, color: r.color })),
+    };
+  } catch (e) {
+    console.error("[DB] search error:", e);
+    return empty;
+  }
+}
+
+// ─── Recent documents (last N opened/created) ────────
+export async function getRecentDocuments(limit = 8): Promise<Array<{
+  id: string; title: string; type: string; spaceId?: string; createdAt: string;
+}>> {
+  try {
+    const rows: any[] = await db.select(
+      `SELECT id, title, type, space_id, created_at FROM documents ORDER BY created_at DESC LIMIT $1`,
+      [limit]
+    );
+    return rows.map(r => ({
+      id: r.id,
+      title: r.title,
+      type: r.type,
+      spaceId: r.space_id || undefined,
+      createdAt: r.created_at,
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export async function getSpaces(): Promise<Space[]> {
   if (!db) return [];
   const rows: any[] = await db.select("SELECT * FROM spaces ORDER BY updated_at DESC");

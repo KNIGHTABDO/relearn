@@ -2,7 +2,7 @@
 
 import { useI18n } from "@/components/providers/i18n-provider";
 import { useDatabaseContext } from "@/components/providers/database-provider";
-import { fetchSpaces, SpaceInfo } from "@/lib/data-layer";
+import { fetchSpaces, SpaceInfo, searchAction, getRecentDocumentsAction } from "@/lib/data-layer";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
@@ -64,8 +64,7 @@ export function SidebarDrawer({ open, onClose, spaces: propSpaces = [] }: Sideba
     const timeout = setTimeout(async () => {
       setSearching(true);
       try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}`);
-        const data = await res.json();
+        const data = await searchAction(searchQuery);
         setSearchResults(data);
       } catch { setSearchResults(null); }
       setSearching(false);
@@ -73,12 +72,18 @@ export function SidebarDrawer({ open, onClose, spaces: propSpaces = [] }: Sideba
     return () => clearTimeout(timeout);
   }, [searchQuery]);
 
-  // Mock recent history
-  const recentItems = [
-    { id: "doc-genetics", title: "The Genetic Code & Translation", type: "pdf" },
-    { id: "doc-algo", title: "Algorithms & Data Structures", type: "pdf" },
-    { id: "doc-cell", title: "Cell Division & Mitosis", type: "pdf" },
-  ];
+  const [recentItems, setRecentItems] = useState<Array<{ id: string; title: string; type: string; spaceId?: string }>>([]);
+  const [recentLoading, setRecentLoading] = useState(false);
+
+  // Load real recent docs when History panel opens
+  useEffect(() => {
+    if (!showHistory) return;
+    setRecentLoading(true);
+    getRecentDocumentsAction(8)
+      .then(docs => setRecentItems(docs))
+      .catch(() => {})
+      .finally(() => setRecentLoading(false));
+  }, [showHistory]);
 
   return (
     <>
@@ -201,12 +206,18 @@ export function SidebarDrawer({ open, onClose, spaces: propSpaces = [] }: Sideba
           {showHistory && (
             <div className="px-1 py-1 animate-fade-in">
               <div className="rounded-lg border border-gray-100 dark:border-dark-border bg-white dark:bg-dark-bg">
-                {recentItems.map((item) => (
+                {recentLoading ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin text-gray-300 dark:text-dark-text-muted" />
+                  </div>
+                ) : recentItems.length === 0 ? (
+                  <p className="px-3 py-3 text-center text-xs text-gray-300 dark:text-dark-text-muted">{t("home.no_spaces")}</p>
+                ) : recentItems.map((item) => (
                   <Link
                     key={item.id}
                     href={`/learn?id=${item.id}`}
                     onClick={onClose}
-                    className="flex items-center gap-2 px-3 py-2 text-xs text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface border-b border-gray-50 last:border-b-0"
+                    className="flex items-center gap-2 px-3 py-2 text-xs text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-hover dark:bg-dark-surface border-b border-gray-50 dark:border-dark-border last:border-b-0"
                   >
                     <FileText className="h-3 w-3 text-gray-400 dark:text-dark-text-muted shrink-0" />
                     <span className="truncate">{item.title}</span>

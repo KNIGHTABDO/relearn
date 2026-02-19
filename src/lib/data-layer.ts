@@ -14,6 +14,25 @@ export interface SpaceInfo {
   tags: string[];
 }
 
+
+// ─── Search ──────────────────────────────────────────
+export async function searchAction(query: string): Promise<{
+  documents: Array<{ id: string; title: string; type: string; spaceId?: string }>;
+  spaces: Array<{ id: string; name: string; icon: string; color: string }>;
+}> {
+  const empty = { documents: [], spaces: [] };
+  if (!db.isDesktopMode()) return empty;
+  return db.searchDocumentsAndSpaces(query);
+}
+
+// ─── Recent Documents ────────────────────────────────
+export async function getRecentDocumentsAction(limit = 8): Promise<Array<{
+  id: string; title: string; type: string; spaceId?: string; createdAt: string;
+}>> {
+  if (!db.isDesktopMode()) return [];
+  return db.getRecentDocuments(limit);
+}
+
 export async function fetchSpaces(): Promise<SpaceInfo[]> {
   if (db.isDesktopMode()) {
     const spaces = await db.getSpaces();
