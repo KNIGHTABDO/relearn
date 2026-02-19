@@ -1,147 +1,257 @@
-# ReLearn — AI-Powered Educational Platform
+# ReLearn — AI-Powered Desktop Study Platform
 
-> The first AI study platform that doesn't just chat — it **ACTS**. It generates podcasts from your notes, creates study plans from your quiz scores, and adapts to how you learn.
+> Turn any study material into an interactive learning experience. Upload a PDF, paste a YouTube link, or record a lecture — ReLearn's AI builds flashcards, quizzes, study plans, mind maps, and podcasts from it. Everything runs locally on your machine.
 
-![ReLearn](public/images/hero.jpg)
+![ReLearn Hero](public/images/hero.jpg)
 
-## ✨ Features
-
-### 🎙️ AI Podcast Generation
-Upload any document → get a two-host podcast discussing your material. Alex (the explainer) and Sam (the curious learner) break down concepts in a natural, engaging conversation. Uses Web Speech Synthesis for TTS with different voices per host.
-
-### 🗣️ Voice Tutor Mode
-Talk to your AI tutor like a real conversation. Press the mic button, ask your question, hear the AI explain back. Continuous conversation mode keeps the dialogue flowing — like having a private tutor.
-
-### 🤖 AI Study Planner
-An AI agent that analyzes your performance, identifies weak topics, and generates a personalized weekly study plan. Includes focus areas, daily goals, and estimated time to mastery.
-
-### 📊 Learning Analytics Dashboard
-Track your progress with beautiful SVG charts:
-- Quiz scores over time (bar chart)
-- Topic strength radar chart
-- GitHub-style activity heatmap
-- Study streak & stats cards with animated counters
-
-### 🖼️ AI Mind Map / Infographic
-Turn your notes into interactive visual mind maps. Central topic with radiating branches — CSS-animated nodes and SVG connection paths. Click any node to expand details.
-
-### 📝 AI Study Reports
-Generate comprehensive study guides from your materials. Includes key concepts, important formulas, study tips, practice questions, and summaries with source citations.
-
-### 🔄 Spaced Repetition System (SM-2)
-Flashcards that adapt to your memory. Uses the SM-2 algorithm:
-- Cards you get wrong come back sooner
-- Cards you know well space out over days/weeks
-- 4 response levels: Again / Hard / Good / Easy
-- LocalStorage persistence for review scheduling
-- Celebration animation when all caught up!
-
-### 🌐 Multi-Language AI Tutoring
-All AI-generated content (flashcards, quizzes, summaries, podcasts) can be generated in 10+ languages. Language selector in header.
-
-### 🧠 Snap a Problem
-Take a photo or upload an image of any problem → AI analyzes it and provides:
-- Problem detection & text extraction
-- Step-by-step solution with explanations
-- Similar practice problems
-
-### 👥 Collaborative Spaces
-Share spaces with classmates:
-- Invite by email or share link
-- Role-based access (Owner/Editor/Viewer)
-- Activity feed showing collaborator actions
-- Comment threads on documents
-
-### Plus: Everything from the Core Platform
-- 📚 **Spaces System** — Organize courses with multi-document support
-- 💬 **AI Chat** — RAG-powered Q&A grounded in your documents
-- 🃏 **Flashcards** — AI-generated with flip animations
-- ❓ **Quizzes** — Multiple-choice with explanations
-- 📖 **Summaries, Notes, Chapters** — AI-generated study materials
-- 📄 **Real PDF Rendering** — Full page rendering with react-pdf
-- 🎥 **YouTube Integration** — Embedded player + transcript extraction
-- 🎤 **Record** — Record lectures with waveform visualization
-- 🔍 **Search** — Semantic search across all spaces and docs
-- 🌙 **Dark Mode** — Full light/dark/system theme support
-- 🎨 **AI-Generated Illustrations** — 19 custom images via Nano Banana Pro
-
-## 🛠️ Tech Stack
-
-- **Framework**: Next.js 14 (App Router)
-- **Language**: TypeScript 5.7
-- **Styling**: Tailwind CSS 3.4 + Radix UI
-- **AI**: GitHub Copilot API (GPT-4o + model selection)
-- **PDF**: react-pdf + pdf-parse
-- **Images**: AI-generated via Gemini 3 Pro Image (Nano Banana Pro)
-- **TTS**: Web Speech Synthesis API
-- **STT**: Web Speech Recognition API
-- **SRS**: SM-2 algorithm with localStorage persistence
-
-## 🚀 Getting Started
-
-```bash
-git clone https://github.com/KNIGHTABDO/relearn.git
-cd relearn
-npm install
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000)
-
-### AI Setup (Optional)
-To enable AI features, connect your GitHub Copilot in Settings:
-1. Go to Settings → Connect GitHub
-2. Follow the device code authentication
-3. Select your preferred AI model
-
-Without Copilot, the app uses demo data so you can still explore all features.
-
-## 📁 Project Structure
-
-```
-src/
-├── app/
-│   ├── page.tsx                    # Home dashboard
-│   ├── progress/page.tsx           # Analytics dashboard
-│   ├── space/[id]/page.tsx         # Space detail
-│   ├── learn/page.tsx              # Document learning view
-│   ├── api/
-│   │   ├── chat/route.ts           # AI chat (RAG)
-│   │   ├── generate/route.ts       # Flashcards, quiz, summary, notes
-│   │   ├── podcast/route.ts        # AI podcast generation
-│   │   ├── study-plan/route.ts     # AI study planner
-│   │   ├── snap/route.ts           # Image problem solving
-│   │   ├── translate/route.ts      # Multi-language translation
-│   │   └── ...
-├── components/
-│   ├── learn/
-│   │   ├── learning-panel.tsx      # Main tool panel (12 features)
-│   │   ├── podcast-player.tsx      # Podcast player + TTS
-│   │   ├── voice-tutor.tsx         # Voice conversation mode
-│   │   ├── study-planner.tsx       # AI study plan generator
-│   │   ├── analytics-dashboard.tsx # Progress charts & stats
-│   │   ├── infographic-viewer.tsx  # Mind map generator
-│   │   ├── study-report.tsx        # Comprehensive study guide
-│   │   ├── spaced-repetition.tsx   # SM-2 flashcard system
-│   │   ├── snap-problem.tsx        # Camera/image problem solver
-│   │   ├── collab-panel.tsx        # Collaboration features
-│   │   ├── flashcard-viewer.tsx    # Standard flashcard viewer
-│   │   ├── quiz-viewer.tsx         # Quiz with scoring
-│   │   └── chat-panel.tsx          # AI chat interface
-│   └── ...
-├── lib/
-│   ├── store.ts                    # In-memory data store
-│   ├── types.ts                    # TypeScript interfaces
-│   ├── github-auth.ts              # Copilot auth manager
-│   └── utils.ts                    # Utilities
-└── public/
-    └── images/                     # 19 AI-generated illustrations
-```
-
-## 📄 License
-
-MIT
+[![GitHub Release](https://img.shields.io/github/v/release/KNIGHTABDO/relearn?style=flat-square&color=7c3aed)](https://github.com/KNIGHTABDO/relearn/releases/latest)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blue?style=flat-square)](https://github.com/KNIGHTABDO/relearn/releases/latest)
+[![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
+[![Website](https://img.shields.io/badge/website-relearn--website--kappa.vercel.app-purple?style=flat-square)](https://relearn-website-kappa.vercel.app)
 
 ---
 
-Built with ❤️ and a lot of AI
+## 📥 Download
+
+| Platform | File | Notes |
+|----------|------|-------|
+| Windows | `.msi` installer | Recommended — includes WebView2 bootstrap |
+| macOS (Apple Silicon) | `.dmg` (aarch64) | For M1/M2/M3 Macs |
+| macOS (Intel) | `.dmg` (x86_64) | For Intel Macs |
+| Linux | `.AppImage` / `.deb` / `.rpm` | No install needed for AppImage |
+
+👉 **[Download latest release →](https://github.com/KNIGHTABDO/relearn/releases/latest)**
+
+---
+
+## ✨ What's Inside
+
+### 📚 Spaces System
+Organize your courses into Spaces — each Space holds multiple documents and has its own AI chat, flashcard sets, practice exams, and study plans. All data is stored locally in SQLite.
+
+### 📄 File Support
+Upload almost anything:
+- **PDF** — real page rendering with react-pdf (selectable text, zoom, scroll)
+- **DOCX / DOC** — text extraction via mammoth.js
+- **PPTX / PPT** — slide extraction via JSZip + DrawingML parsing
+- **Images** (PNG, JPG, WebP) — AI vision OCR via Gemini
+- **YouTube URLs** — embedded player + automatic transcript extraction (Innertube API, no API key)
+- **Plain text / web paste** — paste any article, notes, or web content
+- **Audio recording** — record lectures directly in the app with waveform visualization
+
+### 💬 AI Chat
+RAG-powered chat grounded in your documents:
+- Full markdown rendering (bold, lists, code, headings)
+- `[Page X]` and `[00:34]` references rendered as clickable buttons that jump to the exact position in the document
+- **Add Context** — attach multiple documents to a single chat session
+- Streaming responses with live spinner
+- AI always cites page numbers
+
+### 🃏 Flashcards
+- AI-generated from any document
+- Fully editable — Add, Edit, Delete individual cards
+- SQLite cache — instant reload on revisit (no re-generation needed)
+- Keyboard shortcuts: `Space` to flip, `←` / `→` to navigate
+- Copy All to clipboard (Q:/A: format for Anki export)
+- **Spaced Repetition (SM-2)** — cards adapt to your memory; reviews scheduled automatically
+
+### ❓ Practice Quiz
+AI-generated multiple-choice questions with explanations. Full practice exam mode from an entire Space (timed, scored, with per-question explanations).
+
+### 🎙️ AI Podcast
+Upload any document → get a two-host audio podcast. Alex (the explainer) and Sam (the curious student) discuss your material in a natural conversation. Auto-scrolling timestamped transcript. Speed control.
+
+### 🗣️ Voice Tutor
+Speak to your AI tutor. Press mic → ask question → hear the AI respond with voice synthesis. Continuous mode keeps the dialogue flowing without pressing mic repeatedly.
+
+### 📅 AI Study Planner
+Analyzes your weak topics and generates a personalized weekly study schedule. Color-coded daily blocks, estimated time to mastery, focus areas.
+
+### 📊 Analytics Dashboard
+Track your progress:
+- Quiz score history (animated bar chart)
+- Topic strength radar chart
+- GitHub-style activity heatmap
+- Study streak, total cards reviewed, mastery percentage
+
+### 🗺️ Mind Map / Infographic
+Turns your notes into an interactive visual mind map. CSS-animated nodes with SVG bezier connections.
+
+### 📝 Study Report
+Generates a comprehensive study guide: key concepts, formulas, summaries, practice questions, and source citations — ready to print or export.
+
+### 🧠 Snap a Problem
+Take a photo or upload an image of any math/science problem → AI extracts the problem and delivers a step-by-step solution with similar practice questions.
+
+### 🔍 Full-Text Search
+Search across all your Spaces and documents from the sidebar — wired to SQLite LIKE queries across titles, content, and space names.
+
+### ⌨️ Command Palette
+Press `⌘K` (Mac) or `Ctrl+K` (Windows/Linux) from anywhere in the app to search commands and spaces instantly.
+
+### 🆕 Onboarding Wizard
+First-launch 3-step wizard shows you how to add material, what the AI tools can do, and productivity tips (including Cmd+K).
+
+### 🌙 Dark Mode
+Full Light / Dark / System theme. Zero flash — applied before React hydrates via inline `<script>` in `<head>`.
+
+### 🌐 10 Languages
+English, Spanish, French, Arabic, German, Chinese, Japanese, Korean, Portuguese, Hindi. The entire UI is fully translated. AI also responds in your selected language.
+
+### 🔒 100% Local
+All documents and AI-generated content are stored in SQLite on your machine. Nothing is uploaded to any server.
+
+---
+
+## 🤖 AI Setup
+
+ReLearn supports two AI providers. You only need one.
+
+### Option 1 — Google AI Pro (Recommended for Students)
+If you have a [Google AI Pro](https://one.google.com/about/plans) subscription (many universities offer this free):
+1. Open Settings → AI Providers → Connect Google
+2. Sign in with your Google account in the browser that opens
+3. AI Pro benefits (Gemini 2.0 Flash, 2.5 Pro access) flow automatically
+
+> Uses the same authentication method as Gemini CLI and Google Cloud Code — your subscription benefits carry over with zero GCP setup.
+
+### Option 2 — Gemini API Key (Free tier available)
+1. Get a free API key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey)
+2. Open Settings → AI Providers → paste your key
+
+### Option 3 — GitHub Copilot
+If you have a GitHub Copilot subscription (included free with [GitHub Student Developer Pack](https://education.github.com/pack)):
+1. Open Settings → AI Providers → Connect GitHub
+2. A device code appears — enter it at [github.com/login/device](https://github.com/login/device)
+3. All Copilot models (GPT-4o, o1, Claude, etc.) become available
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Desktop runtime | [Tauri v2](https://tauri.app) (Rust + WebView2/WebKit) |
+| Frontend framework | Next.js 14 (App Router, static export) |
+| Language | TypeScript 5.7 |
+| Styling | Tailwind CSS 3.4 + Radix UI |
+| Icons | Lucide React |
+| Database | SQLite via `tauri-plugin-sql` (9 tables, fully local) |
+| AI (Google) | Gemini 2.0 Flash / 2.5 Pro via Antigravity Gateway or API key |
+| AI (GitHub) | Copilot GPT-4o / o1 / Claude via device code auth |
+| PDF rendering | react-pdf + pdfjs-dist (local worker) |
+| DOCX parsing | mammoth.js |
+| PPTX parsing | JSZip + DrawingML XML |
+| YouTube | Innertube API (no API key needed) |
+| Speech | Web Speech Synthesis + Web Speech Recognition |
+| Images | 19 custom illustrations via Nano Banana Pro / Gemini 3 Pro Image |
+| CI/CD | GitHub Actions (Windows / macOS ARM + Intel / Linux matrix) |
+
+---
+
+## 🏗️ Build from Source
+
+### Prerequisites
+- [Node.js 22+](https://nodejs.org)
+- [Rust stable](https://rustup.rs)
+- [Tauri CLI v2](https://tauri.app/start/prerequisites/)
+
+```bash
+# Clone
+git clone https://github.com/KNIGHTABDO/relearn.git
+cd relearn
+
+# Install dependencies
+npm install
+
+# Development (web preview)
+npm run dev
+
+# Development (Tauri desktop app with hot-reload)
+npm run tauri:dev
+
+# Production build (generates installer in src-tauri/target/release/bundle/)
+npm run tauri:build
+```
+
+### Environment Variables (for web/dev mode only)
+```env
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+```
+
+> In Tauri desktop mode, no environment variables are needed — all AI credentials are stored locally in SQLite.
+
+---
+
+## 🗂️ Project Structure
+
+```
+relearn/
+├── src/
+│   ├── app/                    # Next.js App Router pages
+│   │   ├── page.tsx            # Home / Spaces dashboard
+│   │   ├── learn/page.tsx      # Document viewer + AI tools
+│   │   ├── space/page.tsx      # Space detail view
+│   │   ├── upload/page.tsx     # File upload
+│   │   ├── paste/page.tsx      # URL / text input
+│   │   ├── record/page.tsx     # Audio recording
+│   │   ├── settings/page.tsx   # AI providers, shortcuts, about
+│   │   ├── exam/page.tsx       # Practice exam (timed)
+│   │   └── progress/page.tsx   # Analytics dashboard
+│   ├── components/
+│   │   ├── layout/             # Header, sidebar, footer
+│   │   ├── providers/          # DB, i18n, theme contexts
+│   │   └── ui/                 # Shared components (command palette, onboarding, etc.)
+│   ├── lib/
+│   │   ├── database.ts         # SQLite schema + CRUD (9 tables)
+│   │   ├── data-layer.ts       # Unified data access (desktop + web)
+│   │   ├── ai-service.ts       # All AI prompts + client-side wrappers
+│   │   ├── gemini-client.ts    # Google Gemini + Antigravity routing
+│   │   ├── google-auth.ts      # Google OAuth (Antigravity flow)
+│   │   └── github-auth.ts      # GitHub device code flow
+│   └── src-tauri/              # Rust backend (Tauri v2)
+│       ├── src/lib.rs          # Tauri commands (OAuth, AI calls, crash logging)
+│       └── tauri.conf.json     # App config, CSP, WebView2 bootstrapper
+├── public/images/              # 19 AI-generated illustrations
+├── prebuild.js                 # Removes API routes, copies pdf.worker before build
+└── .github/workflows/
+    └── release.yml             # Multi-platform build matrix
+```
+
+---
+
+## 🚧 Upcoming Features
+
+- **Arabic RTL layout** — full right-to-left support component by component (in progress)
+- **Web version** — hosted deployment (Vercel) for browser access
+- **Mobile app** — iOS + Android via Tauri mobile
+- **Exam scheduler** — set review reminders based on spaced repetition schedule
+- **AI video summary** — generate short video explainers from documents
+- **LMS integrations** — export to Google Classroom, Canvas, Blackboard
+- **Real-time collaboration** — live cursors and shared editing in Spaces
+- **Offline AI** — local LLM via Ollama for fully air-gapped use
+
+---
+
+## 🌐 Website
+
+Landing page: **[relearn-website-kappa.vercel.app](https://relearn-website-kappa.vercel.app)**
+
+Built with Next.js 15. Features a Veo 3 video hero, live download links from GitHub releases, and a dynamic changelog page.
+
+---
+
+## 📄 License
+
+MIT — see [LICENSE](LICENSE)
+
+---
+
+## 🙏 Acknowledgements
+
+- [YouLearn](https://youlearn.ai) — design and feature inspiration
+- [OpenClaw](https://github.com/openai/openai-cli) — Antigravity Gateway auth approach
+- [Tauri](https://tauri.app) — making Rust + web a reality
+- [react-pdf](https://github.com/wojtekmaj/react-pdf) — PDF rendering in the browser
+- [Nano Banana Pro](https://nanobanana.ai) — AI image generation for illustrations
