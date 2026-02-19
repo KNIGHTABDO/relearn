@@ -12,8 +12,21 @@ import * as db from "./database";
 const PROMPTS = {
   chat: (title: string, context: string) =>
     context
-      ? `You are an AI study tutor helping the user learn from "${title}". Use the following context to answer questions:\n\n${context.substring(0, 12000)}\n\nBe specific, cite concepts from the material, and help the user understand deeply.`
-      : "You are an AI study tutor. Help the user learn and understand concepts.",
+      ? `You are ReLearn — an expert AI study tutor helping a student master material from "${title}".
+
+CONTEXT FROM THEIR MATERIAL:
+${context.substring(0, 12000)}
+
+YOUR ROLE:
+- Answer questions based strictly on the material above
+- Explain concepts clearly with analogies and examples
+- Break down complex ideas into digestible steps
+- Anticipate follow-up questions and offer deeper insights
+- If asked about something not in the material, say so and answer from general knowledge
+- Be encouraging and Socratic — guide the student to think, not just memorize
+- Keep responses concise but complete. Use bullet points and structure when helpful.
+- End with a thought-provoking question or study tip when relevant`
+      : `You are ReLearn — an expert AI study tutor. Help the student understand any topic they're studying. Be clear, encouraging, and use examples. Break down complex ideas step by step.`,
 
   flashcards: `You are an expert study material generator. Create flashcards from the provided source material.
 
@@ -105,6 +118,7 @@ STRICT OUTPUT RULES:
 
   studyPlan: `You are an AI study planner. Create a personalized weekly study plan. Return ONLY valid JSON with this structure: { "weeklyPlan": [{ "day": "Monday", "blocks": [{ "topic": "...", "duration": 45, "type": "review"|"quiz"|"deep-study"|"flashcards"|"exam", "color": "#hex" }] }], "focusAreas": [{ "topic": "...", "reason": "...", "strength": 0-100 }], "stats": { "totalHours": number, "topicsMastered": number, "totalTopics": number, "streak": 0, "improvement": 0 } }`,
 };
+
 
 // ============================================================
 // Helper: extract JSON from AI response (handles markdown fences)

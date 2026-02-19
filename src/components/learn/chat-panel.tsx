@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { ensureCopilotToken, isAuthenticated, getSelectedModel } from "@/lib/github-auth";
 import { ensureGoogleToken, isGoogleAuthenticated, getSelectedGeminiModel, hasGeminiApiKey } from "@/lib/google-auth";
 import { useI18n } from "@/components/providers/i18n-provider";
+import { chatStream } from "@/lib/ai-service";
 
 interface Message {
   id: string;

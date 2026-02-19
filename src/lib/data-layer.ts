@@ -89,9 +89,9 @@ export async function uploadTextAction(text: string): Promise<string | null> {
       type: 'text',
       text,
       chunks: [],
-      file_size: text.length,
-      page_count: 1,
-      created_at: now,
+      fileSize: text.length,
+      pageCount: 1,
+      createdAt: new Date(now),
     } as any);
     return id;
   }
