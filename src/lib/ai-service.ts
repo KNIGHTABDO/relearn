@@ -10,23 +10,25 @@ import * as db from "./database";
 // ============================================================
 
 const PROMPTS = {
-  chat: (title: string, context: string) =>
-    context
+  chat: (title: string, context: string, extraContext?: string) => {
+    const hasCtx = context || extraContext;
+    const fullCtx = [context?.substring(0, 10000), extraContext?.substring(0, 4000)].filter(Boolean).join("\n\n---\n\n");
+    return hasCtx
       ? `You are ReLearn — an expert AI study tutor helping a student master material from "${title}".
 
 CONTEXT FROM THEIR MATERIAL:
-${context.substring(0, 12000)}
+${fullCtx}
 
 YOUR ROLE:
-- Answer questions based strictly on the material above
+- Answer questions based on the material above; cite specific parts as [Page X] or [Section: Name] when referencing them
 - Explain concepts clearly with analogies and examples
 - Break down complex ideas into digestible steps
-- Anticipate follow-up questions and offer deeper insights
 - If asked about something not in the material, say so and answer from general knowledge
 - Be encouraging and Socratic — guide the student to think, not just memorize
-- Keep responses concise but complete. Use bullet points and structure when helpful.
-- End with a thought-provoking question or study tip when relevant`
-      : `You are ReLearn — an expert AI study tutor. Help the student understand any topic they're studying. Be clear, encouraging, and use examples. Break down complex ideas step by step.`,
+- Use **bold** for key terms, bullet points for lists, and keep responses concise but complete
+- When quoting or referencing a specific part, use [Page X] citation format`
+      : `You are ReLearn — an expert AI study tutor. Help the student understand any topic they are studying. Be clear, encouraging, and use examples. Break down complex ideas step by step. Use **bold** for key terms and bullet points for lists.`;
+  },
 
   flashcards: `You are an expert study material generator. Create flashcards from the provided source material.
 
@@ -171,12 +173,27 @@ export async function chatStream(
   messages: { role: string; content: string }[],
   documentId?: string,
   spaceId?: string,
-  onChunk?: (text: string) => void
+  onChunk?: (text: string) => void,
+  extraDocIds?: string[]
 ): Promise<string> {
   if (!isTauri()) throw new Error("NOT_TAURI");
 
   const { text, title } = await getDocContext(documentId, spaceId);
-  const systemPrompt = PROMPTS.chat(title, text);
+
+  // Fetch extra context documents if provided
+  let extraContext: string | undefined;
+  if (extraDocIds && extraDocIds.length > 0) {
+    try {
+      const extraTexts: string[] = [];
+      for (const docId of extraDocIds) {
+        const doc = await db.getDocument(docId);
+        if (doc?.text) extraTexts.push(`--- ${doc.title} ---\n${doc.text.substring(0, 2000)}`);
+      }
+      if (extraTexts.length > 0) extraContext = extraTexts.join("\n\n");
+    } catch { /* ignore extra context errors */ }
+  }
+
+  const systemPrompt = PROMPTS.chat(title, text, extraContext);
 
   const aiMessages = [
     { role: "system" as const, content: systemPrompt },
