@@ -36,14 +36,14 @@ export async function callAIDirect(
 ): Promise<string | null> {
   if (!isTauri()) return null;
 
-  // Try Google first — prefer API key, fall back to OAuth token
-  const apiKey = getGeminiApiKey();
-  if (apiKey) {
-    return callGeminiDirect(apiKey, getSelectedGeminiModel(), messages, options, true);
-  }
+  // Try Google first — prefer OAuth token (leverages AI Pro subscription), fall back to API key
   const googleToken = await ensureGoogleToken();
   if (googleToken) {
     return callGeminiDirect(googleToken, getSelectedGeminiModel(), messages, options, false);
+  }
+  const apiKey = getGeminiApiKey();
+  if (apiKey) {
+    return callGeminiDirect(apiKey, getSelectedGeminiModel(), messages, options, true);
   }
 
   // Then Copilot
@@ -66,13 +66,13 @@ export async function streamAIDirect(
 ): Promise<ReadableStream<string> | null> {
   if (!isTauri()) return null;
 
-  const apiKey = getGeminiApiKey();
-  if (apiKey) {
-    return streamGeminiDirect(apiKey, getSelectedGeminiModel(), messages, options, true);
-  }
   const googleToken = await ensureGoogleToken();
   if (googleToken) {
     return streamGeminiDirect(googleToken, getSelectedGeminiModel(), messages, options, false);
+  }
+  const apiKey = getGeminiApiKey();
+  if (apiKey) {
+    return streamGeminiDirect(apiKey, getSelectedGeminiModel(), messages, options, true);
   }
 
   const copilotToken = await ensureCopilotToken();
