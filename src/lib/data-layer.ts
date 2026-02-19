@@ -272,14 +272,16 @@ export async function uploadFileAction(
 
     let extractedText = '';
     let pageCount = 1;
-    let docType: 'pdf' | 'text' = 'text';
+    let docType: 'pdf' | 'text' | 'docx' | 'pptx' | 'image' = 'text';
     let fileData: string | undefined;
 
-    if (file.name.toLowerCase().endsWith('.pdf')) {
+    const ext = file.name.toLowerCase().split('.').pop() || '';
+    const imageExts = ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp'];
+
+    if (ext === 'pdf') {
       docType = 'pdf';
       fileData = base64Data;
       try {
-        // Use pdfjs-dist for client-side PDF text extraction
         const { pdfjs: pdfjsLib } = await import('react-pdf');
         if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
           pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
@@ -290,9 +292,7 @@ export async function uploadFileAction(
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const textContent = await page.getTextContent();
-          const pageText = textContent.items
-            .map((item: any) => item.str)
-            .join(' ');
+          const pageText = textContent.items.map((item: any) => item.str).join(' ');
           pages.push(pageText);
         }
         extractedText = pages.join('\n\n').replace(/\s{2,}/g, ' ').trim();
@@ -304,8 +304,65 @@ export async function uploadFileAction(
         pageCount = Math.max(1, Math.floor(file.size / 3000));
         extractedText = `[PDF Document: ${title}]\n\nPDF parsing error.\nPages: ~${pageCount}\nSize: ${(file.size / 1024).toFixed(1)} KB`;
       }
+
+    } else if (ext === 'docx' || ext === 'doc') {
+      docType = 'docx';
+      try {
+        const mammoth = await import('mammoth');
+        const result = await mammoth.extractRawText({ arrayBuffer });
+        extractedText = result.value.replace(/\s{2,}/g, ' ').trim();
+        if (!extractedText || extractedText.length < 10) {
+          extractedText = `[Word Document: ${title}]\n\nNo text content could be extracted.`;
+        }
+        pageCount = Math.max(1, Math.ceil(extractedText.length / 2500));
+      } catch (docxErr) {
+        console.error('[Upload] DOCX parse error:', docxErr);
+        extractedText = `[Word Document: ${title}]\n\nUnable to extract text content.`;
+      }
+
+    } else if (ext === 'pptx' || ext === 'ppt') {
+      docType = 'pptx';
+      try {
+        const JSZip = (await import('jszip')).default;
+        const zip = await JSZip.loadAsync(arrayBuffer);
+        const slideFiles = Object.keys(zip.files)
+          .filter(name => /ppt\/slides\/slide\d+\.xml$/i.test(name))
+          .sort((a, b) => {
+            const na = parseInt(a.match(/slide(\d+)/)?.[1] || '0');
+            const nb = parseInt(b.match(/slide(\d+)/)?.[1] || '0');
+            return na - nb;
+          });
+        const slideTexts: string[] = [];
+        for (const slidePath of slideFiles) {
+          const xml = await zip.files[slidePath].async('string');
+          // Extract text from <a:t> tags (DrawingML text nodes)
+          const textMatches = xml.match(/<a:t[^>]*>([^<]*)<\/a:t>/g) || [];
+          const slideText = textMatches
+            .map(m => m.replace(/<[^>]+>/g, '').trim())
+            .filter(t => t.length > 0)
+            .join(' ');
+          if (slideText) slideTexts.push(slideText);
+        }
+        pageCount = slideFiles.length || 1;
+        extractedText = slideTexts.join('\n\n');
+        if (!extractedText || extractedText.length < 10) {
+          extractedText = `[PowerPoint: ${title}]\n\n${pageCount} slides — no text content found.`;
+        }
+      } catch (pptxErr) {
+        console.error('[Upload] PPTX parse error:', pptxErr);
+        extractedText = `[PowerPoint: ${title}]\n\nUnable to extract slide content.`;
+      }
+
+    } else if (imageExts.includes(ext)) {
+      docType = 'image';
+      fileData = base64Data;
+      pageCount = 1;
+      // Text extraction via Gemini vision happens lazily in ai-service when needed.
+      // Store a placeholder so the document is immediately usable.
+      extractedText = `[Image: ${title}]\n\nImage file uploaded. AI can analyze this image when you start a chat.`;
+
     } else {
-      // Text file
+      // Plain text / markdown / other
       extractedText = await file.text();
     }
 

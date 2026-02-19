@@ -116,6 +116,7 @@ STRICT OUTPUT RULES:
 
   snap: `You are an educational problem solver. Analyze the image/text of a problem and provide a detailed step-by-step solution. Return ONLY valid JSON: { "detectedText": "...", "subject": "...", "solution": { "steps": [{ "step": 1, "title": "...", "content": "..." }], "answer": "..." }, "similarProblems": ["...", "...", "..."] }`,
 
+  imageOcr: `You are an AI that extracts and describes content from educational images. When given an image, provide: (1) A complete transcription of ALL text visible (equations, labels, headings), (2) Description of any diagrams/charts/graphs, (3) A concise summary of what this covers. Format as clean readable plain text. Use standard text for math (x^2, sqrt(x), etc.)`,
   studyPlan: `You are an AI study planner. Create a personalized weekly study plan based on the provided material. Return ONLY valid JSON with EXACTLY this structure:
 {
   "weekly": [{ "day": "Mon", "blocks": [{ "id": "b1", "topicId": "t1", "title": "Study session title", "duration": 45 }], "tasks": [{ "id": "task1", "title": "Task description", "completed": false }] }],
@@ -320,4 +321,35 @@ export async function generateStudyPlan(context: string): Promise<any> {
   const parsed = extractJSON(result);
   if (!parsed) throw new Error("PARSE_ERROR");
   return { ...parsed, isAiGenerated: true };
+}
+
+/**
+ * Describe / OCR an image file for use in chat context.
+ * Returns extracted text + description so chat can reference image content.
+ */
+export async function describeImageContent(base64Data: string, mimeType: string): Promise<string> {
+  if (!isTauri()) throw new Error("NOT_TAURI");
+
+  const provider = await getActiveProvider();
+  if (!provider) throw new Error("NO_AI_PROVIDER");
+
+  // Build an inline image part for Gemini
+  try {
+    const { geminiClient } = await import("@/lib/gemini-client");
+    const result = await geminiClient.generateContent({
+      contents: [
+        {
+          role: "user",
+          parts: [
+            { text: PROMPTS.imageOcr },
+            { inlineData: { mimeType, data: base64Data } },
+          ],
+        },
+      ],
+    });
+    return result?.response?.text() || "[Image: unable to extract content]";
+  } catch (err) {
+    console.error("[AI] describeImageContent error:", err);
+    return "[Image: unable to extract content at this time]";
+  }
 }
