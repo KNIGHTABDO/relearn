@@ -108,9 +108,13 @@ export default function HomePage() {
       const space = await createSpaceAction(newSpaceName.trim());
       if (space) {
         setSpaces((prev) => [space, ...prev]);
+        setNewSpaceName("");
+        setShowCreateSpace(false);
+        router.push(`/space?id=${space.id}`);
+      } else {
+        setNewSpaceName("");
+        setShowCreateSpace(false);
       }
-      setNewSpaceName("");
-      setShowCreateSpace(false);
     } catch (e) {}
   };
 

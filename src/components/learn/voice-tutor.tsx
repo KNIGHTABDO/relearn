@@ -12,7 +12,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import axios from 'axios';
+import { chatStream } from '@/lib/ai-service';
 
 interface VoiceTutorProps {
   documentId?: string;
@@ -113,47 +113,30 @@ const VoiceTutor: React.FC<VoiceTutorProps> = ({
     setState(TutorState.IDLE);
   };
 
-  /** Send user message to backend */
+  /** Send user message to AI tutor using chatStream */
   const handleUserMessage = async (text: string) => {
     setMessages((prev) => [...prev, { role: 'user', content: text }]);
     setState(TutorState.PROCESSING);
 
-    const token = localStorage.getItem('github_copilot_token') || '';
-    const model = localStorage.getItem('selected_model') || 'gpt-4o';
-    const systemMessage = documentId
-      ? `Use the document ${documentId} for grounded answers.`
-      : '';
+    const allMsgs = [
+      ...messages.map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content })),
+      { role: 'user' as const, content: text },
+    ];
 
+    let aiReply = '';
     try {
-      const response = await axios.post(
-        '/api/chat',
-        {
-          messages: [
-            ...messages.map((m) => ({
-              role: m.role === 'user' ? 'user' : 'assistant',
-              content: m.content,
-            })),
-            { role: 'user', content: text },
-          ],
-          systemMessage,
-          model,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      const aiReply = response.data?.reply || 'Sorry, I could not understand.';
+      await chatStream(allMsgs, documentId, spaceId, (chunk) => {
+        aiReply = chunk;
+      });
+      if (!aiReply) aiReply = 'Sorry, I could not understand.';
       setMessages((prev) => [...prev, { role: 'assistant', content: aiReply }]);
       speak(aiReply);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setMessages((prev) => [
-        ...prev,
-        { role: 'assistant', content: 'Error: unable to fetch response.' },
-      ]);
+      const errMsg = err?.message === 'NO_AI_PROVIDER'
+        ? 'Please connect an AI provider in Settings first.'
+        : 'Error: unable to process your message.';
+      setMessages((prev) => [...prev, { role: 'assistant', content: errMsg }]);
       setState(TutorState.IDLE);
     }
   };
