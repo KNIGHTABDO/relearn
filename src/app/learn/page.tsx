@@ -19,7 +19,7 @@ function LearnPageInner() {
   const documentId = searchParams.get("id") || undefined;
   const spaceId = searchParams.get("spaceId") || undefined;
   const [docTitle, setDocTitle] = useState("Document");
-  const [pageCount, setPageCount] = useState(19);
+  const [pageCount, setPageCount] = useState(1);
   const [contentType, setContentType] = useState<"pdf" | "youtube" | "text" | "recording" | "image">("pdf");
   const [youtubeUrl, setYoutubeUrl] = useState<string | undefined>();
   const [documentText, setDocumentText] = useState<string>("");
@@ -52,7 +52,8 @@ function LearnPageInner() {
           if (data.fileData) {
             setPdfUrl(`data:application/pdf;base64,${data.fileData}`);
           } else {
-            setPdfUrl(`/api/document/${documentId}/pdf`);
+            // No file data stored — PDF not renderable in static/desktop mode
+            setPdfUrl(undefined);
           }
         }
 

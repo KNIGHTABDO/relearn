@@ -146,6 +146,8 @@ export async function getDocumentsBySpace(spaceId: string): Promise<DocumentInfo
       id: d.id,
       title: d.title,
       type: d.type,
+      fileSize: d.fileSize || 0,
+      pageCount: d.pageCount || 0,
       createdAt: d.createdAt?.toISOString?.() || new Date().toISOString(),
       spaceId: d.spaceId,
     }));
