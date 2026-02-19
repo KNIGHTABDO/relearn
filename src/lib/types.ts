@@ -13,7 +13,7 @@ export interface Space {
 export interface Document {
   id: string;
   title: string;
-  type: "pdf" | "youtube" | "text" | "recording" | "image";
+  type: "pdf" | "youtube" | "text" | "recording" | "image" | "docx" | "pptx";
   text: string;
   chunks: string[];
   fileSize?: number;

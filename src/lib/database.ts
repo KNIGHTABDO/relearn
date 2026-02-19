@@ -144,6 +144,43 @@ async function createTables(): Promise<void> {
 // SPACES
 // =========================
 
+
+// ─── Flashcard Sets ─────────────────────────────────
+export async function getFlashcardSet(documentId?: string, spaceId?: string): Promise<import("./types").FlashcardSet | null> {
+  try {
+    let rows: any[];
+    if (documentId) {
+      rows = await db.select("SELECT * FROM flashcard_sets WHERE document_id = $1 ORDER BY created_at DESC LIMIT 1", [documentId]);
+    } else if (spaceId) {
+      rows = await db.select("SELECT * FROM flashcard_sets WHERE space_id = $1 AND document_id IS NULL ORDER BY created_at DESC LIMIT 1", [spaceId]);
+    } else {
+      return null;
+    }
+    if (!rows || rows.length === 0) return null;
+    const row = rows[0];
+    return {
+      id: row.id,
+      cards: JSON.parse(row.cards || "[]"),
+      documentId: row.document_id || undefined,
+      spaceId: row.space_id || undefined,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export async function saveFlashcardSet(set: import("./types").FlashcardSet): Promise<void> {
+  await db.execute(
+    `INSERT OR REPLACE INTO flashcard_sets (id, cards, document_id, space_id, created_at)
+     VALUES ($1, $2, $3, $4, $5)`,
+    [set.id, JSON.stringify(set.cards), set.documentId || null, set.spaceId || null, new Date().toISOString()]
+  );
+}
+
+export async function deleteFlashcardSet(id: string): Promise<void> {
+  await db.execute("DELETE FROM flashcard_sets WHERE id = $1", [id]);
+}
+
 export async function getSpaces(): Promise<Space[]> {
   if (!db) return [];
   const rows: any[] = await db.select("SELECT * FROM spaces ORDER BY updated_at DESC");

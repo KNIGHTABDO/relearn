@@ -79,6 +79,27 @@ export async function createSpaceAction(name: string): Promise<SpaceInfo | null>
   }
 }
 
+
+// ─── Flashcard Persistence ──────────────────────────
+export async function saveFlashcardsAction(
+  cards: Array<{ id: string; front: string; back: string }>,
+  documentId?: string,
+  spaceId?: string
+): Promise<void> {
+  if (!db.isDesktopMode()) return;
+  const id = `fc-${documentId || spaceId || "global"}`;
+  await db.saveFlashcardSet({ id, cards, documentId, spaceId });
+}
+
+export async function loadFlashcardsAction(
+  documentId?: string,
+  spaceId?: string
+): Promise<Array<{ id: string; front: string; back: string }> | null> {
+  if (!db.isDesktopMode()) return null;
+  const set = await db.getFlashcardSet(documentId, spaceId);
+  return set?.cards ?? null;
+}
+
 export async function uploadTextAction(text: string): Promise<string | null> {
   if (db.isDesktopMode()) {
     const id = crypto.randomUUID();
