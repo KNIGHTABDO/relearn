@@ -3,6 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { I18nProvider } from "@/components/providers/i18n-provider";
 import { DatabaseProvider } from "@/components/providers/database-provider";
+import { UpdateBanner } from "@/components/update-banner";
 
 export const metadata: Metadata = {
   title: "ReLearn — AI-Powered Study Platform",
@@ -44,7 +45,7 @@ export default function RootLayout({
       <body>
         <DatabaseProvider>
           <ThemeProvider>
-            <I18nProvider>{children}</I18nProvider>
+            <I18nProvider><UpdateBanner />{children}</I18nProvider>
           </ThemeProvider>
         </DatabaseProvider>
       </body>

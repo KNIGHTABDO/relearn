@@ -31,6 +31,19 @@ export function FlashcardViewer({ documentId, spaceId, renderSources }: Flashcar
   useEffect(() => {
     fetchFlashcards();
   }, [documentId, spaceId]);
+  // Keyboard shortcuts: Space=flip, ArrowLeft=prev, ArrowRight=next
+  useEffect(() => {
+    if (cards.length === 0) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.code === "Space") { e.preventDefault(); setFlipped(f => !f); }
+      if (e.code === "ArrowLeft") { e.preventDefault(); setCurrentIndex(i => Math.max(0, i - 1)); setFlipped(false); }
+      if (e.code === "ArrowRight") { e.preventDefault(); setCurrentIndex(i => Math.min(cards.length - 1, i + 1)); setFlipped(false); }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [cards.length]);
+
 
   const fetchFlashcards = async () => {
     setLoading(true);

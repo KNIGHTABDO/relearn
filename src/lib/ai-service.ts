@@ -116,7 +116,13 @@ STRICT OUTPUT RULES:
 
   snap: `You are an educational problem solver. Analyze the image/text of a problem and provide a detailed step-by-step solution. Return ONLY valid JSON: { "detectedText": "...", "subject": "...", "solution": { "steps": [{ "step": 1, "title": "...", "content": "..." }], "answer": "..." }, "similarProblems": ["...", "...", "..."] }`,
 
-  studyPlan: `You are an AI study planner. Create a personalized weekly study plan. Return ONLY valid JSON with this structure: { "weeklyPlan": [{ "day": "Monday", "blocks": [{ "topic": "...", "duration": 45, "type": "review"|"quiz"|"deep-study"|"flashcards"|"exam", "color": "#hex" }] }], "focusAreas": [{ "topic": "...", "reason": "...", "strength": 0-100 }], "stats": { "totalHours": number, "topicsMastered": number, "totalTopics": number, "streak": 0, "improvement": 0 } }`,
+  studyPlan: `You are an AI study planner. Create a personalized weekly study plan based on the provided material. Return ONLY valid JSON with EXACTLY this structure:
+{
+  "weekly": [{ "day": "Mon", "blocks": [{ "id": "b1", "topicId": "t1", "title": "Study session title", "duration": 45 }], "tasks": [{ "id": "task1", "title": "Task description", "completed": false }] }],
+  "topics": [{ "id": "t1", "name": "Topic name", "strength": "weak", "color": "bg-purple-200", "estimatedHours": 3 }],
+  "stats": { "totalHours": 12, "mastered": 2, "totalTopics": 8, "streak": 0, "improvement": 15 }
+}
+RULES: Cover all 7 days (Mon-Sun). Generate 2-4 blocks per day. Generate 4-8 topics. Use "strength": "weak"|"medium"|"strong". Colors: bg-purple-200, bg-blue-200, bg-sky-200, bg-pink-200, bg-orange-200. Return ONLY valid JSON, no markdown fences.`,
 };
 
 

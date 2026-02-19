@@ -206,9 +206,9 @@ export default function StudyPlanner({ spaceId }: StudyPlannerProps) {
       try {
         const context = spaceId ? `Space: ${spaceId}` : "";
         const data = await generateStudyPlan(context);
-        if (data?.weeklyPlan) setWeeklyPlan(data.weeklyPlan);
-        if (data?.focusAreas) setFocusAreas(data.focusAreas);
-        if (data?.stats) setStats(data.stats);
+        if (data?.weekly) setWeeklyPlan(data.weekly);
+        if (data?.topics) setFocusAreas(data.topics);
+        if (data?.stats) setStats({ ...data.stats, mastered: data.stats.mastered ?? data.stats.topicsMastered ?? 0 });
         setIsAiGenerated(true);
       } catch (e) {
         console.error(e);
@@ -224,9 +224,9 @@ export default function StudyPlanner({ spaceId }: StudyPlannerProps) {
     setGenerating(true);
     try {
         const data = await generateStudyPlan(documentText || "General study plan");
-        if (data?.weeklyPlan) setWeeklyPlan(data.weeklyPlan);
-        if (data?.focusAreas) setFocusAreas(data.focusAreas);
-        if (data?.stats) setStats(data.stats);
+        if (data?.weekly) setWeeklyPlan(data.weekly);
+        if (data?.topics) setFocusAreas(data.topics);
+        if (data?.stats) setStats({ ...data.stats, mastered: data.stats.mastered ?? data.stats.topicsMastered ?? 0 });
         setIsAiGenerated(true);
     } catch (e) {
       console.error(e);
