@@ -24,7 +24,7 @@ import {
   SwitchCamera,
   Image,
 } from 'lucide-react';
-import cn from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { snapProblem } from "@/lib/ai-service";
 
 // -----------------------------------------------------------------------------
@@ -164,12 +164,22 @@ export default function SnapProblem() {
     if (!imageData) return;
     setMode('analyzing');
     try {
-        const data = await snapProblem(capturedImage || selectedText || "");
-        setSolution(data);
+        const data = await snapProblem(imageData || "");
+        // Map ai-service response shape to AnalysisResult interface
+        const steps: string[] = Array.isArray(data?.solution?.steps)
+          ? data.solution.steps.map((s: any) =>
+              s.title ? `Step ${s.step}: ${s.title} — ${s.content}` : String(s)
+            )
+          : (Array.isArray(data?.steps) ? data.steps : []);
+        setAnalysis({
+          image: imageData || "",
+          problemText: data?.detectedText || data?.subject || "",
+          steps,
+        });
     } catch (e) {
       console.error(e);
       // fallback to mock data
-      setAnalysis({ ...MOCK_RESULT, image: imageData });
+      setAnalysis({ ...MOCK_RESULT, image: imageData || "" });
     } finally {
       setMode('result');
     }
