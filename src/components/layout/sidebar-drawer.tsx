@@ -92,8 +92,8 @@ export function SidebarDrawer({ open, onClose, spaces: propSpaces = [] }: Sideba
       )}
       <div
         className={cn(
-          "fixed left-0 top-0 z-50 flex h-full w-[280px] flex-col bg-white dark:bg-dark-bg shadow-xl transition-transform duration-300 ease-in-out",
-          open ? "translate-x-0" : "-translate-x-full"
+          "fixed left-0 rtl:left-auto rtl:right-0 top-0 z-50 flex h-full w-[280px] flex-col bg-white dark:bg-dark-bg shadow-xl transition-transform duration-300 ease-in-out",
+          open ? "translate-x-0" : "ltr:-translate-x-full rtl:translate-x-full"
         )}
       >
         {/* Header */}

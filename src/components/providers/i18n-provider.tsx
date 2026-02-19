@@ -24,7 +24,7 @@ export function useTranslation() {
 }
 
 // RTL support disabled until proper RTL layout is implemented
-const RTL_LANGUAGES: Language[] = [];
+const RTL_LANGUAGES: Language[] = ['ar'];
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLangState] = useState<Language>("en");
@@ -45,6 +45,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     document.documentElement.lang = lang;
+      document.documentElement.dir = RTL_LANGUAGES.includes(lang) ? 'rtl' : 'ltr';
     // document.documentElement.dir = RTL_LANGUAGES.includes(lang) ? "rtl" : "ltr";
   }, [lang]);
 
@@ -467,7 +468,7 @@ const allTranslations: Record<Language, Record<string, string>> = {
     "home.space_name": "Space name (e.g., Biology 101)",
     "home.space_name_placeholder": "Space name (e.g., Biology 101)",
     "common.file": "file",
-    "common.files": "files"
+    "common.files": "files",
     "cmd.placeholder": "Search or run a command...",
     "cmd.upload": "Upload File",
     "cmd.upload_desc": "PDF, DOCX, PPTX, images",
@@ -761,7 +762,7 @@ const allTranslations: Record<Language, Record<string, string>> = {
     "home.space_name": "Nombre del espacio (p. ej., Biología 101)",
     "home.space_name_placeholder": "Nombre del espacio (p. ej., Biología 101)",
     "common.file": "archivo",
-    "common.files": "archivos"
+    "common.files": "archivos",
     "cmd.placeholder": "Buscar o ejecutar un comando...",
     "cmd.upload": "Subir Archivo",
     "cmd.upload_desc": "PDF, DOCX, PPTX, imágenes",
@@ -1055,7 +1056,7 @@ const allTranslations: Record<Language, Record<string, string>> = {
     "home.space_name": "Nom de l'espace (ex. : Biologie 101)",
     "home.space_name_placeholder": "Nom de l'espace (ex. : Biologie 101)",
     "common.file": "fichier",
-    "common.files": "fichiers"
+    "common.files": "fichiers",
     "cmd.placeholder": "Rechercher ou exécuter une commande...",
     "cmd.upload": "Téléverser un fichier",
     "cmd.upload_desc": "PDF, DOCX, PPTX, images",
@@ -1349,7 +1350,7 @@ const allTranslations: Record<Language, Record<string, string>> = {
     "home.space_name": "اسم المساحة (مثلاً: علم الأحياء 101)",
     "home.space_name_placeholder": "اسم المساحة (مثلاً: علم الأحياء 101)",
     "common.file": "ملف",
-    "common.files": "ملفات"
+    "common.files": "ملفات",
     "cmd.placeholder": "البحث أو تشغيل أمر...",
     "cmd.upload": "رفع ملف",
     "cmd.upload_desc": "PDF، DOCX، PPTX، صور",
@@ -1542,7 +1543,7 @@ const allTranslations: Record<Language, Record<string, string>> = {
     "home.space_name": "Raumname (z. B. Biologie 101)",
     "home.space_name_placeholder": "Raumname (z. B. Biologie 101)",
     "common.file": "Datei",
-    "common.files": "Dateien"
+    "common.files": "Dateien",
     "cmd.placeholder": "Suchen oder Befehl ausführen...",
     "cmd.upload": "Datei hochladen",
     "cmd.upload_desc": "PDF, DOCX, PPTX, Bilder",
@@ -1732,7 +1733,7 @@ const allTranslations: Record<Language, Record<string, string>> = {
     "home.space_name": "空间名称（例如：生物学 101）",
     "home.space_name_placeholder": "空间名称（例如：生物学 101）",
     "common.file": "文件",
-    "common.files": "文件"
+    "common.files": "文件",
     "cmd.placeholder": "搜索或运行命令...",
     "cmd.upload": "上传文件",
     "cmd.upload_desc": "PDF、DOCX、PPTX、图片",
@@ -1915,7 +1916,7 @@ const allTranslations: Record<Language, Record<string, string>> = {
     "home.space_name": "スペース名（例：生物学 101）",
     "home.space_name_placeholder": "スペース名（例：生物学 101）",
     "common.file": "ファイル",
-    "common.files": "ファイル"
+    "common.files": "ファイル",
     "cmd.placeholder": "検索またはコマンドを実行...",
     "cmd.upload": "ファイルをアップロード",
     "cmd.upload_desc": "PDF、DOCX、PPTX、画像",
@@ -2097,7 +2098,7 @@ const allTranslations: Record<Language, Record<string, string>> = {
     "home.space_name": "공간 이름 (예: 생물학 101)",
     "home.space_name_placeholder": "공간 이름 (예: 생물학 101)",
     "common.file": "파일",
-    "common.files": "파일들"
+    "common.files": "파일들",
     "cmd.placeholder": "검색 또는 명령 실행...",
     "cmd.upload": "파일 업로드",
     "cmd.upload_desc": "PDF, DOCX, PPTX, 이미지",
@@ -2279,7 +2280,7 @@ const allTranslations: Record<Language, Record<string, string>> = {
     "home.space_name": "Nome do espaço (por exemplo, Biologia 101)",
     "home.space_name_placeholder": "Nome do espaço (por exemplo, Biologia 101)",
     "common.file": "arquivo",
-    "common.files": "arquivos"
+    "common.files": "arquivos",
     "cmd.placeholder": "Pesquisar ou executar um comando...",
     "cmd.upload": "Enviar Arquivo",
     "cmd.upload_desc": "PDF, DOCX, PPTX, imagens",
@@ -2461,7 +2462,7 @@ const allTranslations: Record<Language, Record<string, string>> = {
     "home.space_name": "स्थान का नाम (उदा., Biology 101)",
     "home.space_name_placeholder": "स्थान का नाम (उदा., Biology 101)",
     "common.file": "फ़ाइल",
-    "common.files": "फ़ाइलें"
+    "common.files": "फ़ाइलें",
     "cmd.placeholder": "खोजें या आदेश चलाएं...",
     "cmd.upload": "फ़ाइल अपलोड करें",
     "cmd.upload_desc": "PDF, DOCX, PPTX, चित्र",
