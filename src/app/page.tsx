@@ -36,6 +36,7 @@ import {
   SpaceInfo,
 } from "@/lib/data-layer";
 import { useDatabaseContext } from "@/components/providers/database-provider";
+import { OnboardingModal } from "@/components/ui/onboarding-modal";
 
 interface SpaceCard {
   id: string;
@@ -63,6 +64,7 @@ function SpaceSkeleton() {
         <div className="h-2.5 w-16 rounded-full bg-gray-50 dark:bg-dark-surface" />
         <div className="h-2.5 w-16 rounded-full bg-gray-50 dark:bg-dark-surface" />
       </div>
+      <OnboardingModal hasSpaces={spaces.length > 0} />
     </div>
   );
 }
