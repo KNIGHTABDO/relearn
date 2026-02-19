@@ -57,7 +57,8 @@ export async function fetchSpaces(): Promise<SpaceInfo[]> {
     if (!res.ok) return [];
     const data = await res.json();
     return data.spaces || [];
-  } catch {
+  } catch (e) {
+    console.warn("[data-layer] fetchSpaces error:", e);
     return [];
   }
 }
@@ -93,7 +94,8 @@ export async function createSpaceAction(name: string): Promise<SpaceInfo | null>
     });
     if (!res.ok) return null;
     return await res.json();
-  } catch {
+  } catch (e) {
+    console.error("[data-layer] createSpaceAction error:", e);
     return null;
   }
 }
@@ -142,7 +144,8 @@ export async function uploadTextAction(text: string): Promise<string | null> {
     if (!res.ok) return null;
     const data = await res.json();
     return data.id || null;
-  } catch {
+  } catch (e) {
+    console.error("[data-layer] uploadTextAction error:", e);
     return null;
   }
 }
@@ -166,7 +169,8 @@ export async function getSpaceById(id: string): Promise<SpaceInfo | null> {
     const res = await fetch(`/api/spaces/${id}`);
     if (!res.ok) return null;
     return await res.json();
-  } catch {
+  } catch (e) {
+    console.warn("[data-layer] getSpaceById error:", e);
     return null;
   }
 }
@@ -197,7 +201,8 @@ export async function getDocumentsBySpace(spaceId: string): Promise<DocumentInfo
     if (!res.ok) return [];
     const data = await res.json();
     return data.documents || [];
-  } catch {
+  } catch (e) {
+    console.warn("[data-layer] getDocumentsBySpace error:", e);
     return [];
   }
 }
@@ -210,7 +215,8 @@ export async function deleteSpaceAction(id: string): Promise<boolean> {
   try {
     const res = await fetch(`/api/spaces/${id}`, { method: 'DELETE' });
     return res.ok;
-  } catch {
+  } catch (e) {
+    console.error("[data-layer] deleteSpaceAction error:", e);
     return false;
   }
 }
@@ -223,7 +229,8 @@ export async function deleteDocumentAction(id: string): Promise<boolean> {
   try {
     const res = await fetch(`/api/document/${id}`, { method: 'DELETE' });
     return res.ok;
-  } catch {
+  } catch (e) {
+    console.error("[data-layer] deleteDocumentAction error:", e);
     return false;
   }
 }
@@ -264,7 +271,8 @@ export async function getDocumentById(id: string): Promise<FullDocument | null> 
     const res = await fetch(`/api/document/${id}`);
     if (!res.ok) return null;
     return await res.json();
-  } catch {
+  } catch (e) {
+    console.warn("[data-layer] getDocumentById error:", e);
     return null;
   }
 }
@@ -286,7 +294,8 @@ export async function getDocumentPdfData(id: string): Promise<string | null> {
       };
       reader.readAsDataURL(blob);
     });
-  } catch {
+  } catch (e) {
+    console.warn("[data-layer] getDocumentPdfData error:", e);
     return null;
   }
 }
@@ -433,7 +442,8 @@ export async function uploadFileAction(
     const res = await fetch('/api/upload', { method: 'POST', body: formData });
     if (!res.ok) return null;
     return await res.json();
-  } catch {
+  } catch (e) {
+    console.warn("[data-layer] unknown error:", e);
     return null;
   }
 }
@@ -483,7 +493,8 @@ export async function uploadYouTubeAction(youtubeUrl: string, spaceId?: string):
     if (!res.ok) return null;
     const data = await res.json();
     return data.id || null;
-  } catch {
+  } catch (e) {
+    console.warn("[data-layer] unknown error:", e);
     return null;
   }
 }

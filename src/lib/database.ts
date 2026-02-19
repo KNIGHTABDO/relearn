@@ -164,7 +164,8 @@ export async function getFlashcardSet(documentId?: string, spaceId?: string): Pr
       documentId: row.document_id || undefined,
       spaceId: row.space_id || undefined,
     };
-  } catch {
+  } catch (e) {
+    console.warn("[DB] getFlashcardSet error:", e);
     return null;
   }
 }
@@ -229,7 +230,8 @@ export async function getRecentDocuments(limit = 8): Promise<Array<{
       spaceId: r.space_id || undefined,
       createdAt: r.created_at,
     }));
-  } catch {
+  } catch (e) {
+    console.warn("[DB] getRecentDocuments error:", e);
     return [];
   }
 }

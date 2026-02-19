@@ -185,7 +185,8 @@ async function streamAntigravityDirect(
       }
       res = attempt;
       break;
-    } catch {
+    } catch (e) {
+      console.warn("[gemini-client] stream attempt failed, retrying:", e);
       continue;
     }
   }
@@ -215,7 +216,7 @@ async function streamAntigravityDirect(
             const parsed = JSON.parse(jsonStr);
             const text = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
             if (text) controller.enqueue(text);
-          } catch {}
+          } catch {/* ignore malformed stream chunk */}
         }
       }
     },
@@ -282,7 +283,7 @@ async function streamGeminiApiKeyDirect(
             const parsed = JSON.parse(jsonStr);
             const text = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
             if (text) controller.enqueue(text);
-          } catch {}
+          } catch {/* ignore malformed stream chunk */}
         }
       }
     },
@@ -368,7 +369,7 @@ async function streamCopilotDirect(
             const parsed = JSON.parse(jsonStr);
             const text = parsed.choices?.[0]?.delta?.content;
             if (text) controller.enqueue(text);
-          } catch {}
+          } catch {/* ignore malformed stream chunk */}
         }
       }
     },
